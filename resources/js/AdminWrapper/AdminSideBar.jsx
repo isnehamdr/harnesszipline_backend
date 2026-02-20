@@ -10,6 +10,7 @@ import {
     FiImage,
     FiSettings,
     FiStar,
+    FiFile,
 } from "react-icons/fi";
 import {
     LayoutDashboard,
@@ -594,6 +595,24 @@ const AdminSideBar = ({
                                     </span>
                                 )}
                                 {isCollapsed && <Tooltip>Testimonials</Tooltip>}
+                            </Link>
+
+                            {/* PDF Viewer Link */}
+                            <Link
+                                href="/pdf"
+                                className={`
+                                    ${linkBaseClasses} ${linkCollapsedClasses} ${linkActiveClasses("/pdf")}
+                                `}
+                            >
+                                <FiFile
+                                    className={iconClasses(isActive("/pdf"))}
+                                />
+                                {!isCollapsed && (
+                                    <span className="ml-3 font-medium whitespace-nowrap">
+                                        PDF Viewer
+                                    </span>
+                                )}
+                                {isCollapsed && <Tooltip>PDF Viewer</Tooltip>}
                             </Link>
                         </div>
                     </div>

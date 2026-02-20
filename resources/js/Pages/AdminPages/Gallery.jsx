@@ -64,27 +64,27 @@
 //     return (
 //         <>
 //             <AdminWrapper>
-//                 <div className="p-6">
-//                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-//                         <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
-//                             Gallery page
-//                         </h1>
-//                         <button
-//                         onClick={() => setShowForm(true)} 
-//                         className="px-4 py-2 flex items-center gap-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition shadow-sm">
-//                             <Plus size={18} />
-//                             <span>Create</span>
-//                         </button>
-//                     </div>
-//                     {showForm && (
-//                         <AddGalleryForm
-//                             editingGallery={editingGallery}
-//                             setShowForm={setShowForm}
-//                             handleUpdate={handleUpdate}
-//                             setReloadTrigger={setReloadTrigger}
-//                         />
-//                     )}
-//                 </div>
+                // <div className="p-6">
+                //     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                //         <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
+                //             Gallery page
+                //         </h1>
+                //         <button
+                //         onClick={() => setShowForm(true)} 
+                //         className="px-4 py-2 flex items-center gap-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition shadow-sm">
+                //             <Plus size={18} />
+                //             <span>Create</span>
+                //         </button>
+                //     </div>
+                //     {showForm && (
+                //         <AddGalleryForm
+                //             editingGallery={editingGallery}
+                //             setShowForm={setShowForm}
+                //             handleUpdate={handleUpdate}
+                //             setReloadTrigger={setReloadTrigger}
+                //         />
+                //     )}
+                // </div>
 //             </AdminWrapper>
 //         </>
 //     );

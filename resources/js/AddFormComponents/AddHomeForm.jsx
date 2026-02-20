@@ -119,6 +119,12 @@
 import axios from "axios";
 import { X } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import AceEditor from "react-ace";
+
+// Import ace editor modes and themes
+import "ace-builds/src-noconflict/mode-json";
+import "ace-builds/src-noconflict/theme-github";
+import "ace-builds/src-noconflict/ext-language_tools";
 
 const AddHomeForm = ({
     editingHome,
@@ -130,6 +136,7 @@ const AddHomeForm = ({
     const [submitting, setSubmitting] = useState(false);
     const [imagePreview, setImagePreview] = useState(null);
     const [videoPreview, setVideoPreview] = useState(null);
+    const [jsonError, setJsonError] = useState("");
     const [homeForm, setHomeForm] = useState({
         image: "",
         video: "",
@@ -181,9 +188,41 @@ const AddHomeForm = ({
         }
     };
 
+    // Validate JSON
+    const validateJSON = (jsonString) => {
+        if (!jsonString || jsonString.trim() === "") {
+            setJsonError("");
+            return true;
+        }
+        
+        try {
+            JSON.parse(jsonString);
+            setJsonError("");
+            return true;
+        } catch (error) {
+            setJsonError("Invalid JSON format");
+            return false;
+        }
+    };
+
+    // Handle JSON change from Ace Editor
+    const handleJsonChange = (value) => {
+        setHomeForm((prev) => ({
+            ...prev,
+            metadata_json: value,
+        }));
+        validateJSON(value);
+    };
+
     // Handle Submit - now clearly separated paths
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // Validate JSON before submission
+        if (!validateJSON(homeForm.metadata_json)) {
+            return;
+        }
+
         const formData = new FormData();
         
         // Append all form data
@@ -334,19 +373,39 @@ const AddHomeForm = ({
                         )}
                     </div>
 
-                    {/* Metadata JSON */}
+                    {/* Metadata JSON with Ace Editor - Simplified */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Metadata JSON
                         </label>
-                        <textarea
-                            name="metadata_json"
-                            value={homeForm.metadata_json}
-                            onChange={handleChange}
-                            rows="4"
-                            placeholder='{"key": "value"}'
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                        />
+                        <div className="border border-gray-300 rounded-md overflow-hidden font-mono">
+                            <AceEditor
+                                mode="json"
+                                theme="github"
+                                onChange={handleJsonChange}
+                                value={homeForm.metadata_json}
+                                name="metadata_json"
+                                editorProps={{ $blockScrolling: true }}
+                                setOptions={{
+                                    showLineNumbers: true,
+                                    tabSize: 2,
+                                    fontSize: 14,
+                                    showGutter: true,
+                                    highlightActiveLine: true,
+                                }}
+                                width="100%"
+                                height="200px"
+                                className="rounded-md"
+                            />
+                        </div>
+                        {jsonError && (
+                            <p className="mt-1 text-sm text-red-600">
+                                {jsonError}
+                            </p>
+                        )}
+                        <p className="mt-1 text-xs text-gray-500">
+                            Enter valid JSON format. Example: {"{}"}
+                        </p>
                     </div>
 
                     {/* Archived Status */}
@@ -379,7 +438,7 @@ const AddHomeForm = ({
                         </button>
                         <button
                             type="submit"
-                            disabled={submitting}
+                            disabled={submitting || jsonError !== ""}
                             className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
                         >
                             {submitting ? "Saving..." : (editingHome ? "Update" : "Create")}
