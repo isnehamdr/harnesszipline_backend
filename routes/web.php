@@ -9,6 +9,12 @@ use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\ServiceController; 
 use App\Http\Controllers\PdfController;
+use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\BlogController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoomTypeController;
+use App\Http\Controllers\RoomController;
+
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -57,8 +63,32 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('AdminPages/Services');
     });
 
+    Route::get('/activity', function(){
+        return Inertia::render('AdminPages/Activity');
+    });
+
+    Route::get('/blog', function(){
+        return Inertia::render('AdminPages/Blog');
+    });
+
+    Route::get('/user-management', function(){
+        return Inertia::render('AdminPages/UserManagement');
+    });
+
+    Route::get('/room-types', function(){
+        return Inertia::render('AdminPages/RoomType');
+    });
+
+
+    Route::get('/rooms', function(){
+        return Inertia::render('AdminPages/Room');
+    });
+
+
+    // This route is for testing the PDF viewer component, you can remove it later
+
      Route::get('/pdf', function(){
-        return Inertia::render('AdminPages/ReactPdfViewer');
+        return Inertia::render('PdfReader/ReactPdfViewer');
     });
 
     // Route::get('/pdf-viewer', function(){
@@ -99,7 +129,37 @@ Route::middleware('auth')->group(function () {
     Route::delete('/ourpdfs/{id}', [PdfController::class, 'destroy'])->name('ourpdfs.destroy');
 
 
+    Route::get('/ouractivity', [ActivityController::class, 'index'])->name('ouractivity.index');
+    Route::post('/ouractivity', [ActivityController::class, 'store'])->name('ouractivity.store');
+    Route::put('/ouractivity/{id}', [ActivityController::class, 'update'])->name('ouractivity.update');
+    Route::delete('/ouractivity/{id}', [ActivityController::class, 'destroy'])->name('ouractivity.destroy');
 
 
+    Route::get('/ourblog', [BlogController::class, 'index'])->name('ourblog.index');
+    Route::post('/ourblog', [BlogController::class, 'store'])->name('ourblog.store');
+    Route::put('/ourblog/{id}', [BlogController::class, 'update'])->name('ourblog.update');
+    Route::delete('/ourblog/{id}', [BlogController::class, 'destroy'])->name('ourblog.destroy');
+
+
+    Route::get('/ourusers', [UserController::class, 'index'])->name('ourusers.index');
+    Route::post('/ourusers', [UserController::class, 'store'])->name('ourusers.store');
+    Route::put('/ourusers/{id}', [UserController::class, 'update'])->name('ourusers.update');
+    Route::delete('/ourusers/{id}', [UserController::class, 'destroy'])->name('ourusers.destroy');
+
+
+    Route::get('/ourroomtype', [RoomTypeController::class, 'index'])->name('ourroomtype.index');
+    Route::post('/ourroomtype', [RoomTypeController::class, 'store'])->name('ourroomtype.store');
+    Route::put('/ourroomtype/{id}', [RoomTypeController::class, 'update'])->name('ourroomtype.update');
+    Route::delete('/ourroomtype/{id}', [RoomTypeController::class, 'destroy'])->name('ourroomtype.destroy');
+
+
+    // Route::get('/ourroom', [RoomController::class, 'index'])->name('ourroom.index');
+    // Route::post('/ourroom', [RoomController::class, 'store'])->name('ourroom.store');
+    // Route::put('/ourroom/{id}', [RoomController::class, 'update'])->name('ourroom.update');
+    // Route::delete('/ourroom/{id}', [RoomController::class, 'destroy'])->name('ourroom.destroy');
+    Route::get('ourroom', [RoomController::class, 'index'])->name('ourroom.index');
+Route::post('ourroom', [RoomController::class, 'store'])->name('ourroom.store');
+Route::put('ourroom/{id}', [RoomController::class, 'update'])->name('ourroom.update');
+Route::delete('ourroom/{id}', [RoomController::class, 'destroy'])->name('ourroom.destroy');
     
 require __DIR__.'/auth.php';

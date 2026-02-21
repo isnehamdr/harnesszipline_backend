@@ -12,6 +12,7 @@ const AdminNavBar = ({ onMenuToggle }) => {
         setIsUserMenuOpen((prev) => !prev);
     };
 
+    
     const handleLogout = async () => {
         try {
             await axios.post(route("logout"));

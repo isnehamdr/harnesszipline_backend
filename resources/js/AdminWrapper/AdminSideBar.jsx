@@ -16,6 +16,7 @@ import {
     LayoutDashboard,
     Activity,
     Briefcase,
+    BluetoothSearching,
 } from "lucide-react";
 
 const AdminSideBar = ({
@@ -255,6 +256,27 @@ const AdminSideBar = ({
                                 {isCollapsed && <Tooltip>Activity</Tooltip>}
                             </Link>
 
+
+                             {/* blog Link */}
+                            <Link
+                                href="/blog"
+                                className={`
+                                    ${linkBaseClasses} ${linkCollapsedClasses} ${linkActiveClasses("/blog")}
+                                `}
+                            >
+                                <BluetoothSearching
+                                    className={iconClasses(
+                                        isActive("/blog"),
+                                    )}
+                                />
+                                {!isCollapsed && (
+                                    <span className="ml-3 font-medium whitespace-nowrap">
+                                        Blog
+                                    </span>
+                                )}
+                                {isCollapsed && <Tooltip>Blog</Tooltip>}
+                            </Link>
+
                             {/* Career Dropdown (formerly Lead Management) */}
                             {!isCollapsed ? (
                                 // Expanded view
@@ -415,7 +437,7 @@ const AdminSideBar = ({
                                         onClick={toggleTaskManagement}
                                         className={dropdownButtonClasses(
                                             isGroupActive([
-                                                "/room_types",
+                                                "/room-types",
                                                 "/rooms",
                                             ]),
                                         )}
@@ -424,7 +446,7 @@ const AdminSideBar = ({
                                             <FiHome
                                                 className={iconClasses(
                                                     isGroupActive([
-                                                        "/room_types",
+                                                        "/room-types",
                                                         "/rooms",
                                                     ]),
                                                 )}
@@ -445,15 +467,15 @@ const AdminSideBar = ({
                                         <div className="ml-9 space-y-0.5">
                                             {/* Room Types Link */}
                                             <Link
-                                                href="/room_types"
+                                                href="/room-types"
                                                 className={`
                                                     flex items-center p-2.5 rounded-lg transition-colors duration-200
-                                                    ${isActive("/room_types") ? "bg-blue-100 text-blue-700 font-medium" : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"}
+                                                    ${isActive("/room-types") ? "bg-blue-100 text-blue-700 font-medium" : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"}
                                                 `}
                                             >
                                                 <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mr-3"></div>
                                                 <span className="text-sm whitespace-nowrap">
-                                                    Room types
+                                                    Room Types
                                                 </span>
                                             </Link>
 
@@ -490,13 +512,13 @@ const AdminSideBar = ({
                                         }}
                                         className={`
                                             flex items-center justify-center w-full p-3 rounded-lg transition-colors duration-200 group
-                                            ${isGroupActive(["/room_types", "/rooms"]) ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"}
+                                            ${isGroupActive(["/room-types", "/rooms"]) ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"}
                                         `}
                                     >
                                         <FiHome
                                             className={iconClasses(
                                                 isGroupActive([
-                                                    "/room_types",
+                                                    "/room-types",
                                                     "/rooms",
                                                 ]),
                                             )}
@@ -511,10 +533,10 @@ const AdminSideBar = ({
                                             onMouseLeave={handleTaskMouseLeave}
                                         >
                                             <Link
-                                                href="/room_types"
+                                                href="/room-types"
                                                 className={`
                                                     flex items-center px-3 py-2.5 text-sm transition-colors duration-200
-                                                    ${isActive("/room_types") ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"}
+                                                    ${isActive("/room-types") ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"}
                                                 `}
                                             >
                                                 {/* <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mr-3"></div> */}

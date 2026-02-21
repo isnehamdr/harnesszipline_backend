@@ -61,9 +61,10 @@ const Testimonial = () => {
     const columns = React.useMemo(
         () => [
             {
-                Header: 'S.No',
-                accessor: (row, index) => index + 1,
-                id: 'serialNo',
+                Header: "SN",
+                accessor: (row, i) => i + 1,
+                id: "rowIndex",
+                width: 60,
             },
             {
                 Header: 'Full Name',
