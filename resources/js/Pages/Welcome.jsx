@@ -359,3 +359,844 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
         </>
     );
 }
+
+
+
+// import React, { useState } from 'react';
+
+// // ─── BRAND: Deep Maroon #8B0000 | Gold #c9a84c | Paper #fdfcfb | Ink #1c1711 ──
+
+// // ─── REAL DATA — from shuchikhabar.com ───────────────────────────────────────
+// const DATA = {
+//   mainNews: [
+//     {
+//       id: 1,
+//       title: '६७१ जना उम्मेदवारले बैंक तथा वित्तीय संस्थामा चुनावी खाता खोले',
+//       category: 'मुख्य',
+//       author: 'शुचि खबर संवाददाता',
+//       image: 'https://shuchikhabar.com/public/uploads/6993fee614d7a.jpg',
+//       time: '०४ फागुन २०८२, मंगलबार',
+//       url: '/news/671-jana',
+//     },
+//     {
+//       id: 2,
+//       title: 'आचारसंहिता उल्लंघन गरेको भन्दै निर्वाचन आयोगद्वारा सञ्चार माध्यमलाई कारबाही गर्न निर्देशन',
+//       category: 'मुख्य',
+//       author: 'शुचि खबर',
+//       image: 'https://shuchikhabar.com/public/uploads/6992e20a964b8.jpg',
+//       time: '०३ फागुन २०८२, सोमबार',
+//       url: '/news/aacharsanhita',
+//     },
+//     {
+//       id: 3,
+//       title: 'पशुपतिमा आएका नागा बाबासहित साधुसन्तलाई बिदाइ गरिँदै',
+//       category: 'धार्मिक',
+//       author: 'शुचि खबर',
+//       image: 'https://shuchikhabar.com/public/uploads/6994008ef3755.jpg',
+//       time: '०४ फागुन २०८२, मंगलबार',
+//       url: '/news/pashupatinath-sadhu',
+//     },
+//     {
+//       id: 4,
+//       title: 'नेपाल र स्कटल्यान्डको खेल आज',
+//       category: 'खेलकुद',
+//       author: 'शुचि खबर',
+//       image: 'https://shuchikhabar.com/public/uploads/6993fd86c9e54.jpg',
+//       time: '०४ फागुन २०८२, मंगलबार',
+//       url: '/news/nepal-scotland',
+//     },
+//     {
+//       id: 5,
+//       title: 'तारिक रहमान बंगलादेशका नयाँ प्रधानमन्त्री, अपराह्न शपथ ग्रहण',
+//       category: 'अन्तर्राष्ट्रिय',
+//       author: 'शुचि खबर',
+//       image: 'https://shuchikhabar.com/public/uploads/699401175f89c.jpg',
+//       time: '०४ फागुन २०८२, मंगलबार',
+//       url: '/news/tariq-rahman',
+//     },
+//   ],
+//   secondaryMainNews: [
+//     {
+//       id: 6,
+//       title: 'दाङमा तोरीखेतीको क्षेत्रफल र उत्पादन बढ्दै',
+//       category: 'कृषि',
+//       image: 'https://shuchikhabar.com/public/uploads/6993fdd82157a.jpg',
+//       time: '०४ फागुन २०८२',
+//       url: '/news/dang-tori',
+//     },
+//     {
+//       id: 7,
+//       title: 'बंगलादेशका प्रधानमन्त्रीको सपथ समारोहमा परराष्ट्रमन्त्री शर्मा सहभागी हुने',
+//       category: 'अन्तर्राष्ट्रिय',
+//       image: 'https://shuchikhabar.com/public/uploads/6992e059aaa83.jpg',
+//       time: '०३ फागुन २०८२',
+//       url: '/news/sharma-bangladesh',
+//     },
+//   ],
+//   mukhya: [
+//     { id: 8,  title: 'निर्वाचन आयोगले मतदान केन्द्रको अन्तिम सूची सार्वजनिक गर्‍यो', image: 'https://shuchikhabar.com/public/uploads/6992e20a964b8.jpg', time: '०५ फागुन, बुधबार', category: 'मुख्य' },
+//     { id: 9,  title: 'चुरे संरक्षणलाई चुनावी एजेण्डाको प्राथमिकतामा राख्न माग', image: 'https://shuchikhabar.com/public/uploads/69926f3089d64.jpg', time: '०३ फागुन, सोमबार', category: 'मुख्य' },
+//     { id: 10, title: 'काठमाडौंमा यातायात व्यवस्थापनका लागि नयाँ प्रणाली लागू हुँदै', image: 'https://shuchikhabar.com/public/uploads/6993fee614d7a.jpg', time: '०२ फागुन, आइतबार', category: 'मुख्य' },
+//   ],
+//   samachar: [
+//     { id: 11, title: 'तारिक रहमान बंगलादेशका नयाँ प्रधानमन्त्री, अपराह्न शपथ ग्रहण', image: 'https://shuchikhabar.com/public/uploads/699401175f89c.jpg', subcategory: 'अन्तर्राष्ट्रिय', time: '०४ फागुन' },
+//     { id: 12, title: 'दाङमा तोरीखेतीको क्षेत्रफल र उत्पादन बढ्दै', image: 'https://shuchikhabar.com/public/uploads/6993fdd82157a.jpg', subcategory: 'कृषि', time: '०४ फागुन' },
+//     { id: 13, title: 'बंगलादेशका प्रधानमन्त्रीको सपथ समारोहमा परराष्ट्रमन्त्री शर्मा सहभागी हुने', image: 'https://shuchikhabar.com/public/uploads/6992e059aaa83.jpg', subcategory: 'समाचार', time: '०३ फागुन' },
+//     { id: 14, title: 'चुरे संरक्षणलाई चुनावी एजेण्डाको प्राथमिकतामा राख्न माग', image: 'https://shuchikhabar.com/public/uploads/69926f3089d64.jpg', subcategory: 'समाचार', time: '०३ फागुन' },
+//   ],
+//   arthatatwa: [
+//     { id: 15, title: '९ अर्ब ३५ करोड रूपैयाँ लगानी गर्दै राष्ट्र बैंक', image: 'https://shuchikhabar.com/public/uploads/6992da9d953ff.jpg', time: '०३ फागुन', category: 'अर्थतन्त्र' },
+//     { id: 16, title: 'घरजग्गा कारोबारबाट गत माघमा पाँच अर्ब राजस्व सङ्कलन', image: 'https://shuchikhabar.com/public/uploads/69926bed7c842.jpg', time: '०३ फागुन', category: 'अर्थतन्त्र' },
+//     { id: 17, title: 'पेट्रोलियम पदार्थको मूल्य बढ्यो, आम उपभोक्तामा असर', image: 'https://shuchikhabar.com/public/uploads/69926c4923253.jpg', time: '०३ फागुन', category: 'अर्थतन्त्र' },
+//     { id: 18, title: 'तोलामा १ सय घट्यो सुनको मूल्य', image: 'https://shuchikhabar.com/public/uploads/698d859b5c0fd.jpg', time: '२९ माघ', category: 'अर्थतन्त्र' },
+//   ],
+//   sports: [
+//     { id: 19, title: 'नेपाल र स्कटल्यान्डको खेल आज', image: 'https://shuchikhabar.com/public/uploads/6993fd86c9e54.jpg', time: '०४ फागुन', category: 'खेलकुद' },
+//     { id: 20, title: 'टी–२० विश्वकपः पाकिस्तानलाई ६१ रनले हराउँदै भारत सुपर ८ मा', image: 'https://shuchikhabar.com/public/uploads/69926e99ab47d.png', time: '०३ फागुन', category: 'खेलकुद' },
+//     { id: 21, title: 'टी–२० विश्वकप: पहिलो जितको खोजीमा नेपाल र इटाली', image: 'https://shuchikhabar.com/public/uploads/698d83fda9373.jpg', time: '२९ माघ', category: 'खेलकुद' },
+//     { id: 22, title: "'टाइगर कप भलिबल'को उपाधि गण्डकी प्रदेशलाई", image: 'https://shuchikhabar.com/public/uploads/697ebad575c9e.jpg', time: '२५ माघ', category: 'खेलकुद' },
+//   ],
+//   krishi: [
+//     { id: 23, title: 'दाङमा तोरीखेतीको क्षेत्रफल र उत्पादन बढ्दै, किसान खुसी', image: 'https://shuchikhabar.com/public/uploads/6993fdd82157a.jpg', subcategory: 'कृषि', time: '०४ फागुन' },
+//     { id: 24, title: 'जैविक मलको प्रयोग बढाउन सरकारको अनुदान कार्यक्रम सुरु', image: 'https://picsum.photos/seed/krishi2/200/140', subcategory: 'कृषि', time: '०३ फागुन' },
+//     { id: 25, title: 'चिया उत्पादनमा इलाम अग्रणी, निर्यातमा उल्लेखनीय वृद्धि', image: 'https://picsum.photos/seed/krishi3/200/140', subcategory: 'कृषि', time: '०२ फागुन' },
+//     { id: 26, title: 'धानको न्यूनतम समर्थन मूल्य बढाउने सरकारको निर्णय', image: 'https://picsum.photos/seed/krishi4/200/140', subcategory: 'कृषि', time: '०१ फागुन' },
+//   ],
+//   manoranjan: [
+//     { id: 27, title: 'नेपाली चलचित्र "छक्का पञ्जा ५" को सुटिङ सुरु, चर्चामा', image: 'https://picsum.photos/seed/mn1s/400/267', time: 'आज', category: 'मनोरञ्जन' },
+//     { id: 28, title: 'लोकप्रिय गायिका पुजा शर्माको नयाँ एल्बम रिलिज', image: 'https://picsum.photos/seed/mn2s/400/267', time: 'हिजो', category: 'मनोरञ्जन' },
+//     { id: 29, title: 'काठमाडौंमा तीन दिने अन्तर्राष्ट्रिय संगीत महोत्सव', image: 'https://picsum.photos/seed/mn3s/400/267', time: 'हिजो', category: 'मनोरञ्जन' },
+//   ],
+//   dharmic: [
+//     { id: 30, title: 'महाशिवरात्रिमा पशुपतिनाथ मन्दिरमा विशेष पूजाआजा', image: 'https://shuchikhabar.com/public/uploads/6994008ef3755.jpg', subcategory: 'धार्मिक', time: '०४ फागुन' },
+//     { id: 31, title: 'लुम्बिनीमा बुद्ध जयन्तीको तयारी सुरु, विदेशी भक्तजन आउने', image: 'https://picsum.photos/seed/dh2s/200/140', subcategory: 'धार्मिक', time: '०३ फागुन' },
+//     { id: 32, title: 'पशुपतिमा नागा बाबासहित साधुसन्त, हजारौं दर्शनार्थी', image: 'https://shuchikhabar.com/public/uploads/6994008ef3755.jpg', subcategory: 'धार्मिक', time: '०४ फागुन' },
+//   ],
+//   swastha: [
+//     { id: 33, title: 'काठमाडौंको वायु प्रदूषणबाट बच्न विशेषज्ञको सुझाव', image: 'https://picsum.photos/seed/sw1s/200/140', subcategory: 'स्वास्थ्य', time: 'आज' },
+//     { id: 34, title: 'डेंगी रोगको प्रकोप बढ्दो, ७ जिल्लामा अलर्ट जारी', image: 'https://picsum.photos/seed/sw2s/200/140', subcategory: 'स्वास्थ्य', time: 'हिजो' },
+//     { id: 35, title: 'सरकारी अस्पतालमा निःशुल्क स्वास्थ्य शिविर आयोजना', image: 'https://picsum.photos/seed/sw3s/200/140', subcategory: 'स्वास्थ्य', time: 'हिजो' },
+//   ],
+//   antarrashtriya: [
+//     { id: 36, title: 'तारिक रहमान बंगलादेशका प्रधानमन्त्री नियुक्त', image: 'https://shuchikhabar.com/public/uploads/699401175f89c.jpg', subcategory: 'अन्तर्राष्ट्रिय', time: '०४ फागुन' },
+//     { id: 37, title: 'भारत–पाकिस्तान सम्बन्धमा नयाँ तनाव, सीमा सुरक्षा कडाइ', image: 'https://picsum.photos/seed/int2s/200/140', subcategory: 'अन्तर्राष्ट्रिय', time: '०३ फागुन' },
+//     { id: 38, title: 'संयुक्त राष्ट्रसंघले जलवायु प्रतिवेदन सार्वजनिक गर्‍यो', image: 'https://picsum.photos/seed/int3s/200/140', subcategory: 'अन्तर्राष्ट्रिय', time: '०२ फागुन' },
+//   ],
+//   opinions: [
+//     { id: 40, title: 'निर्वाचनी राजनीति र युवा पुस्ताको भूमिका', author: 'डा. टीकाराम भट्टराई', role: 'राजनीतिक विश्लेषक', avatar: 'https://picsum.photos/seed/op1s/80/80' },
+//     { id: 41, title: 'कृषि क्षेत्रमा लगानी र खाद्य सुरक्षाको प्रश्न', author: 'प्रा. सरिता खनाल', role: 'अर्थशास्त्री', avatar: 'https://picsum.photos/seed/op2s/80/80' },
+//     { id: 42, title: 'प्रेस स्वतन्त्रता र जवाफदेहिता: नेपालको सन्दर्भ', author: 'गणेश बहादुर थापा', role: 'वरिष्ठ पत्रकार', avatar: 'https://picsum.photos/seed/op3s/80/80' },
+//   ],
+//   mostRead: [
+//     { id: 45, title: '६७१ जना उम्मेदवारले बैंक तथा वित्तीय संस्थामा चुनावी खाता खोले' },
+//     { id: 46, title: 'नेपाल र स्कटल्यान्डको क्रिकेट खेलमा नेपाल विजयी' },
+//     { id: 47, title: 'आचारसंहिता उल्लंघनमा सञ्चारमाध्यमलाई कारबाहीको निर्देशन' },
+//     { id: 48, title: 'पशुपतिमा साधुसन्त बिदाइ समारोह, हजारौं भक्त सहभागी' },
+//     { id: 49, title: 'दाङमा तोरीखेतीको क्षेत्रफल र उत्पादन बढ्दै' },
+//   ],
+// };
+
+// const TICKER = [
+//   '६७१ जना उम्मेदवारले बैंक तथा वित्तीय संस्थामा चुनावी खाता खोले',
+//   'नेपाल र स्कटल्यान्डको क्रिकेट खेल आज हुँदैछ',
+//   'आचारसंहिता उल्लंघनमा निर्वाचन आयोगको कारबाही',
+//   'तारिक रहमान बंगलादेशका नयाँ प्रधानमन्त्री',
+//   '९ अर्ब ३५ करोड रूपैयाँ लगानी गर्दै राष्ट्र बैंक',
+//   'पेट्रोलियम पदार्थको मूल्य बढ्यो',
+//   'टी–२० विश्वकपः भारत सुपर ८ मा',
+// ];
+
+// const NAV = ['मुख्य', 'समाचार', 'अर्थतन्त्र', 'अन्तर्राष्ट्रिय', 'खेलकुद', 'मनोरञ्जन', 'कृषि', 'स्वास्थ्य', 'धार्मिक', 'विचार'];
+
+// // ─── HELPERS ──────────────────────────────────────────────────────────────────
+// const FB = 'https://picsum.photos/seed/fb_suchi/400/267'; // fallback image
+
+// const img = (src, seed = 'fb') => ({
+//   src: src || `https://picsum.photos/seed/${seed}/400/267`,
+//   onError: (e) => { e.currentTarget.src = `https://picsum.photos/seed/${seed}/400/267`; },
+// });
+
+// // ─── AD COMPONENTS ────────────────────────────────────────────────────────────
+
+// // AD 1 — Leaderboard (Varun Beverages — real advertiser on site)
+// const AdLeaderboard = () => (
+//   <div className="w-full bg-[#fdfcfb] border-b border-[rgba(28,23,17,0.07)] py-2 flex justify-center px-4">
+//     <a href="https://www.varunbeverages.com" target="_blank" rel="noopener noreferrer" className="no-underline w-full px-8">
+//       <div className="relative h-[68px] overflow-hidden flex items-center justify-between px-5 bg-gradient-to-r from-[#00529b] to-[#003d73] cursor-pointer group">
+//         <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 80% 50%,#fff 0%,transparent 60%)' }} />
+//         <div className="z-10">
+//           <p className="text-[#93c5fd] text-[0.54rem] tracking-[0.18em] uppercase font-medium leading-none mb-0.5">Varun Beverages Nepal</p>
+//           <p className="text-white font-['Playfair_Display'] text-[0.93rem] font-semibold leading-tight">पेप्सीको ताजा स्वाद — हरेक पलमा रिफ्रेसिङ</p>
+//         </div>
+//         <div className="flex items-center gap-3 z-10">
+//           <span className="hidden sm:flex gap-1 text-lg">🥤🥤🥤</span>
+//           <span className="bg-white text-[#00529b] text-[0.58rem] px-3 py-1.5 font-semibold tracking-wide uppercase group-hover:bg-[#daeeff] transition-colors whitespace-nowrap">थप जान्नुहोस्</span>
+//         </div>
+//         <span className="absolute top-0.5 right-1.5 text-[0.42rem] text-white/20 uppercase tracking-widest">विज्ञापन</span>
+//       </div>
+//     </a>
+//   </div>
+// );
+
+// // AD 2 — Native In-Feed Card (SAIT — real advertiser)
+// const AdNativeCard = () => (
+//   <div className="cursor-pointer group relative border border-[#ede8e2] hover:border-[#8B0000]/40 transition-all duration-300 bg-[#fff8f2]">
+//     <span className="absolute top-2 right-2 text-[0.42rem] tracking-[0.12em] uppercase text-[#a09488] bg-[#ede8e2] px-1.5 py-0.5 z-10 rounded-sm leading-none">Sponsored</span>
+//     <div className="w-full aspect-[3/2] bg-[#e8f0ff] flex items-center justify-center overflow-hidden p-4">
+//       <img {...img('https://shuchikhabar.com/images/sait.gif', 'sait_ad')} alt="SAIT Nepal" className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500" />
+//     </div>
+//     <div className="p-3">
+//       <div className="flex items-center gap-1.5 mb-1.5">
+//         <div className="w-4 h-4 bg-[#8B0000] flex items-center justify-center flex-shrink-0 rounded-sm">
+//           <span className="text-white text-[0.46rem] font-bold leading-none">S</span>
+//         </div>
+//         <span className="text-[0.56rem] text-[#a09488] font-medium">SAIT Nepal</span>
+//       </div>
+//       <p className="font-['Source_Serif_4'] text-[0.86rem] font-semibold leading-tight text-[#1c1711] group-hover:text-[#8B0000] transition-colors">
+//         IT सेवाहरूका लागि नेपालको भरपर्दो साझेदार
+//       </p>
+//       <p className="text-[0.56rem] text-[#a09488] mt-1">Software · Hardware · Networking</p>
+//     </div>
+//   </div>
+// );
+
+// // AD 3 — Sidebar Skyscraper (NIC Asia Bank) — no inline min-height, pure CSS
+// const AdSkyscraper = () => (
+//   <div className="cursor-pointer group relative overflow-hidden">
+//     <span className="absolute top-2 left-2 text-[0.42rem] text-white/45 uppercase tracking-widest z-10 bg-black/20 px-1.5 py-0.5">विज्ञापन</span>
+//     <div className="w-full bg-gradient-to-b from-[#8B0000] via-[#9a0000] to-[#6b0000] flex flex-col items-center justify-between p-5 text-white gap-4" style={{ paddingTop: '2.5rem', paddingBottom: '1.5rem' }}>
+//       <div className="text-center">
+//         <div className="w-14 h-14 rounded-full bg-white/10 border border-white/20 flex items-center justify-center mx-auto mb-3">
+//           <span className="font-['Playfair_Display'] text-xl font-bold text-[#c9a84c]">N</span>
+//         </div>
+//         <p className="text-[0.54rem] tracking-[0.2em] uppercase text-red-200 mb-1">NIC Asia Bank</p>
+//         <p className="font-['Playfair_Display'] text-lg font-bold leading-tight">बचत खाता खोल्नुहोस्</p>
+//       </div>
+//       <div className="w-full h-px bg-white/15" />
+//       <div className="text-center w-full">
+//         <p className="text-[0.68rem] text-white/65 leading-relaxed mb-3">७.५% सम्म व्याजदर<br />नेपालभरका शाखाहरूमा</p>
+//         <div className="bg-[#c9a84c] text-[#1c1711] text-[0.62rem] px-4 py-2 font-semibold tracking-wide uppercase group-hover:bg-[#e0be6e] transition-colors w-full text-center cursor-pointer">
+//           अहिले सम्पर्क गर्नुहोस्
+//         </div>
+//       </div>
+//     </div>
+//   </div>
+// );
+
+// // AD 4 — Mid-Content Strip (Buddha Air)
+// const AdMidStrip = () => (
+//   <div className="my-10 cursor-pointer group">
+//     <div className="relative overflow-hidden h-[84px] bg-[#f7f3ed] border border-[#ddd4c4] flex items-center justify-between px-5 lg:px-8">
+//       <span className="absolute top-1.5 right-2 text-[0.42rem] text-[#a09488] uppercase tracking-widest">Sponsored</span>
+//       <div className="absolute right-0 top-0 bottom-0 w-36 opacity-5 pointer-events-none" style={{ background: 'repeating-linear-gradient(45deg,#8B0000,#8B0000 2px,transparent 2px,transparent 10px)' }} />
+//       <div className="flex items-center gap-3">
+//         <div className="w-10 h-10 bg-[#8B0000] flex items-center justify-center flex-shrink-0 rounded-sm">
+//           <span className="text-white text-base leading-none">✈️</span>
+//         </div>
+//         <div>
+//           <p className="text-[0.54rem] tracking-[0.14em] uppercase text-[#8B0000] font-medium leading-none mb-0.5">Buddha Air Nepal</p>
+//           <p className="font-['Playfair_Display'] text-[0.92rem] font-semibold text-[#1c1711] leading-tight">काठमाडौं–पोखरा: रु. ३,९९९ देखि</p>
+//         </div>
+//       </div>
+//       <div className="flex items-center gap-4">
+//         <div className="text-center hidden sm:block">
+//           <p className="text-[0.54rem] text-[#a09488] uppercase leading-none mb-0.5">दैनिक उडान</p>
+//           <p className="text-[0.78rem] font-bold text-[#8B0000] leading-none">१२ वटा</p>
+//         </div>
+//         <div className="text-center hidden md:block">
+//           <p className="text-[0.54rem] text-[#a09488] uppercase leading-none mb-0.5">सिट बाँकी</p>
+//           <p className="text-[0.78rem] font-bold text-[#c9a84c] leading-none">८ मात्र</p>
+//         </div>
+//         <span className="bg-[#8B0000] text-white text-[0.58rem] px-3 sm:px-4 py-2 tracking-wide uppercase whitespace-nowrap group-hover:bg-[#6b0000] transition-colors">
+//           बुक गर्नुहोस्
+//         </span>
+//       </div>
+//     </div>
+//   </div>
+// );
+
+// // AD 5 — Sports Inline Banner (DishHome) — fills 2 grid cols
+// const AdSportsBanner = () => (
+//   <div className="cursor-pointer group relative overflow-hidden aspect-[2/1]">
+//     <div className="absolute inset-0 bg-gradient-to-br from-[#0d1b2a] via-[#1a2a18] to-[#0e1a08]" />
+//     <div className="absolute inset-0 opacity-15 pointer-events-none" style={{ backgroundImage: 'radial-gradient(ellipse at 25% 50%,#c9a84c 0%,transparent 55%)' }} />
+//     <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'linear-gradient(0deg,transparent 24%,rgba(255,255,255,.06) 25%,rgba(255,255,255,.06) 26%,transparent 27%),linear-gradient(90deg,transparent 24%,rgba(255,255,255,.06) 25%,rgba(255,255,255,.06) 26%,transparent 27%)', backgroundSize: '28px 28px' }} />
+//     <div className="relative h-full flex flex-col justify-center p-5">
+//       <span className="text-[0.48rem] tracking-[0.2em] text-[#c9a84c] uppercase font-medium mb-2">Sponsored · DishHome Nepal</span>
+//       <p className="font-['Playfair_Display'] text-xl font-bold text-white leading-tight mb-2">
+//         खेलकुद च्यानल हेर्नुहोस्<br />
+//         <span className="text-[#c9a84c]">DishHome</span> मा
+//       </p>
+//       <p className="text-white/40 text-[0.64rem] mb-3">२०० भन्दा बढी च्यानल — मासिक रु. ३९९</p>
+//       <span className="inline-flex items-center gap-2 text-[#c9a84c] text-[0.58rem] uppercase tracking-wider group-hover:gap-3 transition-all font-medium">
+//         अहिले जडान गर्नुहोस् →
+//       </span>
+//     </div>
+//     <span className="absolute top-2 right-2 text-[0.4rem] text-white/15 uppercase tracking-widest">विज्ञापन</span>
+//   </div>
+// );
+
+// // AD 6 — Pre-footer Strip (Ncell)
+// const AdFooterStrip = () => (
+//   <div className="cursor-pointer group bg-[#1c1711] border-t-2 border-[#8B0000]">
+//     <div className=" px-4 sm:px-6 lg:px-12 h-[90px] flex items-center justify-center relative overflow-hidden">
+//       <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'linear-gradient(90deg,#8B0000 1px,transparent 1px),linear-gradient(#8B0000 1px,transparent 1px)', backgroundSize: '48px 48px' }} />
+//       <div className="flex items-center gap-5 sm:gap-10 lg:gap-14 z-10 flex-wrap justify-center">
+//         <div className="text-center">
+//           <p className="text-[#8B0000] text-[0.5rem] tracking-[0.16em] uppercase leading-none mb-0.5">Powered by</p>
+//           <p className="text-white font-['Playfair_Display'] text-lg font-bold leading-none">Ncell</p>
+//         </div>
+//         <div className="h-8 w-px bg-white/10 hidden sm:block" />
+//         <div className="text-center">
+//           <p className="text-white/80 font-['Playfair_Display'] text-base font-semibold">नेपालभर सबैभन्दा तेज ४जी नेटवर्क</p>
+//           <p className="text-white/30 text-[0.58rem] tracking-wide mt-0.5">Connect Nepal · ७५ जिल्लामा उपलब्ध</p>
+//         </div>
+//         <div className="h-8 w-px bg-white/10 hidden sm:block" />
+//         <span className="border border-[#8B0000] text-[#c9a84c] text-[0.58rem] px-4 py-1.5 tracking-wide uppercase group-hover:bg-[#8B0000] group-hover:text-white transition-all whitespace-nowrap">
+//           Plan हेर्नुहोस्
+//         </span>
+//       </div>
+//       <span className="absolute bottom-1 right-3 text-[0.4rem] text-white/15 uppercase tracking-widest">विज्ञापन</span>
+//     </div>
+//   </div>
+// );
+
+// // AD 7 — Sidebar Box (WorldLink)
+// const AdSidebarBox = () => (
+//   <div className="cursor-pointer group relative">
+//     <span className="absolute top-1.5 right-1.5 text-[0.4rem] tracking-[0.12em] uppercase text-[#a09488] z-10 leading-none">Ad</span>
+//     <div className="border border-[#ede8e2] group-hover:border-[#1c1711]/20 transition-all duration-300 p-4 bg-white">
+//       <div className="flex items-center gap-2 mb-3">
+//         <div className="w-8 h-8 bg-[#1c1711] flex items-center justify-center flex-shrink-0 rounded-sm">
+//           <span className="text-[#c9a84c] text-xs font-bold leading-none">W</span>
+//         </div>
+//         <div>
+//           <p className="text-[0.56rem] font-semibold text-[#1c1711] leading-tight">WorldLink Nepal</p>
+//           <p className="text-[0.46rem] text-[#a09488] leading-tight">Internet Service Provider</p>
+//         </div>
+//       </div>
+//       <div className="bg-[#f7f3ed] p-3 mb-3 text-center">
+//         <p className="font-['Playfair_Display'] text-base font-bold text-[#1c1711] leading-none">200 Mbps</p>
+//         <p className="text-[0.54rem] text-[#a09488] uppercase tracking-wide mt-0.5">Fiber Broadband</p>
+//         <p className="text-[#8B0000] font-bold text-sm mt-1.5 leading-none">रु. १,१९९/महिना</p>
+//       </div>
+//       <div className="flex flex-wrap gap-x-2 gap-y-1 text-[0.54rem] text-[#1c1711] font-medium mb-3">
+//         <span>✓ Unlimited</span><span>✓ 24/7 Support</span><span>✓ Free Setup</span>
+//       </div>
+//       <button className="w-full bg-[#8B0000] text-white text-[0.58rem] py-2 tracking-wider uppercase group-hover:bg-[#6b0000] transition-colors cursor-pointer border-none font-medium">
+//         अहिले जडान गर्नुहोस्
+//       </button>
+//     </div>
+//   </div>
+// );
+
+// // ─── SHARED COMPONENTS ────────────────────────────────────────────────────────
+
+// const SectionHeader = ({ title, link = 'थप सामाग्री →', href = '#' }) => (
+//   <div className="flex items-baseline gap-3 border-b-2 border-[#1c1711] pb-2 mb-4">
+//     <h2 className="font-['Playfair_Display'] text-[1.05rem] font-bold tracking-tight text-[#1c1711] leading-none">{title}</h2>
+//     <a href={href} className="ml-auto text-[0.66rem] text-[#8B0000] tracking-wider uppercase font-medium hover:underline whitespace-nowrap no-underline">{link}</a>
+//   </div>
+// );
+
+// // Card with image on top, text below — image fills exactly aspect-[3/2], text natural height, zero gap
+// const NewsCard = ({ item, seed = 'card' }) => (
+//   <article className="cursor-pointer group">
+//     <div className="overflow-hidden">
+//       <img {...img(item?.image, seed)} alt={item?.title || ''} className="w-full aspect-[3/2] object-cover group-hover:scale-[1.04] transition-transform duration-500 block" />
+//     </div>
+//     <div className="pt-2">
+//       <p className="text-[0.6rem] tracking-wider uppercase text-[#8B0000] font-medium leading-none mb-1">{item?.category || 'समाचार'}</p>
+//       <p className="font-['Source_Serif_4'] text-[0.875rem] font-semibold leading-snug text-[#1c1711] group-hover:text-[#8B0000] transition-colors">{item?.title}</p>
+//       <p className="text-[0.62rem] text-[#a09488] mt-1 leading-none">{item?.time}</p>
+//     </div>
+//   </article>
+// );
+
+// // List row — thumbnail + text, no bottom gap
+// const ListCard = ({ item, seed = 'list' }) => (
+//   <article className="flex gap-3 py-3 border-b border-[rgba(28,23,17,0.08)] last:border-b-0 cursor-pointer group">
+//     <div className="flex-shrink-0 overflow-hidden">
+//       <img {...img(item?.image, seed)} alt="" className="w-[86px] h-[60px] object-cover group-hover:scale-[1.04] transition-transform duration-500 block" />
+//     </div>
+//     <div className="min-w-0">
+//       <p className="text-[0.56rem] tracking-wider uppercase text-[#8B0000] font-medium leading-none mb-0.5">{item?.subcategory || item?.category || 'समाचार'}</p>
+//       <p className="font-['Source_Serif_4'] text-[0.84rem] font-semibold leading-snug group-hover:text-[#8B0000] transition-colors text-[#1c1711]">{item?.title}</p>
+//       <p className="text-[0.59rem] text-[#a09488] mt-1 leading-none">{item?.time}</p>
+//     </div>
+//   </article>
+// );
+
+// // ─── SIDE STORY CARD — image grows to fill all empty space ────────────────────
+// // Strategy: pure CSS — flex-col with image as flex-1, min-h-0; text shrinks to content.
+// // The card itself is flex-1 so both cards split the sidebar height equally.
+// // Image uses h-full within flex-1 container → always fills the gap.
+// const SideStoryCard = ({ story, isLast }) => (
+//   <article
+//     className={`flex flex-col flex-1 cursor-pointer group overflow-hidden ${!isLast ? 'border-b border-[#ede8e2]' : ''}`}
+//     style={{ minHeight: 0 }}
+//   >
+//     {/* Image wrapper — flex-1 means it takes ALL remaining space after text */}
+//     <div className="flex-1 overflow-hidden min-h-0">
+//       <img
+//         {...img(story.image, `side_${story.id}`)}
+//         alt={story.title}
+//         className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500 block"
+//       />
+//     </div>
+//     {/* Text — fixed natural height, no flex, no growing */}
+//     <div className="flex-shrink-0 p-3.5">
+//       <span className="text-[0.56rem] tracking-wider uppercase text-[#8B0000] font-medium leading-none block mb-1">{story.category}</span>
+//       <p className="font-['Source_Serif_4'] text-[0.86rem] font-semibold leading-snug text-[#1c1711] group-hover:text-[#8B0000] transition-colors">{story.title}</p>
+//       <p className="text-[0.58rem] text-[#a09488] mt-1 leading-none">{story.time}</p>
+//     </div>
+//   </article>
+// );
+
+// // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
+// const Welcome = () => {
+//   const [activeNav, setActiveNav] = useState(0);
+//   const [tickerPause, setTickerPause] = useState(false);
+
+//   return (
+//     <div className="min-h-screen bg-[#fdfcfb]" >
+
+//       {/* ── TICKER ──────────────────────────────────────────────── */}
+//       <div
+//         className="bg-[#1c1711] text-[#f0ece6] text-[0.67rem] tracking-wide overflow-hidden flex items-center select-none"
+//         style={{ height: '30px' }}
+//         onMouseEnter={() => setTickerPause(true)}
+//         onMouseLeave={() => setTickerPause(false)}
+//       >
+//         <span className="bg-[#8B0000] text-white font-semibold px-3 h-full flex items-center whitespace-nowrap uppercase tracking-widest text-[0.6rem] flex-shrink-0">
+//           ताजा
+//         </span>
+//         <div className="overflow-hidden flex-1 h-full flex items-center">
+//           <div
+//             className="flex gap-10 whitespace-nowrap"
+//             style={{ animation: tickerPause ? 'none' : 'ticker 36s linear infinite' }}
+//           >
+//             {[...TICKER, ...TICKER].map((t, i) => (
+//               <span key={i} className="hover:text-[#c9a84c] transition-colors cursor-default">• {t}</span>
+//             ))}
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* ── AD 1: LEADERBOARD ─────────────────────────────────────── */}
+//       <AdLeaderboard />
+
+//       {/* ── HEADER ────────────────────────────────────────────────── */}
+//       <header className="sticky top-0 z-50 bg-white border-b border-[rgba(28,23,17,0.1)] shadow-sm">
+//         <div className="flex items-center justify-between px-4 sm:px-6 lg:px-12  h-[60px] sm:h-[68px]">
+//           {/* ── LOGO — always visible ── */}
+//           <a href="/" className="flex items-center gap-2 no-underline flex-shrink-0">
+//             <img
+//               src="/images/logo.png"
+//               alt="Shuchikhabar"
+//               className="h-9 sm:h-10 w-auto object-contain"
+//               onError={(e) => {
+//                 // fallback to text logo if image not found in dev
+//                 e.currentTarget.style.display = 'none';
+//                 e.currentTarget.nextSibling.style.display = 'flex';
+//               }}
+//             />
+//             {/* Text fallback — hidden by default, shown if logo.png 404s */}
+//             <span className="flex-col leading-none hidden" aria-hidden>
+//               <span className="font-['Playfair_Display'] text-[1.75rem] font-bold text-[#1c1711] tracking-tight leading-none">
+//                 शुचि<span className="text-[#8B0000]">खबर</span>
+//                 <span className="inline-block w-1.5 h-1.5 bg-[#c9a84c] rounded-full ml-0.5 align-middle -translate-y-0.5" />
+//               </span>
+//               <span className="text-[0.5rem] tracking-[0.2em] text-[#a09488] uppercase mt-0.5">Best Newsportal in Nepal</span>
+//             </span>
+//           </a>
+
+//           <div className="flex flex-col items-end gap-0.5">
+//             <span className="text-[0.66rem] text-[#a09488] tracking-wide hidden md:block leading-none">
+//               ०९ फागुन २०८२, आइतबार &nbsp;|&nbsp; Sun, Feb 22, 2026
+//             </span>
+//             <div className="flex gap-2 items-center mt-0.5">
+//               <button className="w-8 h-8 border border-[rgba(28,23,17,0.12)] hover:border-[#1c1711] transition-colors flex items-center justify-center bg-transparent cursor-pointer flex-shrink-0">
+//                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+//                   <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+//                 </svg>
+//               </button>
+//               <button className="bg-[#8B0000] text-white px-3 sm:px-4 h-8 text-[0.64rem] sm:text-[0.68rem] tracking-wider font-medium hover:bg-[#6b0000] transition-colors border-none cursor-pointer whitespace-nowrap">
+//                 सदस्यता
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* NAV with logo integrated */}
+//         <nav className="border-t border-[rgba(28,23,17,0.08)] bg-white">
+//           <div className="flex items-center  px-4 sm:px-6 lg:px-12 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+//             {/* Small logo in nav (mobile visible) */}
+//             <div className="flex items-center mr-4 lg:hidden">
+//               <img
+//                 src="/images/logo.png"
+//                 alt="Shuchikhabar"
+//                 className="h-6 w-auto object-contain"
+//                 onError={(e) => {
+//                   e.currentTarget.style.display = 'none';
+//                 }}
+//               />
+//             </div>
+            
+//             {NAV.map((item, i) => (
+//               <button
+//                 key={i}
+//                 onClick={() => setActiveNav(i)}
+//                 className={`px-3 sm:px-4 py-2.5 text-[0.7rem] sm:text-[0.74rem] font-medium tracking-wide whitespace-nowrap relative transition-colors border-none bg-transparent cursor-pointer flex-shrink-0 ${
+//                   activeNav === i ? 'text-[#8B0000]' : 'text-[#1c1711] hover:text-[#8B0000]'
+//                 }`}
+//               >
+//                 {item}
+//                 {activeNav === i && (
+//                   <span className="absolute bottom-0 left-3 sm:left-4 right-3 sm:right-4 h-[2px] bg-[#8B0000]" />
+//                 )}
+//               </button>
+//             ))}
+//           </div>
+//         </nav>
+//       </header>
+
+//       {/* ── MAIN ──────────────────────────────────────────────────── */}
+//       <main className=" px-4 sm:px-6 lg:px-12">
+
+//         {/* ── HERO ──────────────────────────────────────────────── */}
+//         <section className="pt-5">
+//           {/* Outer wrapper — aspect drives the total height for both columns */}
+//           <div className="grid lg:grid-cols-[1fr_300px] gap-0" style={{ background: '#ede8e2' }}>
+
+//             {/* Hero main — aspect ratio locks the left column height */}
+//             <div
+//               className="relative overflow-hidden group cursor-pointer bg-[#1c1711]"
+//               style={{ aspectRatio: '16/10' }}
+//             >
+//               <img
+//                 {...img(DATA.mainNews[0]?.image, 'hero_main')}
+//                 alt={DATA.mainNews[0]?.title}
+//                 className="absolute inset-0 w-full h-full object-cover opacity-88 group-hover:scale-[1.03] group-hover:opacity-100 transition-all duration-700"
+//               />
+//               <div className="absolute inset-0 bg-gradient-to-t from-[rgba(12,8,4,0.92)] via-[rgba(12,8,4,0.1)] to-transparent" />
+//               <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 lg:p-7 text-white">
+//                 <span className="inline-block bg-[#8B0000] text-[0.58rem] tracking-widest uppercase px-2.5 py-1 font-medium mb-2 leading-none">
+//                   {DATA.mainNews[0]?.category}
+//                 </span>
+//                 <h1 className="font-['Playfair_Display'] text-xl sm:text-2xl lg:text-[1.65rem] font-bold leading-tight mb-2 max-w-2xl">
+//                   {DATA.mainNews[0]?.title}
+//                 </h1>
+//                 <p className="text-[0.64rem] text-white/50 leading-none">
+//                   {DATA.mainNews[0]?.author} &nbsp;·&nbsp; {DATA.mainNews[0]?.time}
+//                 </p>
+//               </div>
+//             </div>
+
+//             {/* Side stories — match left column height exactly via lg:absolute trick */}
+//             <div className="hidden lg:flex flex-col bg-[#fdfcfb] overflow-hidden" style={{ aspectRatio: '300/450' }}>
+//               {DATA.secondaryMainNews.slice(0, 2).map((story, i, arr) => (
+//                 <SideStoryCard key={story.id} story={story} isLast={i === arr.length - 1} />
+//               ))}
+//             </div>
+//           </div>
+//         </section>
+
+//         {/* ── MUKHYA SAMACHAR + AD 2 (native) ──────────────────────── */}
+//         <section className="mt-7">
+//           <SectionHeader title="मुख्य समाचार" href="/category/mukhya" />
+//           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+//             {DATA.mainNews.slice(0, 3).map((n, i) => (
+//               <NewsCard key={n.id} item={n} seed={`mn_${i}`} />
+//             ))}
+//             <AdNativeCard />
+//           </div>
+//         </section>
+
+//         {/* ── AD 4: MID STRIP ─────────────────────────────────────── */}
+//         <AdMidStrip />
+
+//         {/* ── TWO-COLUMN: MAIN + SIDEBAR ────────────────────────── */}
+//         <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-8 lg:gap-10">
+
+//           {/* ── MAIN COLUMN ─────────────────────────────────────── */}
+//           <div className="flex flex-col space-y-7 min-w-0">
+
+//             {/* MUKHYA */}
+//             <section>
+//               <SectionHeader title="मुख्य" href="/category/mukhya" />
+//               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+//                 {DATA.mukhya.map((item, i) => <NewsCard key={item.id} item={item} seed={`muk_${i}`} />)}
+//               </div>
+//             </section>
+
+//             {/* SAMACHAR */}
+//             <section>
+//               <SectionHeader title="समाचार" href="/category/samachar" />
+//               <div>
+//                 {DATA.samachar.map((item, i) => <ListCard key={item.id} item={item} seed={`sm_${i}`} />)}
+//               </div>
+//             </section>
+
+//             {/* ARTHATATWA */}
+//             <section>
+//               <SectionHeader title="अर्थतन्त्र" href="/category/arthatatwa" />
+//               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+//                 {DATA.arthatatwa.map((item, i) => <NewsCard key={item.id} item={item} seed={`arth_${i}`} />)}
+//               </div>
+//             </section>
+
+//             {/* KRISHI */}
+//             <section>
+//               <SectionHeader title="कृषि" href="/category/krishi" />
+//               <div>
+//                 {DATA.krishi.map((item, i) => <ListCard key={item.id} item={item} seed={`kr_${i}`} />)}
+//               </div>
+//             </section>
+
+//             {/* VICHAR / OPINION */}
+//             <section>
+//               <SectionHeader title="विचार" href="/category/vichar" />
+//               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+//                 {DATA.opinions.map((op, i) => (
+//                   <article key={op.id} className="p-4 border border-[#ede8e2] cursor-pointer group hover:border-[#8B0000]/40 hover:-translate-y-0.5 transition-all">
+//                     <div className="flex items-center gap-2.5 mb-2.5">
+//                       <img {...img(op.avatar, `av_${i}`)} alt="" className="w-9 h-9 rounded-full object-cover border-2 border-[#ede8e2] flex-shrink-0" />
+//                       <div>
+//                         <p className="text-[0.66rem] font-medium text-[#1c1711] leading-tight">{op.author}</p>
+//                         <p className="text-[0.54rem] text-[#a09488] leading-tight">{op.role}</p>
+//                       </div>
+//                     </div>
+//                     <p className="font-['Playfair_Display'] text-[0.88rem] font-semibold leading-snug italic text-[#1c1711] group-hover:text-[#8B0000] transition-colors">
+//                       {op.title}
+//                     </p>
+//                   </article>
+//                 ))}
+//               </div>
+//             </section>
+
+//             {/* MANORANJAN */}
+//             <section>
+//               <SectionHeader title="मनोरञ्जन" href="/category/manoranjan" />
+//               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+//                 {DATA.manoranjan.map((item, i) => <NewsCard key={item.id} item={item} seed={`mr_${i}`} />)}
+//               </div>
+//             </section>
+//           </div>
+
+//           {/* ── SIDEBAR ─────────────────────────────────────────── */}
+//           <aside className="lg:border-l lg:border-[rgba(28,23,17,0.07)] lg:pl-6 pt-0 flex flex-col space-y-6">
+
+//             {/* WEATHER */}
+//             <div>
+//               <div className="bg-[#1c1711] text-[#fdfcfb] px-4 py-3.5 flex items-center justify-between">
+//                 <div>
+//                   <p className="text-[0.58rem] tracking-[0.16em] uppercase text-white/38 leading-none mb-1.5">काठमाडौं</p>
+//                   <p className="font-['Playfair_Display'] text-4xl font-light leading-none">14°</p>
+//                   <p className="text-[0.66rem] text-white/48 mt-1.5 leading-none">धुम्मिलो</p>
+//                 </div>
+//                 <div className="text-right">
+//                   <span className="text-3xl">🌥</span>
+//                   <p className="text-[0.52rem] text-white/28 mt-1 leading-none">AQI: 245</p>
+//                 </div>
+//               </div>
+//               <div className="grid grid-cols-3 bg-[#110f0a] text-white">
+//                 {[['बिहान','11°','☁️'],['दिउँसो','17°','⛅'],['बेलुका','13°','🌙']].map(([t,d,e], i) => (
+//                   <div key={i} className={`text-center py-2 ${i < 2 ? 'border-r border-white/10' : ''}`}>
+//                     <p className="text-[0.5rem] text-white/30 uppercase tracking-wide leading-none mb-1">{t}</p>
+//                     <p className="text-sm leading-none mb-0.5">{e}</p>
+//                     <p className="text-[0.62rem] font-semibold leading-none">{d}</p>
+//                   </div>
+//                 ))}
+//               </div>
+//             </div>
+
+//             {/* AD 7 — SIDEBAR BOX */}
+//             <AdSidebarBox />
+
+//             {/* MOST READ */}
+//             <div>
+//               <p className="font-['Playfair_Display'] text-[0.88rem] font-bold border-b-2 border-[#1c1711] pb-2 mb-3 leading-none">सर्वाधिक पढिएको</p>
+//               {DATA.mostRead.map((item, i) => (
+//                 <div key={item.id} className="flex items-start gap-3 py-2.5 border-b border-[rgba(28,23,17,0.07)] last:border-b-0 cursor-pointer group">
+//                   <span className="font-['Playfair_Display'] text-[1.5rem] font-bold text-[#ddb8b8] leading-none w-5 flex-shrink-0 text-right mt-0.5">{i+1}</span>
+//                   <p className="font-['Source_Serif_4'] text-[0.8rem] leading-snug font-semibold group-hover:text-[#8B0000] transition-colors text-[#1c1711]">
+//                     {item.title}
+//                   </p>
+//                 </div>
+//               ))}
+//             </div>
+
+//             {/* AD 3 — SKYSCRAPER */}
+//             <AdSkyscraper />
+
+//             {/* DHARMIC */}
+//             <div>
+//               <p className="font-['Playfair_Display'] text-[0.88rem] font-bold border-b-2 border-[#1c1711] pb-2 mb-3 leading-none">धार्मिक</p>
+//               {DATA.dharmic.map((item, i) => (
+//                 <div key={item.id} className="flex gap-2.5 py-2.5 border-b border-[rgba(28,23,17,0.07)] last:border-b-0 cursor-pointer group">
+//                   <div className="flex-shrink-0 overflow-hidden">
+//                     <img {...img(item.image, `dh_${i}`)} alt="" className="w-[76px] h-[54px] object-cover group-hover:scale-[1.04] transition-transform duration-500 block" />
+//                   </div>
+//                   <p className="font-['Source_Serif_4'] text-[0.77rem] font-semibold leading-snug group-hover:text-[#8B0000] transition-colors text-[#1c1711]">
+//                     {item.title}
+//                   </p>
+//                 </div>
+//               ))}
+//             </div>
+
+//             {/* VIDEO */}
+//             <div>
+//               <p className="font-['Playfair_Display'] text-[0.88rem] font-bold border-b-2 border-[#1c1711] pb-2 mb-3 leading-none">भिडियो</p>
+//               <div className="relative aspect-video overflow-hidden cursor-pointer group bg-[#1c1711]">
+//                 <img {...img('https://picsum.photos/seed/suchi_vid1/400/225', 'vid1')} alt="" className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity block" />
+//                 <div className="absolute inset-0 flex items-center justify-center">
+//                   <div className="w-10 h-10 bg-[#8B0000] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+//                     <svg width="11" height="11" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+//                   </div>
+//                 </div>
+//               </div>
+//               <p className="font-['Source_Serif_4'] text-[0.82rem] font-semibold leading-snug cursor-pointer hover:text-[#8B0000] transition-colors text-[#1c1711] mt-2">
+//                 महाशिवरात्रि: पशुपतिनाथमा विशेष पूजाको दृश्य
+//               </p>
+//               <p className="text-[0.58rem] text-[#a09488] mt-1 leading-none">२ घन्टा अगाडि · ०८:४५</p>
+//             </div>
+//           </aside>
+//         </div>
+
+//         {/* ── DIVIDER ─────────────────────────────────────────────── */}
+//         <div className="h-px bg-[#ede8e2] my-7" />
+
+//         {/* ── SPORTS ─────────────────────────────────────────────────
+//              Layout (lg, 4-col grid):
+//              Row 1: [sp_0] [sp_1] [Ad Banner ←2 cols→]   = 4 slots ✓
+//              Row 2: [sp_2 ←2 cols→] [sp_3 ←2 cols→]       = 4 slots ✓
+//              No orphan empty columns at any breakpoint.
+//         ──── */}
+//         <section className="mb-8">
+//           <SectionHeader title="खेलकुद" href="/category/khelkud" />
+//           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+//             {/* Row 1 — 2 news + ad banner (2-wide) */}
+//             <NewsCard item={DATA.sports[0]} seed="sp_0" />
+//             <NewsCard item={DATA.sports[1]} seed="sp_1" />
+//             <div className="sm:col-span-2 lg:col-span-2">
+//               <AdSportsBanner />
+//             </div>
+//             {/* Row 2 — each card spans 2 cols → fills all 4 columns */}
+//             <div className="sm:col-span-1 lg:col-span-2">
+//               <NewsCard item={DATA.sports[2]} seed="sp_2" />
+//             </div>
+//             <div className="sm:col-span-1 lg:col-span-2">
+//               <NewsCard item={DATA.sports[3]} seed="sp_3" />
+//             </div>
+//           </div>
+//         </section>
+
+//         {/* ── HEALTH + INTERNATIONAL ──────────────────────────────── */}
+//         <div className="grid grid-cols-1 lg:grid-cols-2 gap-7 mb-8">
+//           <section>
+//             <SectionHeader title="स्वास्थ्य" href="/category/swasthya" />
+//             <div>
+//               {DATA.swastha.map((item, i) => <ListCard key={item.id} item={item} seed={`sw_${i}`} />)}
+//             </div>
+//           </section>
+//           <section>
+//             <SectionHeader title="अन्तर्राष्ट्रिय" href="/category/antarrashtriya" />
+//             <div>
+//               {DATA.antarrashtriya.map((item, i) => <ListCard key={item.id} item={item} seed={`int_${i}`} />)}
+//             </div>
+//           </section>
+//         </div>
+
+//         {/* ── PHOTO GALLERY ────────────────────────────────────────── */}
+//         <section className="mb-8">
+//           <SectionHeader title="फोटो ग्यालरी" />
+//           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-0.5">
+//             {[
+//               { label: 'महाशिवरात्रि', seed: 'gal1s' },
+//               { label: 'क्रिकेट',      seed: 'gal2s' },
+//               { label: 'कृषि',         seed: 'gal3s' },
+//               { label: 'राजनीति',      seed: 'gal4s' },
+//               { label: 'पर्यटन',       seed: 'gal5s' },
+//             ].map((g, i) => (
+//               <div key={i} className="relative overflow-hidden cursor-pointer group" style={{ aspectRatio: '1/1' }}>
+//                 <img src={`https://picsum.photos/seed/${g.seed}/300/300`} alt={g.label} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 block" />
+//                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/22 transition-all" />
+//                 <div className="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
+//                   <span className="text-white text-[0.5rem] tracking-wide uppercase bg-[#8B0000] px-1.5 py-0.5 leading-none">{g.label}</span>
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+//         </section>
+
+//       </main>
+
+//       {/* ── AD 6: PRE-FOOTER ─────────────────────────────────────── */}
+//       <AdFooterStrip />
+
+//       {/* ── FOOTER ──────────────────────────────────────────────── */}
+//       <footer className="bg-[#1c1711] text-[#c8bfb4]">
+//         <div className=" px-4 sm:px-6 lg:px-12 py-9 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7 border-b border-white/8">
+//           <div>
+//             {/* Footer logo */}
+//             <img
+//               src="/images/logo.png"
+//               alt="Shuchikhabar"
+//               className="h-9 w-auto object-contain mb-2 brightness-0 invert"
+//               onError={(e) => {
+//                 e.currentTarget.style.display = 'none';
+//                 e.currentTarget.nextSibling.style.display = 'block';
+//               }}
+//             />
+//             <p className="font-['Playfair_Display'] text-[1.1rem] text-[#fdfcfb] font-bold hidden mb-1">
+//               शुचि<span className="text-[#8B0000]">खबर</span>
+//             </p>
+//             <p className="text-[0.54rem] tracking-[0.18em] text-[#a09488] uppercase mb-2.5">Best Newsportal in Nepal</p>
+//             <p className="text-[0.71rem] leading-relaxed text-white/38 mb-4">
+//               शुचि खबर — सत्य, तथ्य र निष्पक्ष समाचारको लागि नेपालको विश्वसनीय समाचार पोर्टल।
+//             </p>
+//             <div className="flex gap-2">
+//               {['fb','tw','yt','in'].map((s, i) => (
+//                 <div key={i} className="w-7 h-7 border border-white/12 flex items-center justify-center text-[0.52rem] text-white/36 cursor-pointer hover:border-[#8B0000] hover:text-white transition-all uppercase font-bold">{s}</div>
+//               ))}
+//             </div>
+//           </div>
+//           {[
+//             { title: 'विभाग',   links: ['मुख्य','समाचार','अर्थतन्त्र','खेलकुद','मनोरञ्जन','कृषि'] },
+//             { title: 'थप',     links: ['स्वास्थ्य','धार्मिक','विचार','अन्तर्राष्ट्रिय','फोटो','भिडियो'] },
+//             { title: 'सम्पर्क', links: ['हाम्रोबारे','सम्पर्क गर्नुहोस्','विज्ञापन','गोपनीयता नीति','प्रयोग सर्त'] },
+//           ].map(col => (
+//             <div key={col.title}>
+//               <p className="text-[0.58rem] tracking-[0.16em] uppercase text-[#fdfcfb] font-medium mb-3">{col.title}</p>
+//               {col.links.map((l, i) => (
+//                 <a key={i} href="#" className="block text-[0.74rem] mb-2 text-[#9e9188] hover:text-[#fdfcfb] transition-colors no-underline">{l}</a>
+//               ))}
+//             </div>
+//           ))}
+//         </div>
+//         <div className=" px-4 sm:px-6 lg:px-12 py-3.5 flex flex-col sm:flex-row justify-between items-center gap-2 text-[0.62rem] text-white/20">
+//           <span>© २०८२ शुचि खबर। सर्वाधिकार सुरक्षित।</span>
+//           <span>shuchikhabar.com — Best Newsportal in Nepal</span>
+//         </div>
+//       </footer>
+
+//       {/* ── GLOBAL STYLES ─────────────────────────────────────────── */}
+//       <style>{`
+//         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+//         *, *::before, *::after { box-sizing: border-box; }
+//         body { margin: 0; background: #fdfcfb; }
+//         ::-webkit-scrollbar { height: 0; width: 0; }
+//         scrollbar-width: none;
+//         img { display: block; }
+//         a { text-decoration: none; }
+//         @keyframes ticker {
+//           from { transform: translateX(0); }
+//           to   { transform: translateX(-50%); }
+//         }
+//       `}</style>
+//     </div>
+//   );
+// };
+
+// export default Welcome;

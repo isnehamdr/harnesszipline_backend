@@ -41,7 +41,7 @@ class ActivityController extends Controller
             'is_featured' => 'boolean',
 
             // Images
-            'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
+            'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048', // Max 2MB per image
             'cover_index' => 'nullable|integer|min:0'
         ]);
 

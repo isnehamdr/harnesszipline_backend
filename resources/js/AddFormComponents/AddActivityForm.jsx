@@ -1,6 +1,738 @@
+// import React, { useState, useEffect } from "react";
+// import { X, Star, Archive, Upload, Camera, Image } from "lucide-react";
+// import axios from "axios";
+// import ReactQuill from "react-quill";
+// import "react-quill/dist/quill.snow.css"; // Import the styles
+
+// const AddActivityForm = ({
+//     editingActivity,
+//     setShowForm,
+//     setEditingActivity,
+//     handleUpdate,
+//     setReloadTrigger,
+// }) => {
+//     const [submitting, setSubmitting] = useState(false);
+//     const [errors, setErrors] = useState({});
+//     const [imagesPreviews, setImagesPreviews] = useState([]);
+//     const [imageFiles, setImageFiles] = useState([]);
+//     const [activityForm, setActivityForm] = useState({
+//         name: "",
+//         short_description: "",
+//         long_description: "",
+//         base_price: "",
+//         images: [],
+//         meta_data: "",
+//         is_featured: false,
+//         is_archived: false,
+//     });
+
+//     // Add useEffect to lock body scroll when form mounts
+//     useEffect(() => {
+//         // Lock body scroll
+//         document.body.style.overflow = 'hidden';
+//         document.body.style.position = 'fixed';
+//         document.body.style.width = '100%';
+        
+//         // Cleanup function to restore scroll when component unmounts
+//         return () => {
+//             document.body.style.overflow = 'unset';
+//             document.body.style.position = 'static';
+//             document.body.style.width = 'auto';
+//         };
+//     }, []); // Empty dependency array means this runs once on mount
+
+//     // File size limits in bytes - Changed to 2MB max
+//     const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
+
+//     // Quill modules configuration
+//     const quillModules = {
+//         toolbar: [
+//             [{ header: [1, 2, 3, 4, 5, 6, false] }],
+//             ["bold", "italic", "underline", "strike"],
+//             [{ list: "ordered" }, { list: "bullet" }],
+//             [{ indent: "-1" }, { indent: "+1" }],
+//             [{ align: [] }],
+//             ["link", "image"],
+//             ["clean"],
+//         ],
+//     };
+
+//     const quillFormats = [
+//         "header",
+//         "bold",
+//         "italic",
+//         "underline",
+//         "strike",
+//         "list",
+//         "bullet",
+//         "indent",
+//         "align",
+//         "link",
+//         "image",
+//     ];
+
+//     // Use Effect
+//     useEffect(() => {
+//         if (editingActivity) {
+//             setActivityForm({
+//                 name: editingActivity.name || "",
+//                 short_description: editingActivity.short_description || "",
+//                 long_description: editingActivity.long_description || "",
+//                 base_price: editingActivity.base_price || "",
+//                 images: [],
+//                 meta_data: editingActivity.meta_data
+//                     ? typeof editingActivity.meta_data === "object"
+//                         ? JSON.stringify(editingActivity.meta_data, null, 2)
+//                         : editingActivity.meta_data
+//                     : "",
+//                 is_featured: editingActivity.is_featured || false,
+//                 is_archived: editingActivity.is_archived || false,
+//             });
+            
+//             // Reset image previews when editing activity changes
+//             setImagesPreviews([]);
+//             setImageFiles([]);
+//         } else {
+//             setActivityForm({
+//                 name: "",
+//                 short_description: "",
+//                 long_description: "",
+//                 base_price: "",
+//                 images: [],
+//                 meta_data: "",
+//                 is_featured: false,
+//                 is_archived: false,
+//             });
+//             setImagesPreviews([]);
+//             setImageFiles([]);
+//         }
+//         setErrors({});
+//     }, [editingActivity]);
+
+//     // Handle Close
+//     const handleClose = () => {
+//         setShowForm(false);
+//         setEditingActivity(null);
+//         setErrors({});
+//         setImagesPreviews([]);
+//         setImageFiles([]);
+//     };
+
+//     // Handle Submit
+//     const handleSubmit = async (e) => {
+//         e.preventDefault();
+//         setErrors({});
+
+//         // Validate all images size before submission
+//         if (imageFiles.length > 0) {
+//             const oversizedImages = imageFiles.filter(
+//                 (file) => file.size > MAX_IMAGE_SIZE,
+//             );
+//             if (oversizedImages.length > 0) {
+//                 alert(
+//                     `${oversizedImages.length} image(s) exceed 2MB limit. Please remove them.`
+//                 );
+//                 return;
+//             }
+//         }
+
+//         const formData = new FormData();
+
+//         // Append basic fields
+//         formData.append("name", activityForm.name);
+//         formData.append("base_price", activityForm.base_price);
+
+//         // Append optional fields if they have values
+//         if (activityForm.short_description) {
+//             formData.append(
+//                 "short_description",
+//                 activityForm.short_description,
+//             );
+//         }
+
+//         if (activityForm.long_description) {
+//             formData.append("long_description", activityForm.long_description);
+//         }
+
+//         // Handle meta_data - send as JSON string
+//         if (activityForm.meta_data) {
+//             try {
+//                 // Try to parse if it's a valid JSON, otherwise send as string
+//                 JSON.parse(activityForm.meta_data);
+//                 formData.append("meta_data", activityForm.meta_data);
+//             } catch (e) {
+//                 // If not valid JSON, create a simple JSON object
+//                 const simpleMeta = { description: activityForm.meta_data };
+//                 formData.append("meta_data", JSON.stringify(simpleMeta));
+//             }
+//         }
+
+//         // Handle boolean fields - send as 0/1 strings
+//         formData.append("is_featured", activityForm.is_featured ? "1" : "0");
+//         formData.append("is_archived", activityForm.is_archived ? "1" : "0");
+
+//         // Handle images
+//         if (imageFiles && imageFiles.length > 0) {
+//             imageFiles.forEach((image, index) => {
+//                 formData.append(`images[${index}]`, image);
+//             });
+//         }
+
+//         try {
+//             setSubmitting(true);
+
+//             if (editingActivity) {
+//                 // For update - IMPORTANT: Use POST with _method field
+//                 // Your route only accepts POST, so we need to use POST and let Laravel handle the method spoofing
+//                 formData.append("_method", "PUT");
+
+//                 // Using POST as defined in your web.php
+//                 const response = await axios.post(
+//                     route("ouractivity.update", { id: editingActivity.id }),
+//                     formData,
+//                     {
+//                         headers: {
+//                             "Content-Type": "multipart/form-data",
+//                         },
+//                     },
+//                 );
+//                 console.log("Update response:", response.data);
+//             } else {
+//                 // Create new activity
+//                 const response = await axios.post(
+//                     route("ouractivity.store"),
+//                     formData,
+//                     {
+//                         headers: {
+//                             "Content-Type": "multipart/form-data",
+//                         },
+//                     },
+//                 );
+//                 console.log("Create response:", response.data);
+//             }
+
+//             setReloadTrigger((prev) => !prev);
+//             handleClose();
+//         } catch (error) {
+//             if (error.response?.status === 422) {
+//                 setErrors(error.response.data.errors || {});
+//                 console.log("Validation errors:", error.response.data.errors);
+//             } else if (error.response?.status === 405) {
+//                 console.error(
+//                     "Method not allowed. Check your route configuration.",
+//                 );
+//                 alert(
+//                     "Error: Method not allowed. Please check your route configuration.",
+//                 );
+//             } else {
+//                 console.log("Error saving data", error);
+//                 alert(
+//                     `Error: ${error.response?.data?.message || error.message}`,
+//                 );
+//             }
+//         } finally {
+//             setSubmitting(false);
+//         }
+//     };
+
+//     // Handle multiple images change
+//     const handleImagesChange = (e) => {
+//         const files = Array.from(e.target.files);
+//         if (files.length > 0) {
+//             // Filter only image files
+//             let imageFiles = files.filter((file) =>
+//                 file.type.startsWith("image/"),
+//             );
+
+//             if (imageFiles.length !== files.length) {
+//                 alert("Some files are not images and were ignored");
+//             }
+
+//             if (imageFiles.length > 0) {
+//                 // Validate each file size - 2MB max
+//                 const oversizedFiles = imageFiles.filter(
+//                     (file) => file.size > MAX_IMAGE_SIZE,
+//                 );
+//                 if (oversizedFiles.length > 0) {
+//                     alert(
+//                         `${oversizedFiles.length} image(s) exceed 2MB limit and were ignored`
+//                     );
+//                     imageFiles = imageFiles.filter(
+//                         (file) => file.size <= MAX_IMAGE_SIZE,
+//                     );
+//                 }
+
+//                 setImageFiles((prev) => [...prev, ...imageFiles]);
+
+//                 // Update activityForm images
+//                 setActivityForm((prev) => ({
+//                     ...prev,
+//                     images: [...prev.images, ...imageFiles],
+//                 }));
+
+//                 // Create previews for new files
+//                 imageFiles.forEach((file) => {
+//                     const reader = new FileReader();
+//                     reader.onloadend = () => {
+//                         setImagesPreviews((prev) => [...prev, reader.result]);
+//                     };
+//                     reader.readAsDataURL(file);
+//                 });
+
+//                 // Clear image errors when new files are selected
+//                 setErrors((prev) => ({
+//                     ...prev,
+//                     "images.0": undefined,
+//                     "images.*": undefined,
+//                 }));
+//             }
+//         }
+//     };
+
+//     // Remove image
+//     const removeImage = (index) => {
+//         setImageFiles((prev) => prev.filter((_, i) => i !== index));
+//         setImagesPreviews((prev) => prev.filter((_, i) => i !== index));
+//         setActivityForm((prev) => ({
+//             ...prev,
+//             images: prev.images.filter((_, i) => i !== index),
+//         }));
+//     };
+
+//     // Handle change for other fields
+//     const handleChange = (e) => {
+//         const { name, value, type, checked } = e.target;
+
+//         if (type === "checkbox") {
+//             setActivityForm((prev) => ({
+//                 ...prev,
+//                 [name]: checked,
+//             }));
+//         } else {
+//             setActivityForm((prev) => ({
+//                 ...prev,
+//                 [name]: value,
+//             }));
+//         }
+//     };
+
+//     // Handle Quill change
+//     const handleQuillChange = (content) => {
+//         setActivityForm((prev) => ({
+//             ...prev,
+//             long_description: content,
+//         }));
+//     };
+
+//     // Toggle handlers for the switches
+//     const toggleFeatured = () => {
+//         setActivityForm((prev) => ({
+//             ...prev,
+//             is_featured: !prev.is_featured,
+//         }));
+//     };
+
+//     const toggleArchived = () => {
+//         setActivityForm((prev) => ({
+//             ...prev,
+//             is_archived: !prev.is_archived,
+//         }));
+//     };
+
+//     return (
+//         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+//             <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
+//                 {/* Header - Matching AddCustomerForm */}
+//                 <div className="flex justify-between items-center mb-6">
+//                     <h2 className="text-2xl font-bold text-gray-800">
+//                         {editingActivity
+//                             ? "Edit Activity Item"
+//                             : "Add New Activity Item"}
+//                     </h2>
+//                     <button
+//                         type="button"
+//                         onClick={handleClose}
+//                         className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+//                     >
+//                         <X size={24} />
+//                     </button>
+//                 </div>
+
+//                 {/* Form - Matching AddCustomerForm layout */}
+//                 <form onSubmit={handleSubmit} className="space-y-4">
+//                     {/* Name Field */}
+//                     <div>
+//                         <label className="block text-sm font-medium text-gray-700 mb-1">
+//                             Name <span className="text-red-500">*</span>
+//                         </label>
+//                         <input
+//                             type="text"
+//                             name="name"
+//                             value={activityForm.name}
+//                             onChange={handleChange}
+//                             required
+//                             className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
+//                                 errors.name
+//                                     ? "border-red-500"
+//                                     : "border-gray-300"
+//                             }`}
+//                             placeholder="Enter activity name"
+//                             disabled={submitting}
+//                         />
+//                         {errors.name && (
+//                             <p className="mt-1 text-sm text-red-600">
+//                                 {errors.name[0]}
+//                             </p>
+//                         )}
+//                     </div>
+
+//                     {/* Short Description */}
+//                     <div>
+//                         <label className="block text-sm font-medium text-gray-700 mb-1">
+//                             Short Description
+//                         </label>
+//                         <textarea
+//                             name="short_description"
+//                             value={activityForm.short_description}
+//                             onChange={handleChange}
+//                             rows="3"
+//                             className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
+//                                 errors.short_description
+//                                     ? "border-red-500"
+//                                     : "border-gray-300"
+//                             }`}
+//                             placeholder="Enter a brief description of the activity"
+//                             disabled={submitting}
+//                         />
+//                         {errors.short_description && (
+//                             <p className="mt-1 text-sm text-red-600">
+//                                 {errors.short_description[0]}
+//                             </p>
+//                         )}
+//                     </div>
+
+//                     {/* Long Description with React Quill */}
+//                     <div>
+//                         <label className="block text-sm font-medium text-gray-700 mb-1">
+//                             Long Description
+//                         </label>
+//                         <div className={`quill-wrapper ${errors.long_description ? "quill-error" : ""}`}>
+//                             <ReactQuill
+//                                 theme="snow"
+//                                 value={activityForm.long_description || ""}
+//                                 onChange={handleQuillChange}
+//                                 modules={quillModules}
+//                                 formats={quillFormats}
+//                                 className="bg-white"
+//                                 style={{ height: "200px", marginBottom: "40px" }}
+//                                 readOnly={submitting}
+//                             />
+//                         </div>
+//                         {errors.long_description && (
+//                             <p className="mt-1 text-sm text-red-600">
+//                                 {errors.long_description[0]}
+//                             </p>
+//                         )}
+//                         <style jsx>{`
+//                             .quill-wrapper :global(.ql-container) {
+//                                 border-bottom-left-radius: 0.5rem;
+//                                 border-bottom-right-radius: 0.5rem;
+//                                 min-height: 150px;
+//                                 font-size: 0.875rem;
+//                                 border-color: #d1d5db;
+//                             }
+//                             .quill-wrapper :global(.ql-toolbar) {
+//                                 border-top-left-radius: 0.5rem;
+//                                 border-top-right-radius: 0.5rem;
+//                                 background-color: #f9fafb;
+//                                 border-color: #d1d5db;
+//                             }
+//                             .quill-wrapper :global(.ql-container:focus-within),
+//                             .quill-wrapper :global(.ql-toolbar:focus-within) {
+//                                 border-color: #6366f1;
+//                                 box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+//                             }
+//                             .quill-error :global(.ql-container),
+//                             .quill-error :global(.ql-toolbar) {
+//                                 border-color: #ef4444;
+//                             }
+//                         `}</style>
+//                     </div>
+
+//                     {/* Base Price */}
+//                     <div>
+//                         <label className="block text-sm font-medium text-gray-700 mb-1">
+//                             Base Price <span className="text-red-500">*</span>
+//                         </label>
+//                         <input
+//                             type="number"
+//                             name="base_price"
+//                             value={activityForm.base_price}
+//                             onChange={handleChange}
+//                             required
+//                             min="0"
+//                             step="0.01"
+//                             className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
+//                                 errors.base_price
+//                                     ? "border-red-500"
+//                                     : "border-gray-300"
+//                             }`}
+//                             placeholder="Enter base price"
+//                             disabled={submitting}
+//                         />
+//                         {errors.base_price && (
+//                             <p className="mt-1 text-sm text-red-600">
+//                                 {errors.base_price[0]}
+//                             </p>
+//                         )}
+//                     </div>
+
+//                     {/* Multiple Images */}
+//                     <div className="space-y-2">
+//                         <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
+//                             <Image className="mr-2 text-gray-600" size={18} />
+//                             Images (Multiple)
+//                         </label>
+//                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-all duration-300 relative bg-gray-50">
+//                             {imagesPreviews.length > 0 ? (
+//                                 <div className="space-y-4">
+//                                     <div className="grid grid-cols-3 gap-4">
+//                                         {imagesPreviews.map((preview, index) => (
+//                                             <div key={index} className="relative group">
+//                                                 <img
+//                                                     src={preview}
+//                                                     alt={`Preview ${index + 1}`}
+//                                                     className="h-24 w-full object-cover rounded-lg shadow bg-white"
+//                                                 />
+//                                                 <button
+//                                                     type="button"
+//                                                     onClick={() => removeImage(index)}
+//                                                     className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+//                                                     disabled={submitting}
+//                                                 >
+//                                                     <X size={14} />
+//                                                 </button>
+//                                             </div>
+//                                         ))}
+//                                     </div>
+//                                     <div className="space-y-2">
+//                                         <p className="text-sm text-gray-600">
+//                                             {imagesPreviews.length} image(s) selected
+//                                         </p>
+//                                         <p className="text-sm text-gray-500">
+//                                             Click to add more images
+//                                         </p>
+//                                     </div>
+//                                 </div>
+//                             ) : (
+//                                 <div className="space-y-4">
+//                                     <Upload className="mx-auto h-12 w-12 text-gray-400" />
+//                                     <p className="text-lg text-gray-700">
+//                                         Click to upload multiple images
+//                                     </p>
+//                                     <p className="text-sm text-gray-500">
+//                                         Hold Ctrl/Cmd to select multiple files | Max: 2MB per file
+//                                     </p>
+//                                 </div>
+//                             )}
+//                             <input
+//                                 type="file"
+//                                 name="images"
+//                                 accept="image/jpeg,image/png,image/jpg,image/webp"
+//                                 multiple
+//                                 onChange={handleImagesChange}
+//                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+//                                 disabled={submitting}
+//                             />
+//                         </div>
+                        
+//                         {(errors["images.0"] || errors["images.*"]) && (
+//                             <p className="text-sm text-red-600">
+//                                 {errors["images.0"]?.[0] ||
+//                                     errors["images.*"]?.[0]}
+//                             </p>
+//                         )}
+
+//                         {editingActivity &&
+//                             editingActivity.images &&
+//                             editingActivity.images.length > 0 && (
+//                                 <div className="mt-4">
+//                                     <p className="text-sm text-gray-500 mb-2">
+//                                         Current images:
+//                                     </p>
+//                                     <div className="flex gap-2 flex-wrap">
+//                                         {editingActivity.images.map(
+//                                             (img, idx) => (
+//                                                 <div
+//                                                     key={idx}
+//                                                     className="relative"
+//                                                 >
+//                                                     <img
+//                                                         src={`/storage/${img.path}`}
+//                                                         alt={img.alt_text}
+//                                                         className="w-16 h-16 object-cover rounded-lg border border-gray-200"
+//                                                         onError={(e) => {
+//                                                             e.target.src =
+//                                                                 "https://via.placeholder.com/64?text=No+Image";
+//                                                         }}
+//                                                     />
+//                                                 </div>
+//                                             ),
+//                                         )}
+//                                     </div>
+//                                 </div>
+//                             )}
+//                     </div>
+
+//                     {/* Meta Data */}
+//                     <div>
+//                         <label className="block text-sm font-medium text-gray-700 mb-1">
+//                             Meta Data (JSON)
+//                         </label>
+//                         <textarea
+//                             name="meta_data"
+//                             value={activityForm.meta_data}
+//                             onChange={handleChange}
+//                             rows="3"
+//                             placeholder='{"key": "value"}'
+//                             className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono text-sm ${
+//                                 errors.meta_data
+//                                     ? "border-red-500"
+//                                     : "border-gray-300"
+//                             }`}
+//                             disabled={submitting}
+//                         />
+//                         {errors.meta_data && (
+//                             <p className="mt-1 text-sm text-red-600">
+//                                 {errors.meta_data[0]}
+//                             </p>
+//                         )}
+//                         <p className="mt-1 text-xs text-gray-500">
+//                             Enter valid JSON or leave empty
+//                         </p>
+//                     </div>
+
+//                     {/* Toggle Switches for Featured and Archived */}
+//                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+//                         {/* Featured Toggle */}
+//                         <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+//                             <div className="flex items-center space-x-3">
+//                                 <Star className="text-gray-600" size={20} />
+//                                 <span className="text-sm font-medium text-gray-700">
+//                                     Featured Activity
+//                                 </span>
+//                             </div>
+//                             <button
+//                                 type="button"
+//                                 onClick={toggleFeatured}
+//                                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+//                                     activityForm.is_featured
+//                                         ? "bg-indigo-600"
+//                                         : "bg-gray-300"
+//                                 }`}
+//                                 disabled={submitting}
+//                             >
+//                                 <span
+//                                     className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+//                                         activityForm.is_featured
+//                                             ? "translate-x-6"
+//                                             : "translate-x-1"
+//                                     }`}
+//                                 />
+//                             </button>
+//                         </div>
+
+//                         {/* Archived Toggle */}
+//                         <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+//                             <div className="flex items-center space-x-3">
+//                                 <Archive className="text-gray-600" size={20} />
+//                                 <span className="text-sm font-medium text-gray-700">
+//                                     Archive Activity
+//                                 </span>
+//                             </div>
+//                             <button
+//                                 type="button"
+//                                 onClick={toggleArchived}
+//                                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+//                                     activityForm.is_archived
+//                                         ? "bg-indigo-600"
+//                                         : "bg-gray-300"
+//                                 }`}
+//                                 disabled={submitting}
+//                             >
+//                                 <span
+//                                     className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+//                                         activityForm.is_archived
+//                                             ? "translate-x-6"
+//                                             : "translate-x-1"
+//                                     }`}
+//                                 />
+//                             </button>
+//                         </div>
+//                     </div>
+
+//                     {/* Hidden inputs to keep the values in the form submission */}
+//                     <input
+//                         type="hidden"
+//                         name="is_featured"
+//                         value={activityForm.is_featured ? "1" : "0"}
+//                     />
+//                     <input
+//                         type="hidden"
+//                         name="is_archived"
+//                         value={activityForm.is_archived ? "1" : "0"}
+//                     />
+
+//                     {/* Form Actions - Matching AddCustomerForm */}
+//                     <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+//                         <button
+//                             type="button"
+//                             onClick={handleClose}
+//                             className="px-4 py-2 border border-gray-300 rounded-full text-gray-700 hover:bg-gray-50 transition-colors"
+//                             disabled={submitting}
+//                         >
+//                             Cancel
+//                         </button>
+//                         <button
+//                             type="submit"
+//                             className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+//                             disabled={submitting}
+//                         >
+//                             {submitting ? (
+//                                 <>
+//                                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+//                                     {editingActivity
+//                                       ? "Updating..."
+//                                       : "Saving..."}
+//                                 </>
+//                             ) : editingActivity ? (
+//                                 "Update Activity"
+//                             ) : (
+//                                 "Add Activity"
+//                             )}
+//                         </button>
+//                     </div>
+//                 </form>
+//             </div>
+//         </div>
+//     );
+// };
+
+// export default AddActivityForm;
+
+
+
 import React, { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, Star, Archive, Upload, Camera, Image, Code, FileJson, HelpCircle } from "lucide-react";
 import axios from "axios";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+
+// Import Ace Editor components
+import AceEditor from "react-ace";
+import "ace-builds/src-noconflict/mode-json";
+import "ace-builds/src-noconflict/theme-github";
+import "ace-builds/src-noconflict/ext-language_tools";
 
 const AddActivityForm = ({
     editingActivity,
@@ -11,6 +743,12 @@ const AddActivityForm = ({
 }) => {
     const [submitting, setSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
+    const [imagesPreviews, setImagesPreviews] = useState([]);
+    const [imageFiles, setImageFiles] = useState([]);
+    const [metaDataValid, setMetaDataValid] = useState(true);
+    const [metaDataError, setMetaDataError] = useState("");
+    const [editorFontSize, setEditorFontSize] = useState(14);
+    const [showTemplates, setShowTemplates] = useState(false);
     const [activityForm, setActivityForm] = useState({
         name: "",
         short_description: "",
@@ -22,7 +760,110 @@ const AddActivityForm = ({
         is_archived: false,
     });
 
-    // Use Effect
+    // Add useEffect to lock body scroll when form mounts
+    useEffect(() => {
+        // Lock body scroll
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
+        
+        // Cleanup function to restore scroll when component unmounts
+        return () => {
+            document.body.style.overflow = 'unset';
+            document.body.style.position = 'static';
+            document.body.style.width = 'auto';
+        };
+    }, []);
+
+    // File size limits in bytes - Changed to 2MB max
+    const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
+
+    // Quill modules configuration
+    const quillModules = {
+        toolbar: [
+            [{ header: [1, 2, 3, 4, 5, 6, false] }],
+            ["bold", "italic", "underline", "strike"],
+            [{ list: "ordered" }, { list: "bullet" }],
+            [{ indent: "-1" }, { indent: "+1" }],
+            [{ align: [] }],
+            ["link", "image"],
+            ["clean"],
+        ],
+    };
+
+    const quillFormats = [
+        "header",
+        "bold",
+        "italic",
+        "underline",
+        "strike",
+        "list",
+        "bullet",
+        "indent",
+        "align",
+        "link",
+        "image",
+    ];
+
+    // Validate JSON
+    const validateJSON = (jsonString) => {
+        if (!jsonString || jsonString.trim() === "") {
+            setMetaDataValid(true);
+            setMetaDataError("");
+            return true;
+        }
+        
+        try {
+            JSON.parse(jsonString);
+            setMetaDataValid(true);
+            setMetaDataError("");
+            return true;
+        } catch (e) {
+            setMetaDataValid(false);
+            setMetaDataError(e.message);
+            return false;
+        }
+    };
+
+    // Handle Ace Editor change
+    const handleMetaDataChange = (value) => {
+        setActivityForm(prev => ({
+            ...prev,
+            meta_data: value
+        }));
+        validateJSON(value);
+    };
+
+    // Clear meta data
+    const clearMetaData = () => {
+        setActivityForm(prev => ({
+            ...prev,
+            meta_data: ""
+        }));
+        setMetaDataValid(true);
+        setMetaDataError("");
+    };
+
+    // Insert SEO template only
+    const insertSEOTemplate = () => {
+        const seoTemplate = {
+            meta_title: "Amazing Activity Name - Best Experience",
+            meta_description: "Discover the most amazing activity that will create unforgettable memories. Perfect for families, couples, and solo travelers.",
+            meta_keywords: ["adventure", "tour", "experience", "fun", "family"],
+            og_image: "default-og-image.jpg",
+            canonical_url: "/activities/activity-name"
+        };
+        
+        const formattedTemplate = JSON.stringify(seoTemplate, null, 2);
+        setActivityForm(prev => ({
+            ...prev,
+            meta_data: formattedTemplate
+        }));
+        validateJSON(formattedTemplate);
+        setShowTemplates(false);
+    };
+
+    // Use Effect for editing
     useEffect(() => {
         if (editingActivity) {
             setActivityForm({
@@ -31,14 +872,26 @@ const AddActivityForm = ({
                 long_description: editingActivity.long_description || "",
                 base_price: editingActivity.base_price || "",
                 images: [],
-                meta_data: editingActivity.meta_data ? 
-                    (typeof editingActivity.meta_data === 'object' 
+                meta_data: editingActivity.meta_data
+                    ? typeof editingActivity.meta_data === "object"
                         ? JSON.stringify(editingActivity.meta_data, null, 2)
-                        : editingActivity.meta_data) 
+                        : editingActivity.meta_data
                     : "",
                 is_featured: editingActivity.is_featured || false,
                 is_archived: editingActivity.is_archived || false,
             });
+            
+            // Validate existing meta_data
+            if (editingActivity.meta_data) {
+                const metaStr = typeof editingActivity.meta_data === "object"
+                    ? JSON.stringify(editingActivity.meta_data)
+                    : editingActivity.meta_data;
+                validateJSON(metaStr);
+            }
+            
+            // Reset image previews when editing activity changes
+            setImagesPreviews([]);
+            setImageFiles([]);
         } else {
             setActivityForm({
                 name: "",
@@ -50,6 +903,10 @@ const AddActivityForm = ({
                 is_featured: false,
                 is_archived: false,
             });
+            setImagesPreviews([]);
+            setImageFiles([]);
+            setMetaDataValid(true);
+            setMetaDataError("");
         }
         setErrors({});
     }, [editingActivity]);
@@ -59,48 +916,74 @@ const AddActivityForm = ({
         setShowForm(false);
         setEditingActivity(null);
         setErrors({});
+        setImagesPreviews([]);
+        setImageFiles([]);
     };
 
     // Handle Submit
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors({});
-        
+
+        // Validate JSON before submission
+        if (activityForm.meta_data && activityForm.meta_data.trim() !== "") {
+            if (!validateJSON(activityForm.meta_data)) {
+                alert("Please fix the JSON format in Meta Data field");
+                return;
+            }
+        }
+
+        // Validate all images size before submission
+        if (imageFiles.length > 0) {
+            const oversizedImages = imageFiles.filter(
+                (file) => file.size > MAX_IMAGE_SIZE,
+            );
+            if (oversizedImages.length > 0) {
+                alert(
+                    `${oversizedImages.length} image(s) exceed 2MB limit. Please remove them.`
+                );
+                return;
+            }
+        }
+
         const formData = new FormData();
-        
+
         // Append basic fields
-        formData.append('name', activityForm.name);
-        formData.append('base_price', activityForm.base_price);
-        
+        formData.append("name", activityForm.name);
+        formData.append("base_price", activityForm.base_price);
+
         // Append optional fields if they have values
         if (activityForm.short_description) {
-            formData.append('short_description', activityForm.short_description);
+            formData.append(
+                "short_description",
+                activityForm.short_description,
+            );
         }
-        
+
         if (activityForm.long_description) {
-            formData.append('long_description', activityForm.long_description);
+            formData.append("long_description", activityForm.long_description);
         }
-        
+
         // Handle meta_data - send as JSON string
-        if (activityForm.meta_data) {
+        if (activityForm.meta_data && activityForm.meta_data.trim() !== "") {
             try {
-                // Try to parse if it's a valid JSON, otherwise send as string
-                JSON.parse(activityForm.meta_data);
-                formData.append('meta_data', activityForm.meta_data);
+                // Parse to validate, then stringify to ensure proper format
+                const parsed = JSON.parse(activityForm.meta_data);
+                formData.append("meta_data", JSON.stringify(parsed));
             } catch (e) {
                 // If not valid JSON, create a simple JSON object
                 const simpleMeta = { description: activityForm.meta_data };
-                formData.append('meta_data', JSON.stringify(simpleMeta));
+                formData.append("meta_data", JSON.stringify(simpleMeta));
             }
         }
-        
+
         // Handle boolean fields - send as 0/1 strings
-        formData.append('is_featured', activityForm.is_featured ? '1' : '0');
-        formData.append('is_archived', activityForm.is_archived ? '1' : '0');
-        
+        formData.append("is_featured", activityForm.is_featured ? "1" : "0");
+        formData.append("is_archived", activityForm.is_archived ? "1" : "0");
+
         // Handle images
-        if (activityForm.images && activityForm.images.length > 0) {
-            activityForm.images.forEach((image, index) => {
+        if (imageFiles && imageFiles.length > 0) {
+            imageFiles.forEach((image, index) => {
                 formData.append(`images[${index}]`, image);
             });
         }
@@ -110,34 +993,32 @@ const AddActivityForm = ({
 
             if (editingActivity) {
                 // For update - IMPORTANT: Use POST with _method field
-                // Your route only accepts POST, so we need to use POST and let Laravel handle the method spoofing
-                formData.append('_method', 'PUT');
-                
-                // Using POST as defined in your web.php
+                formData.append("_method", "PUT");
+
                 const response = await axios.post(
-                    route("ouractivity.update", { id: editingActivity.id }), 
+                    route("ouractivity.update", { id: editingActivity.id }),
                     formData,
                     {
                         headers: {
                             "Content-Type": "multipart/form-data",
                         },
-                    }
+                    },
                 );
-                console.log('Update response:', response.data);
+                console.log("Update response:", response.data);
             } else {
                 // Create new activity
                 const response = await axios.post(
-                    route("ouractivity.store"), 
+                    route("ouractivity.store"),
                     formData,
                     {
                         headers: {
                             "Content-Type": "multipart/form-data",
                         },
-                    }
+                    },
                 );
-                console.log('Create response:', response.data);
+                console.log("Create response:", response.data);
             }
-            
+
             setReloadTrigger((prev) => !prev);
             handleClose();
         } catch (error) {
@@ -145,31 +1026,92 @@ const AddActivityForm = ({
                 setErrors(error.response.data.errors || {});
                 console.log("Validation errors:", error.response.data.errors);
             } else if (error.response?.status === 405) {
-                console.error("Method not allowed. Check your route configuration.");
-                alert("Error: Method not allowed. Please check your route configuration.");
+                console.error(
+                    "Method not allowed. Check your route configuration.",
+                );
+                alert(
+                    "Error: Method not allowed. Please check your route configuration.",
+                );
             } else {
                 console.log("Error saving data", error);
-                alert(`Error: ${error.response?.data?.message || error.message}`);
+                alert(
+                    `Error: ${error.response?.data?.message || error.message}`,
+                );
             }
         } finally {
             setSubmitting(false);
         }
     };
 
-    // Handle change for images and other fields
+    // Handle multiple images change
+    const handleImagesChange = (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+            // Filter only image files
+            let imageFiles = files.filter((file) =>
+                file.type.startsWith("image/"),
+            );
+
+            if (imageFiles.length !== files.length) {
+                alert("Some files are not images and were ignored");
+            }
+
+            if (imageFiles.length > 0) {
+                // Validate each file size - 2MB max
+                const oversizedFiles = imageFiles.filter(
+                    (file) => file.size > MAX_IMAGE_SIZE,
+                );
+                if (oversizedFiles.length > 0) {
+                    alert(
+                        `${oversizedFiles.length} image(s) exceed 2MB limit and were ignored`
+                    );
+                    imageFiles = imageFiles.filter(
+                        (file) => file.size <= MAX_IMAGE_SIZE,
+                    );
+                }
+
+                setImageFiles((prev) => [...prev, ...imageFiles]);
+
+                // Update activityForm images
+                setActivityForm((prev) => ({
+                    ...prev,
+                    images: [...prev.images, ...imageFiles],
+                }));
+
+                // Create previews for new files
+                imageFiles.forEach((file) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        setImagesPreviews((prev) => [...prev, reader.result]);
+                    };
+                    reader.readAsDataURL(file);
+                });
+
+                // Clear image errors when new files are selected
+                setErrors((prev) => ({
+                    ...prev,
+                    "images.0": undefined,
+                    "images.*": undefined,
+                }));
+            }
+        }
+    };
+
+    // Remove image
+    const removeImage = (index) => {
+        setImageFiles((prev) => prev.filter((_, i) => i !== index));
+        setImagesPreviews((prev) => prev.filter((_, i) => i !== index));
+        setActivityForm((prev) => ({
+            ...prev,
+            images: prev.images.filter((_, i) => i !== index),
+        }));
+    };
+
+    // Handle change for other fields
     const handleChange = (e) => {
-        const { name, value, type, checked, files } = e.target;
-        
-        if (type === "file") {
-            // Handle multiple file selection
-            const fileArray = Array.from(files);
-            setActivityForm((prev) => ({
-                ...prev,
-                [name]: fileArray,
-            }));
-            // Clear image errors when new files are selected
-            setErrors((prev) => ({ ...prev, 'images.0': undefined, 'images.*': undefined }));
-        } else if (type === "checkbox") {
+        const { name, value, type, checked } = e.target;
+
+        if (type === "checkbox") {
             setActivityForm((prev) => ({
                 ...prev,
                 [name]: checked,
@@ -182,11 +1124,35 @@ const AddActivityForm = ({
         }
     };
 
+    // Handle Quill change
+    const handleQuillChange = (content) => {
+        setActivityForm((prev) => ({
+            ...prev,
+            long_description: content,
+        }));
+    };
+
+    // Toggle handlers for the switches
+    const toggleFeatured = () => {
+        setActivityForm((prev) => ({
+            ...prev,
+            is_featured: !prev.is_featured,
+        }));
+    };
+
+    const toggleArchived = () => {
+        setActivityForm((prev) => ({
+            ...prev,
+            is_archived: !prev.is_archived,
+        }));
+    };
+
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="relative px-6 py-6 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white shadow-2xl">
-                <div className="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4 border-b">
-                    <h2 className="text-2xl font-bold">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6">
+                {/* Header */}
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-800">
                         {editingActivity
                             ? "Edit Activity Item"
                             : "Add New Activity Item"}
@@ -194,17 +1160,18 @@ const AddActivityForm = ({
                     <button
                         type="button"
                         onClick={handleClose}
-                        className="p-2 hover:bg-gray-100 rounded-full transition"
+                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                     >
                         <X size={24} />
                     </button>
                 </div>
 
+                {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {/* Name Field */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Name *
+                            Name <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="text"
@@ -212,12 +1179,18 @@ const AddActivityForm = ({
                             value={activityForm.name}
                             onChange={handleChange}
                             required
-                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                                errors.name ? 'border-red-500' : 'border-gray-300'
+                            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
+                                errors.name
+                                    ? "border-red-500"
+                                    : "border-gray-300"
                             }`}
+                            placeholder="Enter activity name"
+                            disabled={submitting}
                         />
                         {errors.name && (
-                            <p className="mt-1 text-sm text-red-600">{errors.name[0]}</p>
+                            <p className="mt-1 text-sm text-red-600">
+                                {errors.name[0]}
+                            </p>
                         )}
                     </div>
 
@@ -231,38 +1204,73 @@ const AddActivityForm = ({
                             value={activityForm.short_description}
                             onChange={handleChange}
                             rows="3"
-                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                                errors.short_description ? 'border-red-500' : 'border-gray-300'
+                            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
+                                errors.short_description
+                                    ? "border-red-500"
+                                    : "border-gray-300"
                             }`}
+                            placeholder="Enter a brief description of the activity"
+                            disabled={submitting}
                         />
                         {errors.short_description && (
-                            <p className="mt-1 text-sm text-red-600">{errors.short_description[0]}</p>
+                            <p className="mt-1 text-sm text-red-600">
+                                {errors.short_description[0]}
+                            </p>
                         )}
                     </div>
 
-                    {/* Long Description */}
+                    {/* Long Description with React Quill */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Long Description
                         </label>
-                        <textarea
-                            name="long_description"
-                            value={activityForm.long_description}
-                            onChange={handleChange}
-                            rows="5"
-                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                                errors.long_description ? 'border-red-500' : 'border-gray-300'
-                            }`}
-                        />
+                        <div className={`quill-wrapper ${errors.long_description ? "quill-error" : ""}`}>
+                            <ReactQuill
+                                theme="snow"
+                                value={activityForm.long_description || ""}
+                                onChange={handleQuillChange}
+                                modules={quillModules}
+                                formats={quillFormats}
+                                className="bg-white"
+                                style={{ height: "200px", marginBottom: "40px" }}
+                                readOnly={submitting}
+                            />
+                        </div>
                         {errors.long_description && (
-                            <p className="mt-1 text-sm text-red-600">{errors.long_description[0]}</p>
+                            <p className="mt-1 text-sm text-red-600">
+                                {errors.long_description[0]}
+                            </p>
                         )}
+                        <style jsx>{`
+                            .quill-wrapper :global(.ql-container) {
+                                border-bottom-left-radius: 0.5rem;
+                                border-bottom-right-radius: 0.5rem;
+                                min-height: 150px;
+                                font-size: 0.875rem;
+                                border-color: #d1d5db;
+                            }
+                            .quill-wrapper :global(.ql-toolbar) {
+                                border-top-left-radius: 0.5rem;
+                                border-top-right-radius: 0.5rem;
+                                background-color: #f9fafb;
+                                border-color: #d1d5db;
+                            }
+                            .quill-wrapper :global(.ql-container:focus-within),
+                            .quill-wrapper :global(.ql-toolbar:focus-within) {
+                                border-color: #6366f1;
+                                box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+                            }
+                            .quill-error :global(.ql-container),
+                            .quill-error :global(.ql-toolbar) {
+                                border-color: #ef4444;
+                            }
+                        `}</style>
                     </div>
 
                     {/* Base Price */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Base Price *
+                            Base Price <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="number"
@@ -272,126 +1280,358 @@ const AddActivityForm = ({
                             required
                             min="0"
                             step="0.01"
-                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                                errors.base_price ? 'border-red-500' : 'border-gray-300'
+                            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
+                                errors.base_price
+                                    ? "border-red-500"
+                                    : "border-gray-300"
                             }`}
+                            placeholder="Enter base price"
+                            disabled={submitting}
                         />
                         {errors.base_price && (
-                            <p className="mt-1 text-sm text-red-600">{errors.base_price[0]}</p>
+                            <p className="mt-1 text-sm text-red-600">
+                                {errors.base_price[0]}
+                            </p>
                         )}
                     </div>
 
-                    {/* Image Upload - Multiple */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Images (You can select multiple)
+                    {/* Multiple Images */}
+                    <div className="space-y-2">
+                        <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
+                            <Image className="mr-2 text-gray-600" size={18} />
+                            Images (Multiple)
                         </label>
-                        <input
-                            type="file"
-                            name="images"
-                            onChange={handleChange}
-                            accept="image/jpeg,image/png,image/jpg,image/webp"
-                            multiple
-                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                                errors['images.0'] || errors['images.*'] ? 'border-red-500' : 'border-gray-300'
-                            }`}
-                        />
-                        {activityForm.images.length > 0 && (
-                            <p className="mt-1 text-sm text-gray-500">
-                                {activityForm.images.length} file(s) selected
-                            </p>
-                        )}
-                        {(errors['images.0'] || errors['images.*']) && (
-                            <p className="mt-1 text-sm text-red-600">
-                                {errors['images.0']?.[0] || errors['images.*']?.[0]}
-                            </p>
-                        )}
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-all duration-300 relative bg-gray-50">
+                            {imagesPreviews.length > 0 ? (
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-3 gap-4">
+                                        {imagesPreviews.map((preview, index) => (
+                                            <div key={index} className="relative group">
+                                                <img
+                                                    src={preview}
+                                                    alt={`Preview ${index + 1}`}
+                                                    className="h-24 w-full object-cover rounded-lg shadow bg-white"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeImage(index)}
+                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                                                    disabled={submitting}
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <p className="text-sm text-gray-600">
+                                            {imagesPreviews.length} image(s) selected
+                                        </p>
+                                        <p className="text-sm text-gray-500">
+                                            Click to add more images
+                                        </p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                                    <p className="text-lg text-gray-700">
+                                        Click to upload multiple images
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                        Hold Ctrl/Cmd to select multiple files | Max: 2MB per file
+                                    </p>
+                                </div>
+                            )}
+                            <input
+                                type="file"
+                                name="images"
+                                accept="image/jpeg,image/png,image/jpg,image/webp"
+                                multiple
+                                onChange={handleImagesChange}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                disabled={submitting}
+                            />
+                        </div>
                         
-                        {editingActivity && editingActivity.images && editingActivity.images.length > 0 && (
-                            <div className="mt-2">
-                                <p className="text-sm text-gray-500 mb-1">Current images:</p>
-                                <div className="flex gap-2 flex-wrap">
-                                    {editingActivity.images.map((img, idx) => (
-                                        <div key={idx} className="relative">
-                                            <img 
-                                                src={`/storage/${img.path}`} 
-                                                alt={img.alt_text}
-                                                className="w-16 h-16 object-cover rounded"
-                                                onError={(e) => {
-                                                    e.target.src = 'https://via.placeholder.com/64?text=No+Image';
-                                                }}
-                                            />
-                                        </div>
-                                    ))}
+                        {(errors["images.0"] || errors["images.*"]) && (
+                            <p className="text-sm text-red-600">
+                                {errors["images.0"]?.[0] ||
+                                    errors["images.*"]?.[0]}
+                            </p>
+                        )}
+
+                        {editingActivity &&
+                            editingActivity.images &&
+                            editingActivity.images.length > 0 && (
+                                <div className="mt-4">
+                                    <p className="text-sm text-gray-500 mb-2">
+                                        Current images:
+                                    </p>
+                                    <div className="flex gap-2 flex-wrap">
+                                        {editingActivity.images.map(
+                                            (img, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className="relative"
+                                                >
+                                                    <img
+                                                        src={`/storage/${img.path}`}
+                                                        alt={img.alt_text}
+                                                        className="w-16 h-16 object-cover rounded-lg border border-gray-200"
+                                                        onError={(e) => {
+                                                            e.target.src =
+                                                                "https://via.placeholder.com/64?text=No+Image";
+                                                        }}
+                                                    />
+                                                </div>
+                                            ),
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                    </div>
+
+                    {/* Enhanced Meta Data with Ace Editor */}
+                    <div className="space-y-3">
+                        {/* Header with improved design */}
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                                <div className="p-1.5 bg-indigo-50 rounded-lg">
+                                    <Code className="text-indigo-600" size={18} />
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">
+                                        Meta Data (JSON)
+                                    </label>
+                                    <p className="text-xs text-gray-500">
+                                        Additional data for SEO, pricing, locations, etc.
+                                    </p>
                                 </div>
                             </div>
-                        )}
-                    </div>
-
-                    {/* Meta Data */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Meta Data (JSON)
-                        </label>
-                        <textarea
-                            name="meta_data"
-                            value={activityForm.meta_data}
-                            onChange={handleChange}
-                            rows="3"
-                            placeholder='{"key": "value"}'
-                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono text-sm ${
-                                errors.meta_data ? 'border-red-500' : 'border-gray-300'
-                            }`}
-                        />
+                            
+                            {/* Editor Controls */}
+                            <div className="flex items-center space-x-2">
+                                {/* Font Size */}
+                                <select
+                                    value={editorFontSize}
+                                    onChange={(e) => setEditorFontSize(parseInt(e.target.value))}
+                                    className="text-xs border border-gray-300 rounded-md px-2 py-1.5 bg-white hover:border-indigo-300 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                    disabled={submitting}
+                                >
+                                    <option value={12}>12px</option>
+                                    <option value={14}>14px</option>
+                                    <option value={16}>16px</option>
+                                    <option value={18}>18px</option>
+                                </select>
+                                
+                                {/* SEO Template Button */}
+                                <button
+                                    type="button"
+                                    onClick={insertSEOTemplate}
+                                    className="flex items-center space-x-1 text-xs bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-md hover:bg-indigo-100 transition-colors border border-indigo-200"
+                                    disabled={submitting}
+                                >
+                                    <FileJson size={14} />
+                                    <span>SEO Template</span>
+                                </button>
+                                
+                                {/* Clear Button */}
+                                {activityForm.meta_data && (
+                                    <button
+                                        type="button"
+                                        onClick={clearMetaData}
+                                        className="text-xs bg-red-50 text-red-600 px-2 py-1.5 rounded-md hover:bg-red-100 transition-colors"
+                                        disabled={submitting}
+                                    >
+                                        Clear
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        
+                        {/* Ace Editor */}
+                        <div className={`border rounded-lg overflow-hidden transition-all ${
+                            !metaDataValid 
+                                ? 'border-red-500 shadow-sm shadow-red-100' 
+                                : activityForm.meta_data 
+                                    ? 'border-green-500 shadow-sm shadow-green-100' 
+                                    : 'border-gray-300 hover:border-indigo-300'
+                        }`}>
+                            <AceEditor
+                                mode="json"
+                                theme="github"
+                                onChange={handleMetaDataChange}
+                                value={activityForm.meta_data}
+                                name="meta_data_editor"
+                                editorProps={{ $blockScrolling: true }}
+                                setOptions={{
+                                    enableBasicAutocompletion: true,
+                                    enableLiveAutocompletion: true,
+                                    enableSnippets: true,
+                                    showLineNumbers: true,
+                                    showGutter: true,
+                                    highlightActiveLine: true,
+                                    tabSize: 2,
+                                    useWorker: false,
+                                }}
+                                fontSize={editorFontSize}
+                                width="100%"
+                                height="220px"
+                                readOnly={submitting}
+                                className="rounded-lg"
+                            />
+                        </div>
+                        
+                        {/* Status Bar */}
+                        <div className="flex items-center justify-between bg-gray-50 rounded-md px-3 py-2">
+                            <div className="flex items-center space-x-3">
+                                {/* Validation Status */}
+                                {activityForm.meta_data && activityForm.meta_data.trim() !== "" ? (
+                                    <>
+                                        {metaDataValid ? (
+                                            <div className="flex items-center space-x-1 bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                                </svg>
+                                                <span className="text-xs font-medium">Valid JSON</span>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center space-x-1 bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
+                                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                </svg>
+                                                <span className="text-xs font-medium">Invalid JSON</span>
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className="flex items-center space-x-1 bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                                        <span className="text-xs font-medium">Empty</span>
+                                    </div>
+                                )}
+                                
+                                {/* Character/Line Count */}
+                                {activityForm.meta_data && (
+                                    <span className="text-xs text-gray-500">
+                                        {activityForm.meta_data.split('\n').length} lines • {activityForm.meta_data.length} chars
+                                    </span>
+                                )}
+                            </div>
+                            
+                            {/* Error Message */}
+                            {!metaDataValid && metaDataError && (
+                                <span className="text-xs text-red-600 truncate max-w-xs" title={metaDataError}>
+                                    Error: {metaDataError}
+                                </span>
+                            )}
+                        </div>
+                        
                         {errors.meta_data && (
-                            <p className="mt-1 text-sm text-red-600">{errors.meta_data[0]}</p>
+                            <p className="text-sm text-red-600">
+                                {errors.meta_data[0]}
+                            </p>
                         )}
-                        <p className="mt-1 text-xs text-gray-500">
-                            Enter valid JSON or leave empty
-                        </p>
                     </div>
 
-                    {/* Checkboxes */}
-                    <div className="flex items-center space-x-6">
-                        <label className="flex items-center">
-                            <input
-                                type="checkbox"
-                                name="is_featured"
-                                checked={activityForm.is_featured}
-                                onChange={handleChange}
-                                className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                            />
-                            <span className="ml-2 text-sm text-gray-700">Featured</span>
-                        </label>
+                    {/* Toggle Switches for Featured and Archived */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                        {/* Featured Toggle */}
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <div className="flex items-center space-x-3">
+                                <Star className="text-gray-600" size={20} />
+                                <span className="text-sm font-medium text-gray-700">
+                                    Featured Activity
+                                </span>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={toggleFeatured}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+                                    activityForm.is_featured
+                                        ? "bg-indigo-600"
+                                        : "bg-gray-300"
+                                }`}
+                                disabled={submitting}
+                            >
+                                <span
+                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                        activityForm.is_featured
+                                            ? "translate-x-6"
+                                            : "translate-x-1"
+                                    }`}
+                                />
+                            </button>
+                        </div>
 
-                        <label className="flex items-center">
-                            <input
-                                type="checkbox"
-                                name="is_archived"
-                                checked={activityForm.is_archived}
-                                onChange={handleChange}
-                                className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                            />
-                            <span className="ml-2 text-sm text-gray-700">Archived</span>
-                        </label>
+                        {/* Archived Toggle */}
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <div className="flex items-center space-x-3">
+                                <Archive className="text-gray-600" size={20} />
+                                <span className="text-sm font-medium text-gray-700">
+                                    Archive Activity
+                                </span>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={toggleArchived}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+                                    activityForm.is_archived
+                                        ? "bg-indigo-600"
+                                        : "bg-gray-300"
+                                }`}
+                                disabled={submitting}
+                            >
+                                <span
+                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                        activityForm.is_archived
+                                            ? "translate-x-6"
+                                            : "translate-x-1"
+                                    }`}
+                                />
+                            </button>
+                        </div>
                     </div>
 
-                    {/* Form Buttons */}
-                    <div className="flex justify-end gap-3 pt-4 border-t">
+                    {/* Hidden inputs to keep the values in the form submission */}
+                    <input
+                        type="hidden"
+                        name="is_featured"
+                        value={activityForm.is_featured ? "1" : "0"}
+                    />
+                    <input
+                        type="hidden"
+                        name="is_archived"
+                        value={activityForm.is_archived ? "1" : "0"}
+                    />
+
+                    {/* Form Actions */}
+                    <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
                         <button
                             type="button"
                             onClick={handleClose}
-                            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition"
+                            className="px-4 py-2 border border-gray-300 rounded-full text-gray-700 hover:bg-gray-50 transition-colors"
                             disabled={submitting}
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors flex items-center gap-2 disabled:opacity-50"
                             disabled={submitting}
                         >
-                            {submitting ? "Saving..." : (editingActivity ? "Update" : "Create")}
+                            {submitting ? (
+                                <>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                    {editingActivity
+                                      ? "Updating..."
+                                      : "Saving..."}
+                                </>
+                            ) : editingActivity ? (
+                                "Update Activity"
+                            ) : (
+                                "Add Activity"
+                            )}
                         </button>
                     </div>
                 </form>

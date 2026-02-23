@@ -14,6 +14,7 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoomTypeController;
 use App\Http\Controllers\RoomController;
+use App\Http\Controllers\JobController;
 
 
 Route::get('/', function () {
@@ -82,6 +83,15 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/rooms', function(){
         return Inertia::render('AdminPages/Room');
+    });
+
+    Route::get('/jobs', function(){
+        return Inertia::render('AdminPages/Jobs');
+    });
+
+
+    Route::get('/job-enquiry', function(){
+        return Inertia::render('AdminPages/JobEnquiry');
     });
 
 
@@ -161,5 +171,10 @@ Route::middleware('auth')->group(function () {
 Route::post('ourroom', [RoomController::class, 'store'])->name('ourroom.store');
 Route::put('ourroom/{id}', [RoomController::class, 'update'])->name('ourroom.update');
 Route::delete('ourroom/{id}', [RoomController::class, 'destroy'])->name('ourroom.destroy');
+
+    Route::get('/ourjob', [JobController::class, 'index'])->name('ourjob.index');
+    Route::post('/ourjob', [JobController::class, 'store'])->name('ourjob.store');
+    Route::put('/ourjob/{id}', [JobController::class, 'update'])->name('ourjob.update');
+    Route::delete('/ourjob/{id}', [JobController::class, 'destroy'])->name('ourjob.destroy');
     
 require __DIR__.'/auth.php';
