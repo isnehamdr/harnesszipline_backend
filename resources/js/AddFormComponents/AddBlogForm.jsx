@@ -304,11 +304,20 @@
 
 // export default AddBlogForm;
 
-import { X, Archive, Upload, Image as ImageIcon } from "lucide-react";
+
+
+
+import { X, Archive, Upload, Image as ImageIcon, Code } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+
+// Import Ace Editor components
+import AceEditor from "react-ace";
+import "ace-builds/src-noconflict/mode-json";
+import "ace-builds/src-noconflict/theme-github";
+import "ace-builds/src-noconflict/ext-language_tools";
 
 const AddBlogForm = ({ 
     editingBlog, 
@@ -320,6 +329,8 @@ const AddBlogForm = ({
     const [errors, setErrors] = useState({});
     const [imagePreview, setImagePreview] = useState(null);
     const [imageFile, setImageFile] = useState(null);
+    const [metaDataValid, setMetaDataValid] = useState(true);
+    const [metaDataError, setMetaDataError] = useState("");
     const [blogForm, setBlogForm] = useState({
         title: "",
         short_description: "",
@@ -374,6 +385,45 @@ const AddBlogForm = ({
         "image",
     ];
 
+    // Validate JSON
+    const validateJSON = (jsonString) => {
+        if (!jsonString || jsonString.trim() === "") {
+            setMetaDataValid(true);
+            setMetaDataError("");
+            return true;
+        }
+        
+        try {
+            JSON.parse(jsonString);
+            setMetaDataValid(true);
+            setMetaDataError("");
+            return true;
+        } catch (e) {
+            setMetaDataValid(false);
+            setMetaDataError(e.message);
+            return false;
+        }
+    };
+
+    // Handle Ace Editor change
+    const handleMetaDataChange = (value) => {
+        setBlogForm(prev => ({
+            ...prev,
+            meta_data: value
+        }));
+        validateJSON(value);
+    };
+
+    // Clear meta data
+    const clearMetaData = () => {
+        setBlogForm(prev => ({
+            ...prev,
+            meta_data: ""
+        }));
+        setMetaDataValid(true);
+        setMetaDataError("");
+    };
+
     // Use Effect for editing
     useEffect(() => {
         if (editingBlog) {
@@ -387,6 +437,14 @@ const AddBlogForm = ({
                     : editingBlog.meta_data || "",
                 is_archived: editingBlog.is_archived || false,
             });
+            
+            // Validate existing meta_data
+            if (editingBlog.meta_data) {
+                const metaStr = typeof editingBlog.meta_data === 'object'
+                    ? JSON.stringify(editingBlog.meta_data)
+                    : editingBlog.meta_data;
+                validateJSON(metaStr);
+            }
             
             // Reset image preview
             setImagePreview(null);
@@ -402,6 +460,8 @@ const AddBlogForm = ({
             });
             setImagePreview(null);
             setImageFile(null);
+            setMetaDataValid(true);
+            setMetaDataError("");
         }
         setErrors({});
     }, [editingBlog]);
@@ -420,6 +480,8 @@ const AddBlogForm = ({
         setImagePreview(null);
         setImageFile(null);
         setErrors({});
+        setMetaDataValid(true);
+        setMetaDataError("");
     };
 
     // Handle Create Blog
@@ -449,6 +511,14 @@ const AddBlogForm = ({
         e.preventDefault();
         setErrors({});
 
+        // Validate JSON before submission
+        if (blogForm.meta_data && blogForm.meta_data.trim() !== "") {
+            if (!validateJSON(blogForm.meta_data)) {
+                alert("Please fix the JSON format in Meta Data field");
+                return;
+            }
+        }
+
         // Validate image size if a new image is selected
         if (imageFile && imageFile.size > MAX_IMAGE_SIZE) {
             alert("Image exceeds 2MB limit. Please choose a smaller image.");
@@ -458,18 +528,29 @@ const AddBlogForm = ({
         const formData = new FormData();
         
         // Append all form data
-        Object.keys(blogForm).forEach(key => {
-            if (key === 'image') {
-                if (imageFile) {
-                    formData.append(key, imageFile);
-                }
-            } else if (blogForm[key] !== null && blogForm[key] !== "") {
-                formData.append(key, blogForm[key]);
+        if (imageFile) {
+            formData.append("image", imageFile);
+        }
+        
+        formData.append("title", blogForm.title);
+        formData.append("short_description", blogForm.short_description);
+        formData.append("long_description", blogForm.long_description);
+        
+        // Handle meta_data - send as JSON string
+        if (blogForm.meta_data && blogForm.meta_data.trim() !== "") {
+            try {
+                // Parse to validate, then stringify to ensure proper format
+                const parsed = JSON.parse(blogForm.meta_data);
+                formData.append("meta_data", JSON.stringify(parsed));
+            } catch (e) {
+                // If not valid JSON, create a simple JSON object
+                const simpleMeta = { description: blogForm.meta_data };
+                formData.append("meta_data", JSON.stringify(simpleMeta));
             }
-        });
+        }
 
         // Ensure is_archived is sent as boolean
-        formData.set('is_archived', blogForm.is_archived ? '1' : '0');
+        formData.append('is_archived', blogForm.is_archived ? '1' : '0');
         
         // If editing, add _method field for PUT
         if (editingBlog) {
@@ -758,28 +839,122 @@ const AddBlogForm = ({
                         )}
                     </div>
 
-                    {/* Meta Data */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Meta Data (JSON format)
-                        </label>
-                        <textarea
-                            name="meta_data"
-                            value={blogForm.meta_data}
-                            onChange={handleChange}
-                            rows="3"
-                            placeholder='{"key": "value"}'
-                            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono text-sm ${
-                                errors.meta_data ? 'border-red-500' : 'border-gray-300'
-                            }`}
-                            disabled={submitting}
-                        />
+                    {/* Enhanced Meta Data with Ace Editor */}
+                    <div className="space-y-3">
+                        {/* Header with improved design */}
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                                <div className="p-1.5 bg-indigo-50 rounded-lg">
+                                    <Code className="text-indigo-600" size={18} />
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">
+                                        Meta Data (JSON)
+                                    </label>
+                                    <p className="text-xs text-gray-500">
+                                        Additional data for SEO, settings, etc.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            {/* Editor Controls - Only Clear button */}
+                            <div className="flex items-center space-x-2">
+                                {/* Clear Button */}
+                                {blogForm.meta_data && (
+                                    <button
+                                        type="button"
+                                        onClick={clearMetaData}
+                                        className="text-xs bg-red-50 text-red-600 px-2 py-1.5 rounded-md hover:bg-red-100 transition-colors"
+                                        disabled={submitting}
+                                    >
+                                        Clear
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        
+                        {/* Ace Editor */}
+                        <div className={`border rounded-lg overflow-hidden transition-all ${
+                            !metaDataValid 
+                                ? 'border-red-500 shadow-sm shadow-red-100' 
+                                : blogForm.meta_data 
+                                    ? 'border-green-500 shadow-sm shadow-green-100' 
+                                    : 'border-gray-300 hover:border-indigo-300'
+                        }`}>
+                            <AceEditor
+                                mode="json"
+                                theme="github"
+                                onChange={handleMetaDataChange}
+                                value={blogForm.meta_data}
+                                name="meta_data_editor"
+                                editorProps={{ $blockScrolling: true }}
+                                setOptions={{
+                                    enableBasicAutocompletion: true,
+                                    enableLiveAutocompletion: true,
+                                    enableSnippets: true,
+                                    showLineNumbers: true,
+                                    showGutter: true,
+                                    highlightActiveLine: true,
+                                    tabSize: 2,
+                                    useWorker: false,
+                                }}
+                                fontSize={14}
+                                width="100%"
+                                height="220px"
+                                readOnly={submitting}
+                                className="rounded-lg"
+                            />
+                        </div>
+                        
+                        {/* Status Bar */}
+                        <div className="flex items-center justify-between bg-gray-50 rounded-md px-3 py-2">
+                            <div className="flex items-center space-x-3">
+                                {/* Validation Status */}
+                                {blogForm.meta_data && blogForm.meta_data.trim() !== "" ? (
+                                    <>
+                                        {metaDataValid ? (
+                                            <div className="flex items-center space-x-1 bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                                </svg>
+                                                <span className="text-xs font-medium">Valid JSON</span>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center space-x-1 bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
+                                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                </svg>
+                                                <span className="text-xs font-medium">Invalid JSON</span>
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className="flex items-center space-x-1 bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                                        <span className="text-xs font-medium">Empty</span>
+                                    </div>
+                                )}
+                                
+                                {/* Character/Line Count */}
+                                {blogForm.meta_data && (
+                                    <span className="text-xs text-gray-500">
+                                        {blogForm.meta_data.split('\n').length} lines • {blogForm.meta_data.length} chars
+                                    </span>
+                                )}
+                            </div>
+                            
+                            {/* Error Message */}
+                            {!metaDataValid && metaDataError && (
+                                <span className="text-xs text-red-600 truncate max-w-xs" title={metaDataError}>
+                                    Error: {metaDataError}
+                                </span>
+                            )}
+                        </div>
+                        
                         {errors.meta_data && (
-                            <p className="mt-1 text-sm text-red-600">{errors.meta_data[0]}</p>
+                            <p className="text-sm text-red-600">
+                                {errors.meta_data[0]}
+                            </p>
                         )}
-                        <p className="mt-1 text-xs text-gray-500">
-                            Enter valid JSON or leave empty
-                        </p>
                     </div>
 
                     {/* Toggle Switch for Archived */}
@@ -832,7 +1007,7 @@ const AddBlogForm = ({
                         <button
                             type="submit"
                             className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors flex items-center gap-2 disabled:opacity-50"
-                            disabled={submitting}
+                            disabled={submitting || !metaDataValid}
                         >
                             {submitting ? (
                                 <>

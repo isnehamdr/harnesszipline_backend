@@ -12,6 +12,12 @@ class Room extends Model
         'name', 'order', 'no_of_room', 'no_of_children', 'no_of_adult', 'price', 'short_description', 'long_description', 'room_type_id', 'refrence_id', 'meta_data', 'is_archived', 'is_featured', 'slug',
     ];
 
+    protected $casts = [
+        'meta_data' => 'array',
+        'is_archived' => 'boolean',
+        'is_featured' => 'boolean',
+    ];
+
     public function roomType()
     {
         return $this->belongsTo(RoomType::class);
@@ -22,7 +28,7 @@ class Room extends Model
         return $this->hasMany(RoomImage::class);
     }
 
-        protected static function boot()
+    protected static function boot()
     {
         parent::boot();
 
@@ -35,7 +41,7 @@ class Room extends Model
 
         // After created: append ID to make slug unique
         static::created(function ($room) {
-            $room->slug = Str::slug($room->name) . '-' . $room->id;
+            $room->slug = Str::slug($room->name).'-'.$room->id;
             $room->saveQuietly(); // prevents infinite loop
         });
     }

@@ -23,9 +23,73 @@ class RoomController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $rooms
+            'data' => $rooms,
         ]);
     }
+
+    /**
+     * ===============================
+     *  SHOW - Display Single Room by Slug
+     * ===============================
+     */
+    // public function show($slug)
+    // {
+    //     $room = Room::where('slug', $slug)
+    //         ->with(['images', 'roomType'])
+    //         ->firstOrFail();
+
+    //     return inertia('TestingPage/RoomDetails', [
+    //         'room' => $room,
+    //     ]);
+    // }
+
+
+    /**
+     * ===============================
+     *  SHOW - Display Single Room by Slug
+     * ===============================
+     */
+    public function show($slug)
+    {
+        $room = Room::where('slug', $slug)
+            ->with(['images', 'roomType'])
+            ->firstOrFail();
+
+        // Set default SEO metadata without directly modifying the casted property
+        $defaultSeo = [
+            'title' => $room->name . ' - ' . config('app.name', 'Harness Zipline'),
+            'description' => $room->short_description ?? 'Experience luxury and comfort in our ' . $room->name,
+            'keywords' => $room->name . ', hotel room, accommodation, ' . ($room->roomType->name ?? ''),
+            'og_image' => $this->getDisplayImageUrl($room),
+            'og_type' => 'product',
+            'twitter_card' => 'summary_large_image',
+            'canonical' => url('/room/' . $room->slug),
+            'meta_robots' => 'index, follow',
+        ];
+
+        // Get current meta_data as array
+        $currentMetaData = $room->meta_data ?: [];
+        
+        // Merge SEO data
+        if (isset($currentMetaData['seo']) && is_array($currentMetaData['seo'])) {
+            $currentMetaData['seo'] = array_merge($defaultSeo, $currentMetaData['seo']);
+        } else {
+            $currentMetaData['seo'] = $defaultSeo;
+        }
+        
+        // Create a copy of the room with modified meta_data for the view only
+        // This doesn't save to database, just for rendering
+        $roomForView = $room->replicate();
+        $roomForView->id = $room->id;
+        $roomForView->exists = true;
+        $roomForView->meta_data = $currentMetaData;
+        $roomForView->setRelations($room->getRelations());
+
+        return inertia('TestingPage/RoomDetails', [
+            'room' => $roomForView,
+        ]);
+    }
+
 
 
     /**
@@ -50,7 +114,7 @@ class RoomController extends Controller
             'display_image_index' => 'nullable|integer',
             'is_archived' => 'boolean',
             'is_featured' => 'boolean',
-            'refrence_id' => 'nullable|string|max:255'
+            'refrence_id' => 'nullable|string|max:255',
         ]);
 
         DB::beginTransaction();
@@ -72,7 +136,7 @@ class RoomController extends Controller
                     RoomImage::create([
                         'room_id' => $room->id,
                         'image' => $path,
-                        'is_display_image' => $request->display_image_index == $index
+                        'is_display_image' => $request->display_image_index == $index,
                     ]);
                 }
             }
@@ -82,7 +146,7 @@ class RoomController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Room created successfully',
-                'data' => $room->load('images', 'roomType')
+                'data' => $room->load('images', 'roomType'),
             ]);
 
         } catch (\Exception $e) {
@@ -90,11 +154,10 @@ class RoomController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
-
 
     /**
      * ===============================
@@ -120,7 +183,7 @@ class RoomController extends Controller
             'display_image_index' => 'nullable|integer',
             'is_archived' => 'boolean',
             'is_featured' => 'boolean',
-            'refrence_id' => 'nullable|string|max:255'
+            'refrence_id' => 'nullable|string|max:255',
         ]);
 
         DB::beginTransaction();
@@ -142,7 +205,7 @@ class RoomController extends Controller
                     RoomImage::create([
                         'room_id' => $room->id,
                         'image' => $path,
-                        'is_display_image' => $request->display_image_index == $index
+                        'is_display_image' => $request->display_image_index == $index,
                     ]);
                 }
             }
@@ -152,7 +215,7 @@ class RoomController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Room updated successfully',
-                'data' => $room->load('images', 'roomType')
+                'data' => $room->load('images', 'roomType'),
             ]);
 
         } catch (\Exception $e) {
@@ -160,11 +223,10 @@ class RoomController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
-
 
     /**
      * ===============================
@@ -190,7 +252,7 @@ class RoomController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Room deleted successfully'
+                'message' => 'Room deleted successfully',
             ]);
 
         } catch (\Exception $e) {
@@ -198,8 +260,25 @@ class RoomController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
+    }
+
+        /**
+     * Helper function to get display image URL
+     */
+    private function getDisplayImageUrl($room)
+    {
+        if (!$room->images || $room->images->isEmpty()) {
+            return asset('images/logo.webp');
+        }
+
+        $displayImage = $room->images->firstWhere('is_display_image', true);
+        if (!$displayImage) {
+            $displayImage = $room->images->first();
+        }
+
+        return asset('storage/' . $displayImage->image);
     }
 }

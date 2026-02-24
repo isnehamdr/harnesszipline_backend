@@ -11,6 +11,7 @@ import {
     FiSettings,
     FiStar,
     FiFile,
+    FiFileText,
 } from "react-icons/fi";
 import {
     LayoutDashboard,
@@ -264,7 +265,7 @@ const AdminSideBar = ({
                                     ${linkBaseClasses} ${linkCollapsedClasses} ${linkActiveClasses("/blog")}
                                 `}
                             >
-                                <BluetoothSearching
+                                <FiFileText
                                     className={iconClasses(
                                         isActive("/blog"),
                                     )}

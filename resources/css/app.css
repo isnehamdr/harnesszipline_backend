@@ -17,12 +17,12 @@
 
 /* Scroll thumb */
 ::-webkit-scrollbar-thumb {
-  background: #0f766e;   /* teal style */
+  background: #faa821;
   border-radius: 10px;
   border: 2px solid #f1f5f9;
 }
 
 /* Hover effect */
 ::-webkit-scrollbar-thumb:hover {
-  background: #115e59;
+  background: #d98e15;
 }

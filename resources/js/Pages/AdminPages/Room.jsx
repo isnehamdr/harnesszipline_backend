@@ -326,17 +326,17 @@ const Room = () => {
                 accessor: 'price',
                 Cell: ({ value }) => `NPR ${value}`,
             },
-            {
-                Header: 'Featured',
-                accessor: 'is_featured',
-                Cell: ({ value }) => (
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                        value ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                    }`}>
-                        {value ? 'Featured' : 'Regular'}
-                    </span>
-                ),
-            },
+            // {
+            //     Header: 'Featured',
+            //     accessor: 'is_featured',
+            //     Cell: ({ value }) => (
+            //         <span className={`px-2 py-1 text-xs rounded-full ${
+            //             value ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+            //         }`}>
+            //             {value ? 'Featured' : 'Regular'}
+            //         </span>
+            //     ),
+            // },
             {
                 Header: "Status",
                 accessor: "is_archived",
@@ -400,7 +400,7 @@ const Room = () => {
                             className="px-4 py-2 flex items-center gap-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition shadow-sm"
                         >
                             <Plus size={18} />
-                            <span>Create Room</span>
+                            <span>Create</span>
                         </button>
                     </div>
 

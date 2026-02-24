@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 
 const JobEnquiry = () => {
     const [showForm, setShowForm] = useState(false);
-        const [allUser, setAllUser] = useState([]);
+    const [allUser, setAllUser] = useState([]);
     const [reloadTrigger, setReloadTrigger] = useState(false);
     const [editingUser, setEditingUser] = useState(null);
 

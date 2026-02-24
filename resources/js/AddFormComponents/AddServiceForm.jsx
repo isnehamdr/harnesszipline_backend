@@ -288,9 +288,15 @@
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { X, Upload, Image } from "lucide-react";
+import { X, Upload, Image, Star, Archive, Code } from "lucide-react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+
+// Import Ace Editor components
+import AceEditor from "react-ace";
+import "ace-builds/src-noconflict/mode-json";
+import "ace-builds/src-noconflict/theme-github";
+import "ace-builds/src-noconflict/ext-language_tools";
 
 const AddServiceForm = ({
     editingService,
@@ -300,8 +306,11 @@ const AddServiceForm = ({
     handleUpdate,
 }) => {
     const [submitting, setSubmitting] = useState(false);
+    const [validationErrors, setValidationErrors] = useState({});
     const [imagePreview, setImagePreview] = useState(null);
     const [imageFile, setImageFile] = useState(null);
+    const [metaDataValid, setMetaDataValid] = useState(true);
+    const [metaDataError, setMetaDataError] = useState("");
     const [serviceForm, setServiceForm] = useState({
         name: "",
         short_description: "",
@@ -355,6 +364,53 @@ const AddServiceForm = ({
         "image",
     ];
 
+    // Validate JSON
+    const validateJSON = (jsonString) => {
+        if (!jsonString || jsonString.trim() === "") {
+            setMetaDataValid(true);
+            setMetaDataError("");
+            return true;
+        }
+        
+        try {
+            JSON.parse(jsonString);
+            setMetaDataValid(true);
+            setMetaDataError("");
+            return true;
+        } catch (e) {
+            setMetaDataValid(false);
+            setMetaDataError(e.message);
+            return false;
+        }
+    };
+
+    // Handle Ace Editor change
+    const handleMetaDataChange = (value) => {
+        setServiceForm(prev => ({
+            ...prev,
+            meta_data: value
+        }));
+        validateJSON(value);
+        
+        if (validationErrors.meta_data) {
+            setValidationErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors.meta_data;
+                return newErrors;
+            });
+        }
+    };
+
+    // Clear meta data
+    const clearMetaData = () => {
+        setServiceForm(prev => ({
+            ...prev,
+            meta_data: ""
+        }));
+        setMetaDataValid(true);
+        setMetaDataError("");
+    };
+
     // Format file size
     const formatFileSize = (bytes) => {
         if (bytes === 0) return "0 Bytes";
@@ -367,15 +423,30 @@ const AddServiceForm = ({
     // Use Effect for editing
     useEffect(() => {
         if (editingService) {
+            const metaDataValue = editingService.meta_data 
+                ? (typeof editingService.meta_data === 'object' 
+                    ? JSON.stringify(editingService.meta_data, null, 2)
+                    : editingService.meta_data)
+                : "";
+                
             setServiceForm({
                 name: editingService.name || "",
                 short_description: editingService.short_description || "",
                 long_description: editingService.long_description || "",
                 image: null,
                 is_featured: editingService.is_featured || false,
-                meta_data: editingService.meta_data || "",
+                meta_data: metaDataValue,
                 is_archived: editingService.is_archived || false,
             });
+            
+            // Validate existing meta_data
+            if (editingService.meta_data) {
+                const metaStr = typeof editingService.meta_data === 'object'
+                    ? JSON.stringify(editingService.meta_data)
+                    : editingService.meta_data;
+                validateJSON(metaStr);
+            }
+            
             setImagePreview(null);
             setImageFile(null);
         } else {
@@ -390,7 +461,10 @@ const AddServiceForm = ({
             });
             setImagePreview(null);
             setImageFile(null);
+            setMetaDataValid(true);
+            setMetaDataError("");
         }
+        setValidationErrors({});
     }, [editingService]);
 
     // Handle Create Service
@@ -404,6 +478,9 @@ const AddServiceForm = ({
             setReloadTrigger((prev) => !prev);
         } catch (error) {
             console.log("Error creating service", error);
+            if (error.response && error.response.status === 422) {
+                setValidationErrors(error.response.data.errors || {});
+            }
             throw error;
         }
     };
@@ -411,6 +488,15 @@ const AddServiceForm = ({
     // Handle Submit
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setValidationErrors({});
+
+        // Validate JSON before submission
+        if (serviceForm.meta_data && serviceForm.meta_data.trim() !== "") {
+            if (!validateJSON(serviceForm.meta_data)) {
+                alert("Please fix the JSON format in Meta Data field");
+                return;
+            }
+        }
         
         if (imageFile && imageFile.size > MAX_IMAGE_SIZE) {
             alert(`Image exceeds 2MB limit. Current size: ${formatFileSize(imageFile.size)}`);
@@ -433,14 +519,19 @@ const AddServiceForm = ({
             formData.append("image", imageFile);
         }
         
-        if (serviceForm.meta_data) {
+        // Handle meta_data - send as JSON string
+        if (serviceForm.meta_data && serviceForm.meta_data.trim() !== "") {
             try {
-                JSON.parse(serviceForm.meta_data);
-                formData.append("meta_data", serviceForm.meta_data);
+                // Parse to validate, then stringify to ensure proper format
+                const parsed = JSON.parse(serviceForm.meta_data);
+                formData.append("meta_data", JSON.stringify(parsed));
             } catch (e) {
+                // If not valid JSON, create a simple JSON object
                 const simpleMeta = { description: serviceForm.meta_data };
                 formData.append("meta_data", JSON.stringify(simpleMeta));
             }
+        } else {
+            formData.append("meta_data", JSON.stringify(null));
         }
         
         formData.append("is_featured", serviceForm.is_featured ? "1" : "0");
@@ -521,6 +612,14 @@ const AddServiceForm = ({
                 [name]: value,
             }));
         }
+        
+        if (validationErrors[name]) {
+            setValidationErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[name];
+                return newErrors;
+            });
+        }
     };
 
     // Handle Quill change
@@ -577,6 +676,23 @@ const AddServiceForm = ({
                     </button>
                 </div>
 
+                {/* Show validation summary if there are errors */}
+                {Object.keys(validationErrors).length > 0 && (
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                        <p className="text-sm font-medium text-red-800">Please fix the following errors:</p>
+                        <ul className="mt-1 text-xs text-red-600 list-disc list-inside">
+                            {Object.entries(validationErrors).map(([field, errors]) => {
+                                const errorMessage = errors && Array.isArray(errors) && errors.length > 0 
+                                    ? errors[0] 
+                                    : typeof errors === 'string' 
+                                        ? errors 
+                                        : 'Invalid value';
+                                return <li key={field}>{errorMessage}</li>;
+                            })}
+                        </ul>
+                    </div>
+                )}
+
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {/* Service Name */}
@@ -590,10 +706,15 @@ const AddServiceForm = ({
                             value={serviceForm.name}
                             onChange={handleChange}
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            className={`w-full px-3 py-2 border ${
+                                validationErrors.name ? 'border-red-500' : 'border-gray-300'
+                            } rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent`}
                             placeholder="Enter service name"
                             disabled={submitting}
                         />
+                        {validationErrors.name && (
+                            <p className="mt-1 text-xs text-red-500">{validationErrors.name[0]}</p>
+                        )}
                     </div>
 
                     {/* Short Description */}
@@ -606,10 +727,15 @@ const AddServiceForm = ({
                             value={serviceForm.short_description}
                             onChange={handleChange}
                             rows="3"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                            className={`w-full px-3 py-2 border ${
+                                validationErrors.short_description ? 'border-red-500' : 'border-gray-300'
+                            } rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none`}
                             placeholder="Enter short description"
                             disabled={submitting}
                         />
+                        {validationErrors.short_description && (
+                            <p className="mt-1 text-xs text-red-500">{validationErrors.short_description[0]}</p>
+                        )}
                     </div>
 
                     {/* Long Description with React Quill */}
@@ -617,7 +743,7 @@ const AddServiceForm = ({
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Long Description
                         </label>
-                        <div className="quill-wrapper border border-gray-300 rounded-lg overflow-hidden">
+                        <div className={`quill-wrapper ${validationErrors.long_description ? "quill-error" : ""} border border-gray-300 rounded-lg overflow-hidden`}>
                             <ReactQuill
                                 theme="snow"
                                 value={serviceForm.long_description || ""}
@@ -629,6 +755,9 @@ const AddServiceForm = ({
                                 readOnly={submitting}
                             />
                         </div>
+                        {validationErrors.long_description && (
+                            <p className="mt-1 text-xs text-red-500">{validationErrors.long_description[0]}</p>
+                        )}
                         <style jsx>{`
                             .quill-wrapper :global(.ql-container) {
                                 border: none;
@@ -642,6 +771,10 @@ const AddServiceForm = ({
                             }
                             .quill-wrapper :global(.ql-container.ql-snow) {
                                 border: none;
+                            }
+                            .quill-error :global(.ql-container),
+                            .quill-error :global(.ql-toolbar) {
+                                border-color: #ef4444;
                             }
                         `}</style>
                     </div>
@@ -710,31 +843,131 @@ const AddServiceForm = ({
                         )}
                     </div>
 
-                    {/* Meta Data */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Meta Data (JSON)
-                        </label>
-                        <textarea
-                            name="meta_data"
-                            value={serviceForm.meta_data}
-                            onChange={handleChange}
-                            rows="2"
-                            placeholder='{"key": "value"}'
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono text-sm resize-none"
-                            disabled={submitting}
-                        />
-                        <p className="mt-1 text-xs text-gray-500">
-                            Enter valid JSON or leave empty
-                        </p>
+                    {/* Enhanced Meta Data with Ace Editor */}
+                    <div className="space-y-3">
+                        {/* Header with improved design */}
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                                <div className="p-1.5 bg-indigo-50 rounded-lg">
+                                    <Code className="text-indigo-600" size={18} />
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">
+                                        Meta Data (JSON)
+                                    </label>
+                                    <p className="text-xs text-gray-500">
+                                        Additional data for SEO, settings, etc.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            {/* Editor Controls - Only Clear button */}
+                            <div className="flex items-center space-x-2">
+                                {/* Clear Button */}
+                                {serviceForm.meta_data && (
+                                    <button
+                                        type="button"
+                                        onClick={clearMetaData}
+                                        className="text-xs bg-red-50 text-red-600 px-2 py-1.5 rounded-md hover:bg-red-100 transition-colors"
+                                        disabled={submitting}
+                                    >
+                                        Clear
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        
+                        {/* Ace Editor */}
+                        <div className={`border rounded-lg overflow-hidden transition-all ${
+                            !metaDataValid 
+                                ? 'border-red-500 shadow-sm shadow-red-100' 
+                                : serviceForm.meta_data 
+                                    ? 'border-green-500 shadow-sm shadow-green-100' 
+                                    : 'border-gray-300 hover:border-indigo-300'
+                        }`}>
+                            <AceEditor
+                                mode="json"
+                                theme="github"
+                                onChange={handleMetaDataChange}
+                                value={serviceForm.meta_data}
+                                name="meta_data_editor"
+                                editorProps={{ $blockScrolling: true }}
+                                setOptions={{
+                                    enableBasicAutocompletion: true,
+                                    enableLiveAutocompletion: true,
+                                    enableSnippets: true,
+                                    showLineNumbers: true,
+                                    showGutter: true,
+                                    highlightActiveLine: true,
+                                    tabSize: 2,
+                                    useWorker: false,
+                                }}
+                                fontSize={14}
+                                width="100%"
+                                height="220px"
+                                readOnly={submitting}
+                                className="rounded-lg"
+                            />
+                        </div>
+                        
+                        {/* Status Bar */}
+                        <div className="flex items-center justify-between bg-gray-50 rounded-md px-3 py-2">
+                            <div className="flex items-center space-x-3">
+                                {/* Validation Status */}
+                                {serviceForm.meta_data && serviceForm.meta_data.trim() !== "" ? (
+                                    <>
+                                        {metaDataValid ? (
+                                            <div className="flex items-center space-x-1 bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                                </svg>
+                                                <span className="text-xs font-medium">Valid JSON</span>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center space-x-1 bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
+                                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                </svg>
+                                                <span className="text-xs font-medium">Invalid JSON</span>
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className="flex items-center space-x-1 bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                                        <span className="text-xs font-medium">Empty</span>
+                                    </div>
+                                )}
+                                
+                                {/* Character/Line Count */}
+                                {serviceForm.meta_data && (
+                                    <span className="text-xs text-gray-500">
+                                        {serviceForm.meta_data.split('\n').length} lines • {serviceForm.meta_data.length} chars
+                                    </span>
+                                )}
+                            </div>
+                            
+                            {/* Error Message */}
+                            {!metaDataValid && metaDataError && (
+                                <span className="text-xs text-red-600 truncate max-w-xs" title={metaDataError}>
+                                    Error: {metaDataError}
+                                </span>
+                            )}
+                        </div>
+                        
+                        {validationErrors.meta_data && (
+                            <p className="text-xs text-red-500 mt-1">{validationErrors.meta_data[0]}</p>
+                        )}
                     </div>
 
                     {/* Toggle Switches */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                         <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                            <span className="text-sm font-medium text-gray-700">
-                                Featured Service
-                            </span>
+                            <div className="flex items-center space-x-3">
+                                <Star className="text-gray-600" size={18} />
+                                <span className="text-sm font-medium text-gray-700">
+                                    Featured Service
+                                </span>
+                            </div>
                             <button
                                 type="button"
                                 onClick={toggleFeatured}
@@ -756,9 +989,12 @@ const AddServiceForm = ({
                         </div>
 
                         <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                            <span className="text-sm font-medium text-gray-700">
-                                Archive Service
-                            </span>
+                            <div className="flex items-center space-x-3">
+                                <Archive className="text-gray-600" size={18} />
+                                <span className="text-sm font-medium text-gray-700">
+                                    Archive Service
+                                </span>
+                            </div>
                             <button
                                 type="button"
                                 onClick={toggleArchived}
@@ -810,7 +1046,7 @@ const AddServiceForm = ({
                         <button
                             type="submit"
                             className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors flex items-center gap-2 disabled:opacity-50"
-                            disabled={submitting}
+                            disabled={submitting || !metaDataValid}
                         >
                             {submitting ? (
                                 <>

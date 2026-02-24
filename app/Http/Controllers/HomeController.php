@@ -28,7 +28,7 @@ class HomeController extends Controller
     {
         $request->validate([
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'video' => 'nullable|mimetypes:video/mp4,video/avi,video/mpeg|max:20480',
+            'video' => 'nullable|mimetypes:video/mp4,video/avi,video/mpeg|max:51200', // 50MB in kilobytes
             'is_archived' => 'nullable|boolean',
             'metadata_json' => 'nullable|json'
         ]);
@@ -68,7 +68,7 @@ class HomeController extends Controller
 
         $request->validate([
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'video' => 'nullable|mimetypes:video/mp4,video/avi,video/mpeg|max:20480',
+            'video' => 'nullable|mimetypes:video/mp4,video/avi,video/mpeg|max:51200', // 50MB in kilobytes
             'is_archived' => 'nullable|boolean',
             'metadata_json' => 'nullable|json'
         ]);
