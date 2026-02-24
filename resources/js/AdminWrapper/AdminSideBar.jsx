@@ -620,7 +620,7 @@ const AdminSideBar = ({
                             </Link>
 
                             {/* PDF Viewer Link */}
-                            <Link
+                            {/* <Link
                                 href="/pdf"
                                 className={`
                                     ${linkBaseClasses} ${linkCollapsedClasses} ${linkActiveClasses("/pdf")}
@@ -635,7 +635,7 @@ const AdminSideBar = ({
                                     </span>
                                 )}
                                 {isCollapsed && <Tooltip>PDF Viewer</Tooltip>}
-                            </Link>
+                            </Link> */}
                         </div>
                     </div>
                 </div>

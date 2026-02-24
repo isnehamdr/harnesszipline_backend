@@ -722,6 +722,7 @@
 
 
 
+
 import React, { useState, useEffect } from "react";
 import { X, Star, Archive, Upload, Camera, Image, Code, FileJson, HelpCircle } from "lucide-react";
 import axios from "axios";
@@ -747,7 +748,6 @@ const AddActivityForm = ({
     const [imageFiles, setImageFiles] = useState([]);
     const [metaDataValid, setMetaDataValid] = useState(true);
     const [metaDataError, setMetaDataError] = useState("");
-    const [editorFontSize, setEditorFontSize] = useState(14);
     const [showTemplates, setShowTemplates] = useState(false);
     const [activityForm, setActivityForm] = useState({
         name: "",
@@ -842,25 +842,6 @@ const AddActivityForm = ({
         }));
         setMetaDataValid(true);
         setMetaDataError("");
-    };
-
-    // Insert SEO template only
-    const insertSEOTemplate = () => {
-        const seoTemplate = {
-            meta_title: "Amazing Activity Name - Best Experience",
-            meta_description: "Discover the most amazing activity that will create unforgettable memories. Perfect for families, couples, and solo travelers.",
-            meta_keywords: ["adventure", "tour", "experience", "fun", "family"],
-            og_image: "default-og-image.jpg",
-            canonical_url: "/activities/activity-name"
-        };
-        
-        const formattedTemplate = JSON.stringify(seoTemplate, null, 2);
-        setActivityForm(prev => ({
-            ...prev,
-            meta_data: formattedTemplate
-        }));
-        validateJSON(formattedTemplate);
-        setShowTemplates(false);
     };
 
     // Use Effect for editing
@@ -1410,32 +1391,8 @@ const AddActivityForm = ({
                                 </div>
                             </div>
                             
-                            {/* Editor Controls */}
+                            {/* Editor Controls - Only Clear button remains */}
                             <div className="flex items-center space-x-2">
-                                {/* Font Size */}
-                                <select
-                                    value={editorFontSize}
-                                    onChange={(e) => setEditorFontSize(parseInt(e.target.value))}
-                                    className="text-xs border border-gray-300 rounded-md px-2 py-1.5 bg-white hover:border-indigo-300 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                                    disabled={submitting}
-                                >
-                                    <option value={12}>12px</option>
-                                    <option value={14}>14px</option>
-                                    <option value={16}>16px</option>
-                                    <option value={18}>18px</option>
-                                </select>
-                                
-                                {/* SEO Template Button */}
-                                <button
-                                    type="button"
-                                    onClick={insertSEOTemplate}
-                                    className="flex items-center space-x-1 text-xs bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-md hover:bg-indigo-100 transition-colors border border-indigo-200"
-                                    disabled={submitting}
-                                >
-                                    <FileJson size={14} />
-                                    <span>SEO Template</span>
-                                </button>
-                                
                                 {/* Clear Button */}
                                 {activityForm.meta_data && (
                                     <button
@@ -1475,7 +1432,7 @@ const AddActivityForm = ({
                                     tabSize: 2,
                                     useWorker: false,
                                 }}
-                                fontSize={editorFontSize}
+                                fontSize={14}
                                 width="100%"
                                 height="220px"
                                 readOnly={submitting}

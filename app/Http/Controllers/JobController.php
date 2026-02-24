@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Job;
+use App\Models\JobTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -13,7 +13,7 @@ class JobController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Job::query();
+        $query = JobTable::query();
 
         // Optional filtering
         if ($request->has('is_archived')) {
@@ -50,7 +50,7 @@ class JobController extends Controller
             ], 422);
         }
 
-        $job = Job::create([
+        $job = JobTable::create([
             'title' => $request->title,
             'short_description' => $request->short_description,
             'content' => $request->content,
@@ -70,7 +70,7 @@ class JobController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $job = Job::find($id);
+        $job = JobTable::find($id);
 
         if (!$job) {
             return response()->json([
@@ -115,7 +115,7 @@ class JobController extends Controller
      */
     public function destroy($id)
     {
-        $job = Job::find($id);
+        $job = JobTable::find($id);
 
         if (!$job) {
             return response()->json([

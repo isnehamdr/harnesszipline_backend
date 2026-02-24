@@ -1,15 +1,16 @@
 import axios from "axios";
 import { X } from "lucide-react";
-import React, { useEffect, useState } from "react"; // ← all missing imports added
+import React, { useEffect, useState } from "react";
 
 const AddJobForm = ({
     setShowForm,
     editingJob,
-    setEditingJob, // ← now received
+    setEditingJob,
     setReloadTrigger,
     handleUpdate,
 }) => {
     const [submitting, setSubmitting] = useState(false);
+    const [validationErrors, setValidationErrors] = useState({});
     const [jobForm, setJobForm] = useState({
         title: "",
         short_description: "",
@@ -20,9 +21,18 @@ const AddJobForm = ({
 
     useEffect(() => {
         if (editingJob) {
+            const metaDataValue = editingJob.meta_data 
+                ? (typeof editingJob.meta_data === 'object' 
+                    ? JSON.stringify(editingJob.meta_data, null, 2)
+                    : editingJob.meta_data)
+                : "";
+                
             setJobForm({
-                ...editingJob,
-                image: null,
+                title: editingJob.title || "",
+                short_description: editingJob.short_description || "",
+                content: editingJob.content || "",
+                meta_data: metaDataValue,
+                is_archived: editingJob.is_archived || false,
             });
         } else {
             setJobForm({
@@ -33,28 +43,67 @@ const AddJobForm = ({
                 is_archived: false,
             });
         }
+        setValidationErrors({});
     }, [editingJob]);
 
     const handleCreate = async (formData) => {
         try {
-            await axios.post(route("ourjob.store"), formData, { // ← fixed route name
+            // Log FormData contents for debugging
+            for (let pair of formData.entries()) {
+                console.log(pair[0] + ': ' + pair[1]);
+            }
+            
+            const response = await axios.post(route("ourjob.store"), formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
+            console.log("Create response:", response.data);
             setReloadTrigger((prev) => !prev);
         } catch (error) {
-            console.log("Error creating job", error);
+            console.log("Error creating job - Full error:", error);
+            console.log("Error response:", error.response);
+            console.log("Error data:", error.response?.data);
+            
+            if (error.response?.status === 422) {
+                setValidationErrors(error.response.data.errors || {});
+            }
             throw error;
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setValidationErrors({});
+        
         const formData = new FormData();
-        for (const key in jobForm) {
-            if (jobForm[key] !== null && jobForm[key] !== "") {
-                formData.append(key, jobForm[key]);
-            }
+        
+        // Add fields one by one with proper handling
+        formData.append("title", jobForm.title || "");
+        
+        if (jobForm.short_description) {
+            formData.append("short_description", jobForm.short_description);
         }
+        
+        if (jobForm.content) {
+            formData.append("content", jobForm.content);
+        }
+        
+        // Handle meta_data
+        if (jobForm.meta_data && jobForm.meta_data.trim() !== "") {
+            try {
+                // Test if it's valid JSON
+                JSON.parse(jobForm.meta_data);
+                formData.append("meta_data", jobForm.meta_data);
+            } catch (error) {
+                // If not valid JSON, send as a simple object
+                formData.append("meta_data", JSON.stringify({ value: jobForm.meta_data }));
+            }
+        } else {
+            formData.append("meta_data", JSON.stringify(null));
+        }
+        
+        // Handle boolean - send as string '1' or '0'
+        formData.append("is_archived", jobForm.is_archived ? "1" : "0");
+
         try {
             setSubmitting(true);
             if (editingJob) {
@@ -62,6 +111,7 @@ const AddJobForm = ({
             } else {
                 await handleCreate(formData);
             }
+            
             setJobForm({
                 title: "",
                 short_description: "",
@@ -70,7 +120,7 @@ const AddJobForm = ({
                 is_archived: false,
             });
             setShowForm(false);
-            setEditingJob(null); // ← now works because prop is passed
+            setEditingJob(null);
         } catch (error) {
             console.log("Error saving data", error);
         } finally {
@@ -79,11 +129,19 @@ const AddJobForm = ({
     };
 
     const handleChange = (e) => {
-        const { name, value, type, files } = e.target;
+        const { name, value, type, checked } = e.target;
         setJobForm((prev) => ({
             ...prev,
-            [name]: type === "file" ? files[0] : value,
+            [name]: type === "checkbox" ? checked : value,
         }));
+        
+        if (validationErrors[name]) {
+            setValidationErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[name];
+                return newErrors;
+            });
+        }
     };
 
     return (
@@ -97,7 +155,7 @@ const AddJobForm = ({
                         type="button"
                         onClick={() => {
                             setShowForm(false);
-                            setEditingJob(null); // ← clean up on close too
+                            setEditingJob(null);
                         }}
                         className="p-2 hover:bg-gray-100 rounded-full transition"
                     >
@@ -116,7 +174,7 @@ const AddJobForm = ({
                             value={jobForm.title}
                             onChange={handleChange}
                             required
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className={`w-full border ${validationErrors.title ? 'border-red-500' : 'border-gray-300'} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
                         />
                     </div>
 
@@ -148,15 +206,17 @@ const AddJobForm = ({
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Meta Data
+                            Meta Data (JSON format)
                         </label>
-                        <input
-                            type="text"
+                        <textarea
                             name="meta_data"
                             value={jobForm.meta_data}
                             onChange={handleChange}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            rows={4}
+                            placeholder='{"key": "value"} or ["item1", "item2"]'
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono text-sm"
                         />
+                        <p className="text-xs text-gray-500 mt-1">Enter as JSON object or array</p>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -165,12 +225,7 @@ const AddJobForm = ({
                             name="is_archived"
                             id="is_archived"
                             checked={jobForm.is_archived}
-                            onChange={(e) =>
-                                setJobForm((prev) => ({
-                                    ...prev,
-                                    is_archived: e.target.checked,
-                                }))
-                            }
+                            onChange={handleChange}
                             className="w-4 h-4 accent-indigo-600"
                         />
                         <label htmlFor="is_archived" className="text-sm text-gray-700">
