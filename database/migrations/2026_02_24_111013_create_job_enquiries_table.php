@@ -11,14 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('job_tables', function (Blueprint $table) {
+        Schema::create('job_enquiries', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->string('short_description');
-            $table->longText('content');
-            $table->json('meta_data')->nullable();
+            $table->foreignId('job_id')
+                ->constrained('job_tables') // ✅ THIS IS THE FIX
+                ->cascadeOnDelete();
+            $table->string('full_name');
+            $table->string('email');
+            $table->string('phone_number');
+            $table->text('description')->nullable();
+            $table->string('cv');
             $table->boolean('is_archived')->default(false);
-            $table->string('slug')->unique();
             $table->timestamps();
         });
     }
@@ -28,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('job_tables');
+        Schema::dropIfExists('job_enquiries');
     }
 };

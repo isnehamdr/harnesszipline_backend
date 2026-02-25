@@ -15,6 +15,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoomTypeController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\JobTableController;
+use App\Http\Controllers\JobEnquiryController;
 
 
 Route::get('/', function () {
@@ -242,11 +243,17 @@ Route::middleware('auth')->group(function () {
     Route::put('/ourjob/{id}', [JobTableController::class, 'update'])->name('ourjob.update');
     Route::delete('/ourjob/{id}', [JobTableController::class, 'destroy'])->name('ourjob.destroy');
 
+
+    Route::get('/ourjobenquiry', [JobEnquiryController::class, 'index'])->name('ourjobenquiry.index');
+    Route::post('/ourjobenquiry', [JobEnquiryController::class, 'store'])->name('ourjobenquiry.store');
+    Route::put('/ourjobenquiry/{id}', [JobEnquiryController::class, 'update'])->name('ourjobenquiry.update');
+    Route::delete('/ourjobenquiry/{id}', [JobEnquiryController::class, 'destroy'])->name('ourjobenquiry.destroy');
+
    
 });
 
 
-    Route::get('/rooms/{slug}', [RoomController::class, 'publicShow'])->name('rooms.show');
+    // Route::get('/rooms/{slug}', [RoomController::class, 'publicShow'])->name('rooms.show');
 
 
     Route::get('/ourpdfs', [PdfController::class, 'index'])->name('ourpdfs.index');
@@ -265,8 +272,18 @@ Route::middleware('auth')->group(function () {
     });
 
 
+    Route::get('/job-page', function(){
+        return Inertia::render('TestingPage/JobPage');
+    });
+
+
 
     Route::get('/room/{slug}', [RoomController::class, 'show'])->name('ourroom.show');
+
+
+
+    // Route::get('/jobs/{slug}', [JobTableController::class, 'show'])->name('jobs.show');
+    Route::get('/job/{slug}', [JobTableController::class, 'show'])->name('ourjob.show');
 
 
     // Route::get('/enroute-story', function(){

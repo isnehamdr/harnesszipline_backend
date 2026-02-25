@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Link, usePage, Head } from "@inertiajs/react";
-import { Helmet } from "react-helmet-async";
 import axios from "axios";
 import {
     BedDouble,
@@ -255,7 +254,7 @@ const RoomDetails = ({ room: initialRoom }) => {
 
     return (
         <>
-            <Helmet>
+            <Head>
                 {/* Basic Meta Tags */}
                 <title>{seoMetadata.title}</title>
                 <meta name="description" content={seoMetadata.description} />
@@ -283,16 +282,12 @@ const RoomDetails = ({ room: initialRoom }) => {
                 {room.meta_data?.seo?.meta_robots && (
                     <meta name="robots" content={room.meta_data.seo.meta_robots} />
                 )}
-                
-                {/* Structured Data */}
-                <script type="application/ld+json">
-                    {JSON.stringify(structuredData)}
-                </script>
-            </Helmet>
-
-            <Head title={seoMetadata.title}>
-                <meta name="description" content={seoMetadata.description} />
             </Head>
+
+            {/* Structured Data - must be placed outside Head but still in the component */}
+            <script type="application/ld+json">
+                {JSON.stringify(structuredData)}
+            </script>
 
             <div className="min-h-screen bg-[#f8f7f4]">
                 {/* Lightbox */}

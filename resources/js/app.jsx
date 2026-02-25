@@ -1,30 +1,26 @@
-import '../css/app.css';
-import './bootstrap';
+import "../css/app.css";
+import "./bootstrap";
 
-import { createInertiaApp } from '@inertiajs/react';
-import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
-import { createRoot } from 'react-dom/client';
-import { HelmetProvider } from 'react-helmet-async';
+import { createInertiaApp } from "@inertiajs/react";
+import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
+import { createRoot } from "react-dom/client";
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+
+const appName = import.meta.env.VITE_APP_NAME || "Harness Zipline";
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    title: (title) => `${title} Harness Zipline`,
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.jsx`,
-            import.meta.glob('./Pages/**/*.jsx'),
+            import.meta.glob("./Pages/**/*.jsx"),
         ),
     setup({ el, App, props }) {
         const root = createRoot(el);
 
-        root.render(
-            <HelmetProvider>
-                <App {...props} />
-            </HelmetProvider>
-        );
+        root.render(<App {...props} />);
     },
     progress: {
-        color: '#4B5563',
+        color: "#4B5563",
     },
 });

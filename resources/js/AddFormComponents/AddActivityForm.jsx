@@ -1,8 +1,14 @@
 // import React, { useState, useEffect } from "react";
-// import { X, Star, Archive, Upload, Camera, Image } from "lucide-react";
+// import { X, Star, Archive, Upload, Image, Code } from "lucide-react";
 // import axios from "axios";
 // import ReactQuill from "react-quill";
-// import "react-quill/dist/quill.snow.css"; // Import the styles
+// import "react-quill/dist/quill.snow.css";
+
+// // Import Ace Editor components
+// import AceEditor from "react-ace";
+// import "ace-builds/src-noconflict/mode-json";
+// import "ace-builds/src-noconflict/theme-github";
+// import "ace-builds/src-noconflict/ext-language_tools";
 
 // const AddActivityForm = ({
 //     editingActivity,
@@ -15,6 +21,7 @@
 //     const [errors, setErrors] = useState({});
 //     const [imagesPreviews, setImagesPreviews] = useState([]);
 //     const [imageFiles, setImageFiles] = useState([]);
+//     const [jsonError, setJsonError] = useState("");
 //     const [activityForm, setActivityForm] = useState({
 //         name: "",
 //         short_description: "",
@@ -39,7 +46,7 @@
 //             document.body.style.position = 'static';
 //             document.body.style.width = 'auto';
 //         };
-//     }, []); // Empty dependency array means this runs once on mount
+//     }, []);
 
 //     // File size limits in bytes - Changed to 2MB max
 //     const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
@@ -71,7 +78,33 @@
 //         "image",
 //     ];
 
-//     // Use Effect
+//     // Validate JSON
+//     const validateJSON = (jsonString) => {
+//         if (!jsonString || jsonString.trim() === "") {
+//             setJsonError("");
+//             return true;
+//         }
+        
+//         try {
+//             JSON.parse(jsonString);
+//             setJsonError("");
+//             return true;
+//         } catch (e) {
+//             setJsonError("Invalid JSON format");
+//             return false;
+//         }
+//     };
+
+//     // Handle Ace Editor change
+//     const handleMetaDataChange = (value) => {
+//         setActivityForm(prev => ({
+//             ...prev,
+//             meta_data: value
+//         }));
+//         validateJSON(value);
+//     };
+
+//     // Use Effect for editing
 //     useEffect(() => {
 //         if (editingActivity) {
 //             setActivityForm({
@@ -89,6 +122,14 @@
 //                 is_archived: editingActivity.is_archived || false,
 //             });
             
+//             // Validate existing meta_data
+//             if (editingActivity.meta_data) {
+//                 const metaStr = typeof editingActivity.meta_data === "object"
+//                     ? JSON.stringify(editingActivity.meta_data)
+//                     : editingActivity.meta_data;
+//                 validateJSON(metaStr);
+//             }
+            
 //             // Reset image previews when editing activity changes
 //             setImagesPreviews([]);
 //             setImageFiles([]);
@@ -105,6 +146,7 @@
 //             });
 //             setImagesPreviews([]);
 //             setImageFiles([]);
+//             setJsonError("");
 //         }
 //         setErrors({});
 //     }, [editingActivity]);
@@ -116,12 +158,18 @@
 //         setErrors({});
 //         setImagesPreviews([]);
 //         setImageFiles([]);
+//         setJsonError("");
 //     };
 
 //     // Handle Submit
 //     const handleSubmit = async (e) => {
 //         e.preventDefault();
 //         setErrors({});
+
+//         // Validate JSON before submission
+//         if (!validateJSON(activityForm.meta_data)) {
+//             return;
+//         }
 
 //         // Validate all images size before submission
 //         if (imageFiles.length > 0) {
@@ -155,11 +203,11 @@
 //         }
 
 //         // Handle meta_data - send as JSON string
-//         if (activityForm.meta_data) {
+//         if (activityForm.meta_data && activityForm.meta_data.trim() !== "") {
 //             try {
-//                 // Try to parse if it's a valid JSON, otherwise send as string
-//                 JSON.parse(activityForm.meta_data);
-//                 formData.append("meta_data", activityForm.meta_data);
+//                 // Parse to validate, then stringify to ensure proper format
+//                 const parsed = JSON.parse(activityForm.meta_data);
+//                 formData.append("meta_data", JSON.stringify(parsed));
 //             } catch (e) {
 //                 // If not valid JSON, create a simple JSON object
 //                 const simpleMeta = { description: activityForm.meta_data };
@@ -183,10 +231,8 @@
 
 //             if (editingActivity) {
 //                 // For update - IMPORTANT: Use POST with _method field
-//                 // Your route only accepts POST, so we need to use POST and let Laravel handle the method spoofing
 //                 formData.append("_method", "PUT");
 
-//                 // Using POST as defined in your web.php
 //                 const response = await axios.post(
 //                     route("ouractivity.update", { id: editingActivity.id }),
 //                     formData,
@@ -341,8 +387,8 @@
 
 //     return (
 //         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-//             <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
-//                 {/* Header - Matching AddCustomerForm */}
+//             <div className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6">
+//                 {/* Header - Matching AddHomeForm */}
 //                 <div className="flex justify-between items-center mb-6">
 //                     <h2 className="text-2xl font-bold text-gray-800">
 //                         {editingActivity
@@ -358,7 +404,7 @@
 //                     </button>
 //                 </div>
 
-//                 {/* Form - Matching AddCustomerForm layout */}
+//                 {/* Form */}
 //                 <form onSubmit={handleSubmit} className="space-y-4">
 //                     {/* Name Field */}
 //                     <div>
@@ -487,11 +533,11 @@
 //                         )}
 //                     </div>
 
-//                     {/* Multiple Images */}
+//                     {/* Multiple Images - Simplified like AddHomeForm */}
 //                     <div className="space-y-2">
 //                         <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
 //                             <Image className="mr-2 text-gray-600" size={18} />
-//                             Images (Multiple)
+//                             Images {!editingActivity && <span className="text-red-500 ml-1">*</span>}
 //                         </label>
 //                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-all duration-300 relative bg-gray-50">
 //                             {imagesPreviews.length > 0 ? (
@@ -584,35 +630,50 @@
 //                             )}
 //                     </div>
 
-//                     {/* Meta Data */}
+//                     {/* Meta Data with Ace Editor - Simplified like AddHomeForm */}
 //                     <div>
 //                         <label className="block text-sm font-medium text-gray-700 mb-1">
 //                             Meta Data (JSON)
 //                         </label>
-//                         <textarea
-//                             name="meta_data"
-//                             value={activityForm.meta_data}
-//                             onChange={handleChange}
-//                             rows="3"
-//                             placeholder='{"key": "value"}'
-//                             className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono text-sm ${
-//                                 errors.meta_data
-//                                     ? "border-red-500"
-//                                     : "border-gray-300"
-//                             }`}
-//                             disabled={submitting}
-//                         />
+//                         <div className={`border rounded-lg overflow-hidden font-mono ${
+//                             jsonError ? 'border-red-500' : 'border-gray-300'
+//                         }`}>
+//                             <AceEditor
+//                                 mode="json"
+//                                 theme="github"
+//                                 onChange={handleMetaDataChange}
+//                                 value={activityForm.meta_data}
+//                                 name="meta_data_editor"
+//                                 editorProps={{ $blockScrolling: true }}
+//                                 setOptions={{
+//                                     showLineNumbers: true,
+//                                     tabSize: 2,
+//                                     fontSize: 14,
+//                                     showGutter: true,
+//                                     highlightActiveLine: true,
+//                                     useWorker: false,
+//                                 }}
+//                                 width="100%"
+//                                 height="200px"
+//                                 className="rounded-lg"
+//                             />
+//                         </div>
+//                         {jsonError && (
+//                             <p className="mt-1 text-sm text-red-600">
+//                                 {jsonError}
+//                             </p>
+//                         )}
 //                         {errors.meta_data && (
 //                             <p className="mt-1 text-sm text-red-600">
 //                                 {errors.meta_data[0]}
 //                             </p>
 //                         )}
 //                         <p className="mt-1 text-xs text-gray-500">
-//                             Enter valid JSON or leave empty
+//                             Enter valid JSON format. Example: {"{}"}
 //                         </p>
 //                     </div>
 
-//                     {/* Toggle Switches for Featured and Archived */}
+//                     {/* Toggle Switches for Featured and Archived - Matching AddHomeForm style */}
 //                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
 //                         {/* Featured Toggle */}
 //                         <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
@@ -683,7 +744,7 @@
 //                         value={activityForm.is_archived ? "1" : "0"}
 //                     />
 
-//                     {/* Form Actions - Matching AddCustomerForm */}
+//                     {/* Form Actions - Matching AddHomeForm */}
 //                     <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
 //                         <button
 //                             type="button"
@@ -696,7 +757,7 @@
 //                         <button
 //                             type="submit"
 //                             className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors flex items-center gap-2 disabled:opacity-50"
-//                             disabled={submitting}
+//                             disabled={submitting || jsonError !== ""}
 //                         >
 //                             {submitting ? (
 //                                 <>
@@ -721,10 +782,8 @@
 // export default AddActivityForm;
 
 
-
-
 import React, { useState, useEffect } from "react";
-import { X, Star, Archive, Upload, Camera, Image, Code, FileJson, HelpCircle } from "lucide-react";
+import { X, Star, Archive, Upload, Image } from "lucide-react";
 import axios from "axios";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
@@ -735,20 +794,12 @@ import "ace-builds/src-noconflict/mode-json";
 import "ace-builds/src-noconflict/theme-github";
 import "ace-builds/src-noconflict/ext-language_tools";
 
-const AddActivityForm = ({
-    editingActivity,
-    setShowForm,
-    setEditingActivity,
-    handleUpdate,
-    setReloadTrigger,
-}) => {
+const AddActivityForm = ({ setShowForm, setReloadTrigger }) => {
     const [submitting, setSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
     const [imagesPreviews, setImagesPreviews] = useState([]);
     const [imageFiles, setImageFiles] = useState([]);
-    const [metaDataValid, setMetaDataValid] = useState(true);
-    const [metaDataError, setMetaDataError] = useState("");
-    const [showTemplates, setShowTemplates] = useState(false);
+    const [jsonError, setJsonError] = useState("");
     const [activityForm, setActivityForm] = useState({
         name: "",
         short_description: "",
@@ -808,19 +859,16 @@ const AddActivityForm = ({
     // Validate JSON
     const validateJSON = (jsonString) => {
         if (!jsonString || jsonString.trim() === "") {
-            setMetaDataValid(true);
-            setMetaDataError("");
+            setJsonError("");
             return true;
         }
         
         try {
             JSON.parse(jsonString);
-            setMetaDataValid(true);
-            setMetaDataError("");
+            setJsonError("");
             return true;
         } catch (e) {
-            setMetaDataValid(false);
-            setMetaDataError(e.message);
+            setJsonError("Invalid JSON format");
             return false;
         }
     };
@@ -834,87 +882,31 @@ const AddActivityForm = ({
         validateJSON(value);
     };
 
-    // Clear meta data
-    const clearMetaData = () => {
-        setActivityForm(prev => ({
-            ...prev,
-            meta_data: ""
-        }));
-        setMetaDataValid(true);
-        setMetaDataError("");
-    };
-
-    // Use Effect for editing
-    useEffect(() => {
-        if (editingActivity) {
-            setActivityForm({
-                name: editingActivity.name || "",
-                short_description: editingActivity.short_description || "",
-                long_description: editingActivity.long_description || "",
-                base_price: editingActivity.base_price || "",
-                images: [],
-                meta_data: editingActivity.meta_data
-                    ? typeof editingActivity.meta_data === "object"
-                        ? JSON.stringify(editingActivity.meta_data, null, 2)
-                        : editingActivity.meta_data
-                    : "",
-                is_featured: editingActivity.is_featured || false,
-                is_archived: editingActivity.is_archived || false,
-            });
-            
-            // Validate existing meta_data
-            if (editingActivity.meta_data) {
-                const metaStr = typeof editingActivity.meta_data === "object"
-                    ? JSON.stringify(editingActivity.meta_data)
-                    : editingActivity.meta_data;
-                validateJSON(metaStr);
-            }
-            
-            // Reset image previews when editing activity changes
-            setImagesPreviews([]);
-            setImageFiles([]);
-        } else {
-            setActivityForm({
-                name: "",
-                short_description: "",
-                long_description: "",
-                base_price: "",
-                images: [],
-                meta_data: "",
-                is_featured: false,
-                is_archived: false,
-            });
-            setImagesPreviews([]);
-            setImageFiles([]);
-            setMetaDataValid(true);
-            setMetaDataError("");
-        }
-        setErrors({});
-    }, [editingActivity]);
-
     // Handle Close
     const handleClose = () => {
         setShowForm(false);
-        setEditingActivity(null);
         setErrors({});
         setImagesPreviews([]);
         setImageFiles([]);
+        setJsonError("");
     };
 
-    // Handle Submit
+    // Handle Submit for new activity
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors({});
 
         // Validate JSON before submission
-        if (activityForm.meta_data && activityForm.meta_data.trim() !== "") {
-            if (!validateJSON(activityForm.meta_data)) {
-                alert("Please fix the JSON format in Meta Data field");
-                return;
-            }
+        if (!validateJSON(activityForm.meta_data)) {
+            return;
         }
 
         // Validate all images size before submission
+        if (imageFiles.length === 0) {
+            alert("Please select at least one image");
+            return;
+        }
+
         if (imageFiles.length > 0) {
             const oversizedImages = imageFiles.filter(
                 (file) => file.size > MAX_IMAGE_SIZE,
@@ -972,33 +964,17 @@ const AddActivityForm = ({
         try {
             setSubmitting(true);
 
-            if (editingActivity) {
-                // For update - IMPORTANT: Use POST with _method field
-                formData.append("_method", "PUT");
-
-                const response = await axios.post(
-                    route("ouractivity.update", { id: editingActivity.id }),
-                    formData,
-                    {
-                        headers: {
-                            "Content-Type": "multipart/form-data",
-                        },
+            // Create new activity
+            const response = await axios.post(
+                route("ouractivity.store"),
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
                     },
-                );
-                console.log("Update response:", response.data);
-            } else {
-                // Create new activity
-                const response = await axios.post(
-                    route("ouractivity.store"),
-                    formData,
-                    {
-                        headers: {
-                            "Content-Type": "multipart/form-data",
-                        },
-                    },
-                );
-                console.log("Create response:", response.data);
-            }
+                },
+            );
+            console.log("Create response:", response.data);
 
             setReloadTrigger((prev) => !prev);
             handleClose();
@@ -1134,9 +1110,7 @@ const AddActivityForm = ({
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold text-gray-800">
-                        {editingActivity
-                            ? "Edit Activity Item"
-                            : "Add New Activity Item"}
+                        Add New Activity Item
                     </h2>
                     <button
                         type="button"
@@ -1280,7 +1254,7 @@ const AddActivityForm = ({
                     <div className="space-y-2">
                         <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
                             <Image className="mr-2 text-gray-600" size={18} />
-                            Images (Multiple)
+                            Images <span className="text-red-500 ml-1">*</span>
                         </label>
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-all duration-300 relative bg-gray-50">
                             {imagesPreviews.length > 0 ? (
@@ -1341,79 +1315,15 @@ const AddActivityForm = ({
                                     errors["images.*"]?.[0]}
                             </p>
                         )}
-
-                        {editingActivity &&
-                            editingActivity.images &&
-                            editingActivity.images.length > 0 && (
-                                <div className="mt-4">
-                                    <p className="text-sm text-gray-500 mb-2">
-                                        Current images:
-                                    </p>
-                                    <div className="flex gap-2 flex-wrap">
-                                        {editingActivity.images.map(
-                                            (img, idx) => (
-                                                <div
-                                                    key={idx}
-                                                    className="relative"
-                                                >
-                                                    <img
-                                                        src={`/storage/${img.path}`}
-                                                        alt={img.alt_text}
-                                                        className="w-16 h-16 object-cover rounded-lg border border-gray-200"
-                                                        onError={(e) => {
-                                                            e.target.src =
-                                                                "https://via.placeholder.com/64?text=No+Image";
-                                                        }}
-                                                    />
-                                                </div>
-                                            ),
-                                        )}
-                                    </div>
-                                </div>
-                            )}
                     </div>
 
-                    {/* Enhanced Meta Data with Ace Editor */}
-                    <div className="space-y-3">
-                        {/* Header with improved design */}
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                                <div className="p-1.5 bg-indigo-50 rounded-lg">
-                                    <Code className="text-indigo-600" size={18} />
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">
-                                        Meta Data (JSON)
-                                    </label>
-                                    <p className="text-xs text-gray-500">
-                                        Additional data for SEO, pricing, locations, etc.
-                                    </p>
-                                </div>
-                            </div>
-                            
-                            {/* Editor Controls - Only Clear button remains */}
-                            <div className="flex items-center space-x-2">
-                                {/* Clear Button */}
-                                {activityForm.meta_data && (
-                                    <button
-                                        type="button"
-                                        onClick={clearMetaData}
-                                        className="text-xs bg-red-50 text-red-600 px-2 py-1.5 rounded-md hover:bg-red-100 transition-colors"
-                                        disabled={submitting}
-                                    >
-                                        Clear
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                        
-                        {/* Ace Editor */}
-                        <div className={`border rounded-lg overflow-hidden transition-all ${
-                            !metaDataValid 
-                                ? 'border-red-500 shadow-sm shadow-red-100' 
-                                : activityForm.meta_data 
-                                    ? 'border-green-500 shadow-sm shadow-green-100' 
-                                    : 'border-gray-300 hover:border-indigo-300'
+                    {/* Meta Data with Ace Editor */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Meta Data (JSON)
+                        </label>
+                        <div className={`border rounded-lg overflow-hidden font-mono ${
+                            jsonError ? 'border-red-500' : 'border-gray-300'
                         }`}>
                             <AceEditor
                                 mode="json"
@@ -1423,75 +1333,34 @@ const AddActivityForm = ({
                                 name="meta_data_editor"
                                 editorProps={{ $blockScrolling: true }}
                                 setOptions={{
-                                    enableBasicAutocompletion: true,
-                                    enableLiveAutocompletion: true,
-                                    enableSnippets: true,
                                     showLineNumbers: true,
+                                    tabSize: 2,
+                                    fontSize: 14,
                                     showGutter: true,
                                     highlightActiveLine: true,
-                                    tabSize: 2,
                                     useWorker: false,
                                 }}
-                                fontSize={14}
                                 width="100%"
-                                height="220px"
-                                readOnly={submitting}
+                                height="200px"
                                 className="rounded-lg"
                             />
                         </div>
-                        
-                        {/* Status Bar */}
-                        <div className="flex items-center justify-between bg-gray-50 rounded-md px-3 py-2">
-                            <div className="flex items-center space-x-3">
-                                {/* Validation Status */}
-                                {activityForm.meta_data && activityForm.meta_data.trim() !== "" ? (
-                                    <>
-                                        {metaDataValid ? (
-                                            <div className="flex items-center space-x-1 bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                                </svg>
-                                                <span className="text-xs font-medium">Valid JSON</span>
-                                            </div>
-                                        ) : (
-                                            <div className="flex items-center space-x-1 bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
-                                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                                </svg>
-                                                <span className="text-xs font-medium">Invalid JSON</span>
-                                            </div>
-                                        )}
-                                    </>
-                                ) : (
-                                    <div className="flex items-center space-x-1 bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
-                                        <span className="text-xs font-medium">Empty</span>
-                                    </div>
-                                )}
-                                
-                                {/* Character/Line Count */}
-                                {activityForm.meta_data && (
-                                    <span className="text-xs text-gray-500">
-                                        {activityForm.meta_data.split('\n').length} lines • {activityForm.meta_data.length} chars
-                                    </span>
-                                )}
-                            </div>
-                            
-                            {/* Error Message */}
-                            {!metaDataValid && metaDataError && (
-                                <span className="text-xs text-red-600 truncate max-w-xs" title={metaDataError}>
-                                    Error: {metaDataError}
-                                </span>
-                            )}
-                        </div>
-                        
+                        {jsonError && (
+                            <p className="mt-1 text-sm text-red-600">
+                                {jsonError}
+                            </p>
+                        )}
                         {errors.meta_data && (
-                            <p className="text-sm text-red-600">
+                            <p className="mt-1 text-sm text-red-600">
                                 {errors.meta_data[0]}
                             </p>
                         )}
+                        <p className="mt-1 text-xs text-gray-500">
+                            Enter valid JSON format. Example: {"{}"}
+                        </p>
                     </div>
 
-                    {/* Toggle Switches for Featured and Archived */}
+                    {/* Toggle Switches */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                         {/* Featured Toggle */}
                         <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
@@ -1550,7 +1419,7 @@ const AddActivityForm = ({
                         </div>
                     </div>
 
-                    {/* Hidden inputs to keep the values in the form submission */}
+                    {/* Hidden inputs */}
                     <input
                         type="hidden"
                         name="is_featured"
@@ -1575,17 +1444,13 @@ const AddActivityForm = ({
                         <button
                             type="submit"
                             className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors flex items-center gap-2 disabled:opacity-50"
-                            disabled={submitting}
+                            disabled={submitting || jsonError !== ""}
                         >
                             {submitting ? (
                                 <>
                                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                    {editingActivity
-                                      ? "Updating..."
-                                      : "Saving..."}
+                                    Saving...
                                 </>
-                            ) : editingActivity ? (
-                                "Update Activity"
                             ) : (
                                 "Add Activity"
                             )}

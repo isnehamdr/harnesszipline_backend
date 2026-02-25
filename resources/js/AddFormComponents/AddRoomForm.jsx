@@ -1,619 +1,14 @@
-// // AddRoomForm.jsx
 // import axios from "axios";
-// import { X } from "lucide-react";
-// import React, { useEffect, useState } from "react";
-
-// const AddRoomForm = ({
-//     editingRoom,
-//     setShowForm,
-//     handleUpdate,
-//     setReloadTrigger,
-//     setEditingRoom,
-//     reloadTrigger
-// }) => {
-//     const [submitting, setSubmitting] = useState(false);
-//     const [allRoomTypes, setAllRoomTypes] = useState([]);
-//     const [validationErrors, setValidationErrors] = useState({});
-//     const [roomForm, setRoomForm] = useState({
-//         name: "",
-//         order: "",
-//         no_of_room: 0,           // Changed to 0
-//         no_of_children: 0,        // Changed to 0
-//         no_of_adult: 0,           // Changed to 0
-//         price: "",
-//         refrence_id: "",
-//         short_description: "",
-//         long_description: "",
-//         meta_data: "",
-//         is_archived: false,
-//         is_featured: false,
-//         room_type_id: "",
-//         images: [],
-//         display_image_index: 0
-//     });
-
-//     // Use Effect for editing
-//     useEffect(() => {
-//         if (editingRoom) {
-//             setRoomForm({
-//                 name: editingRoom.name || "",
-//                 order: editingRoom.order || "",
-//                 no_of_room: editingRoom.no_of_room || 0,           // Default to 0 if not set
-//                 no_of_children: editingRoom.no_of_children || 0,    // Default to 0 if not set
-//                 no_of_adult: editingRoom.no_of_adult || 0,          // Default to 0 if not set
-//                 price: editingRoom.price || "",
-//                 refrence_id: editingRoom.refrence_id || "",
-//                 short_description: editingRoom.short_description || "",
-//                 long_description: editingRoom.long_description || "",
-//                 meta_data: editingRoom.meta_data || "",
-//                 is_archived: editingRoom.is_archived || false,
-//                 is_featured: editingRoom.is_featured || false,
-//                 room_type_id: editingRoom.room_type_id || "",
-//                 images: [], // Reset images for new uploads
-//                 display_image_index: editingRoom.display_image_index || 0
-//             });
-//         }
-//     }, [editingRoom]);
-
-//     // For fetching the room type data - ONLY NON-ARCHIVED
-//     useEffect(() => {
-//         const fetchRoomTypes = async () => {
-//             try {
-//                 const response = await axios.get(route("ourroomtype.index"), {
-//                     params: {
-//                         is_archived: false
-//                     }
-//                 });
-                
-//                 const responseData = response.data;
-//                 let roomTypes = [];
-                
-//                 if (responseData.data && Array.isArray(responseData.data)) {
-//                     roomTypes = responseData.data;
-//                 } else if (Array.isArray(responseData)) {
-//                     roomTypes = responseData;
-//                 }
-                
-//                 const filteredRoomTypes = roomTypes.filter(type => !type.is_archived);
-//                 setAllRoomTypes(filteredRoomTypes);
-//                 setValidationErrors({}); // Clear errors when room types load
-                
-//             } catch (error) {
-//                 console.error("Error fetching room types:", error);
-//                 setAllRoomTypes([]);
-//             }
-//         };
-
-//         fetchRoomTypes();
-//     }, [reloadTrigger]);
-
-//     // Handle Create Room
-//     const handleCreate = async (formData) => {
-//         try {
-//             await axios.post(route("ourroom.store"), formData, {
-//                 headers: {
-//                     "Content-Type": "multipart/form-data",
-//                 },
-//             });
-//             setReloadTrigger((prev) => !prev);
-//         } catch (error) {
-//             if (error.response && error.response.status === 422) {
-//                 // Validation errors
-//                 setValidationErrors(error.response.data.errors || {});
-//                 throw error;
-//             }
-//             console.log("Error creating room", error);
-//             throw error;
-//         }
-//     };
-
-//     // Handle Update Room
-//     const defaultHandleUpdate = async (formData, id) => {
-//         try {
-//             // For Laravel, use POST with _method=PUT
-//             formData.append('_method', 'PUT');
-//             await axios.post(route("ourroom.update", id), formData, {
-//                 headers: {
-//                     "Content-Type": "multipart/form-data",
-//                 },
-//             });
-//             setReloadTrigger((prev) => !prev);
-//         } catch (error) {
-//             if (error.response && error.response.status === 422) {
-//                 // Validation errors
-//                 setValidationErrors(error.response.data.errors || {});
-//                 throw error;
-//             }
-//             console.log("Error updating room", error);
-//             throw error;
-//         }
-//     };
-
-//     // Handle Submit
-//     const handleSubmit = async (e) => {
-//         e.preventDefault();
-//         setValidationErrors({}); // Clear previous errors
-        
-//         const formData = new FormData();
-        
-//         // Append all form data - ensure all required fields are sent
-//         const requiredFields = ['name', 'no_of_room', 'no_of_adult', 'no_of_children', 'price', 'room_type_id'];
-        
-//         // Check if all required fields are filled (allow 0 as valid value)
-//         for (const field of requiredFields) {
-//             if (roomForm[field] === undefined || roomForm[field] === null || roomForm[field] === '') {
-//                 setValidationErrors(prev => ({
-//                     ...prev,
-//                     [field]: [`The ${field.replace(/_/g, ' ')} field is required.`]
-//                 }));
-//                 return;
-//             }
-//         }
-        
-//         // Append all fields
-//         Object.keys(roomForm).forEach(key => {
-//             if (key === 'images') {
-//                 // Handle multiple image uploads
-//                 if (roomForm.images && roomForm.images.length > 0) {
-//                     const files = roomForm.images instanceof FileList 
-//                         ? Array.from(roomForm.images) 
-//                         : roomForm.images;
-                    
-//                     files.forEach((file, index) => {
-//                         if (file instanceof File) {
-//                             formData.append(`images[${index}]`, file);
-//                         }
-//                     });
-//                 }
-//             } else if (roomForm[key] !== null && roomForm[key] !== undefined) {
-//                 // Handle empty strings for numeric fields
-//                 if (roomForm[key] === '' && ['no_of_room', 'no_of_children', 'no_of_adult'].includes(key)) {
-//                     formData.append(key, '0');
-//                 }
-//                 // Convert boolean values to strings for FormData
-//                 else if (typeof roomForm[key] === 'boolean') {
-//                     formData.append(key, roomForm[key] ? '1' : '0');
-//                 }
-//                 else {
-//                     formData.append(key, String(roomForm[key]));
-//                 }
-//             }
-//         });
-
-//         // Add display_image_index if not set
-//         if (!formData.has('display_image_index')) {
-//             formData.append('display_image_index', '0');
-//         }
-
-//         try {
-//             setSubmitting(true);
-
-//             if (editingRoom) {
-//                 if (handleUpdate) {
-//                     await handleUpdate(formData, editingRoom.id);
-//                 } else {
-//                     await defaultHandleUpdate(formData, editingRoom.id);
-//                 }
-//             } else {
-//                 await handleCreate(formData);
-//             }
-            
-//             // Reset form and close - with 0 as default for numeric fields
-//             setRoomForm({
-//                 name: "",
-//                 order: "",
-//                 no_of_room: 0,           // Changed to 0
-//                 no_of_children: 0,        // Changed to 0
-//                 no_of_adult: 0,           // Changed to 0
-//                 price: "",
-//                 refrence_id: "",
-//                 short_description: "",
-//                 long_description: "",
-//                 meta_data: "",
-//                 is_archived: false,
-//                 is_featured: false,
-//                 room_type_id: "",
-//                 images: [],
-//                 display_image_index: 0
-//             });
-
-//             setShowForm(false);
-//             setEditingRoom(null);
-//         } catch (error) {
-//             console.log("Error saving data", error);
-            
-//             // Show user-friendly error message
-//             if (error.response && error.response.status === 422) {
-//                 // Validation errors are already set
-//                 console.log("Validation errors:", error.response.data.errors);
-//             }
-//         } finally {
-//             setSubmitting(false);
-//         }
-//     };
-
-//     // Handle change for inputs
-//     const handleChange = (e) => {
-//         const { name, value, type, checked, files } = e.target;
-        
-//         // Clear validation error for this field when user starts typing
-//         if (validationErrors[name]) {
-//             setValidationErrors(prev => {
-//                 const newErrors = { ...prev };
-//                 delete newErrors[name];
-//                 return newErrors;
-//             });
-//         }
-        
-//         if (type === "file") {
-//             setRoomForm((prev) => ({
-//                 ...prev,
-//                 [name]: files
-//             }));
-//         } else if (type === "checkbox") {
-//             setRoomForm((prev) => ({
-//                 ...prev,
-//                 [name]: checked
-//             }));
-//         } else {
-//             // For number inputs, convert empty string to 0
-//             if ((name === 'no_of_room' || name === 'no_of_children' || name === 'no_of_adult') && value === '') {
-//                 setRoomForm((prev) => ({
-//                     ...prev,
-//                     [name]: 0
-//                 }));
-//             } else {
-//                 setRoomForm((prev) => ({
-//                     ...prev,
-//                     [name]: value
-//                 }));
-//             }
-//         }
-//     };
-
-//     // Toggle switch component
-//     const ToggleSwitch = ({ name, checked, onChange, label }) => (
-//         <div className="flex items-center justify-between">
-//             <span className="text-sm font-medium text-gray-700">{label}</span>
-//             <button
-//                 type="button"
-//                 onClick={() => {
-//                     onChange({
-//                         target: {
-//                             name,
-//                             type: 'checkbox',
-//                             checked: !checked
-//                         }
-//                     });
-//                 }}
-//                 className={`${
-//                     checked ? 'bg-indigo-600' : 'bg-gray-200'
-//                 } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none`}
-//             >
-//                 <span
-//                     className={`${
-//                         checked ? 'translate-x-6' : 'translate-x-1'
-//                     } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
-//                 />
-//             </button>
-//         </div>
-//     );
-
-//     // Helper function to get field error
-//     const getFieldError = (fieldName) => {
-//         return validationErrors[fieldName] ? (
-//             <p className="text-xs text-red-500 mt-1">{validationErrors[fieldName][0]}</p>
-//         ) : null;
-//     };
-
-//     return (
-//         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-//             <div className="relative px-6 py-6 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white shadow-2xl">
-//                 <div className="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4 border-b">
-//                     <h2 className="text-2xl font-bold">
-//                         {editingRoom ? "Edit Room" : "Add New Room"}
-//                     </h2>
-//                     <button
-//                         type="button"
-//                         onClick={() => {
-//                             setShowForm(false);
-//                             setEditingRoom(null);
-//                         }}
-//                         className="p-2 hover:bg-gray-100 rounded-full transition"
-//                     >
-//                         <X size={24} />
-//                     </button>
-//                 </div>
-
-//                 {/* Show validation summary if there are errors */}
-//                 {Object.keys(validationErrors).length > 0 && (
-//                     <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-//                         <p className="text-sm font-medium text-red-800">Please fix the following errors:</p>
-//                         <ul className="mt-1 text-xs text-red-600 list-disc list-inside">
-//                             {Object.entries(validationErrors).map(([field, errors]) => (
-//                                 <li key={field}>{errors[0]}</li>
-//                             ))}
-//                         </ul>
-//                     </div>
-//                 )}
-
-//                 <form onSubmit={handleSubmit} className="space-y-4">
-//                     {/* Basic Information */}
-//                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//                         <div>
-//                             <label className="block text-sm font-medium text-gray-700 mb-1">
-//                                 Room Name *
-//                             </label>
-//                             <input
-//                                 type="text"
-//                                 name="name"
-//                                 value={roomForm.name}
-//                                 onChange={handleChange}
-//                                 required
-//                                 className={`w-full px-3 py-2 border ${
-//                                     validationErrors.name ? 'border-red-500' : 'border-gray-300'
-//                                 } rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500`}
-//                             />
-//                             {getFieldError('name')}
-//                         </div>
-
-//                         <div>
-//                             <label className="block text-sm font-medium text-gray-700 mb-1">
-//                                 Room Type *
-//                             </label>
-//                             <select
-//                                 name="room_type_id"
-//                                 value={roomForm.room_type_id}
-//                                 onChange={handleChange}
-//                                 required
-//                                 className={`w-full px-3 py-2 border ${
-//                                     validationErrors.room_type_id ? 'border-red-500' : 'border-gray-300'
-//                                 } rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500`}
-//                             >
-//                                 <option value="">Select Room Type</option>
-//                                 {allRoomTypes.length > 0 ? (
-//                                     allRoomTypes.map((type) => (
-//                                         <option key={type.id} value={type.id}>
-//                                             {type.name}
-//                                         </option>
-//                                     ))
-//                                 ) : (
-//                                     <option value="" disabled>No room types available</option>
-//                                 )}
-//                             </select>
-//                             {getFieldError('room_type_id')}
-//                             {allRoomTypes.length === 0 && (
-//                                 <p className="text-xs text-amber-600 mt-1">
-//                                     No active room types found. Please create a room type first.
-//                                 </p>
-//                             )}
-//                         </div>
-
-//                         <div>
-//                             <label className="block text-sm font-medium text-gray-700 mb-1">
-//                                 Order
-//                             </label>
-//                             <input
-//                                 type="number"
-//                                 name="order"
-//                                 value={roomForm.order}
-//                                 onChange={handleChange}
-//                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-//                             />
-//                         </div>
-
-//                         <div>
-//                             <label className="block text-sm font-medium text-gray-700 mb-1">
-//                                 Reference ID
-//                             </label>
-//                             <input
-//                                 type="text"
-//                                 name="refrence_id"
-//                                 value={roomForm.refrence_id}
-//                                 onChange={handleChange}
-//                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-//                             />
-//                         </div>
-//                     </div>
-
-//                     {/* Capacity & Pricing */}
-//                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-//                         <div>
-//                             <label className="block text-sm font-medium text-gray-700 mb-1">
-//                                 Number of Rooms *
-//                             </label>
-//                             <input
-//                                 type="number"
-//                                 name="no_of_room"
-//                                 value={roomForm.no_of_room}
-//                                 onChange={handleChange}
-//                                 required
-//                                 min="0"
-//                                 step="1"
-//                                 className={`w-full px-3 py-2 border ${
-//                                     validationErrors.no_of_room ? 'border-red-500' : 'border-gray-300'
-//                                 } rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500`}
-//                             />
-//                             {getFieldError('no_of_room')}
-//                         </div>
-
-//                         <div>
-//                             <label className="block text-sm font-medium text-gray-700 mb-1">
-//                                 Adults *
-//                             </label>
-//                             <input
-//                                 type="number"
-//                                 name="no_of_adult"
-//                                 value={roomForm.no_of_adult}
-//                                 onChange={handleChange}
-//                                 required
-//                                 min="0"
-//                                 step="1"
-//                                 className={`w-full px-3 py-2 border ${
-//                                     validationErrors.no_of_adult ? 'border-red-500' : 'border-gray-300'
-//                                 } rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500`}
-//                             />
-//                             {getFieldError('no_of_adult')}
-//                         </div>
-
-//                         <div>
-//                             <label className="block text-sm font-medium text-gray-700 mb-1">
-//                                 Children *
-//                             </label>
-//                             <input
-//                                 type="number"
-//                                 name="no_of_children"
-//                                 value={roomForm.no_of_children}
-//                                 onChange={handleChange}
-//                                 required
-//                                 min="0"
-//                                 step="1"
-//                                 className={`w-full px-3 py-2 border ${
-//                                     validationErrors.no_of_children ? 'border-red-500' : 'border-gray-300'
-//                                 } rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500`}
-//                             />
-//                             {getFieldError('no_of_children')}
-//                         </div>
-
-//                         <div>
-//                             <label className="block text-sm font-medium text-gray-700 mb-1">
-//                                 Price ($) *
-//                             </label>
-//                             <input
-//                                 type="number"
-//                                 step="0.01"
-//                                 name="price"
-//                                 value={roomForm.price}
-//                                 onChange={handleChange}
-//                                 required
-//                                 min="0"
-//                                 className={`w-full px-3 py-2 border ${
-//                                     validationErrors.price ? 'border-red-500' : 'border-gray-300'
-//                                 } rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500`}
-//                             />
-//                             {getFieldError('price')}
-//                         </div>
-//                     </div>
-
-//                     {/* Descriptions */}
-//                     <div>
-//                         <label className="block text-sm font-medium text-gray-700 mb-1">
-//                             Short Description
-//                         </label>
-//                         <textarea
-//                             name="short_description"
-//                             value={roomForm.short_description}
-//                             onChange={handleChange}
-//                             rows="2"
-//                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-//                         />
-//                     </div>
-
-//                     <div>
-//                         <label className="block text-sm font-medium text-gray-700 mb-1">
-//                             Long Description
-//                         </label>
-//                         <textarea
-//                             name="long_description"
-//                             value={roomForm.long_description}
-//                             onChange={handleChange}
-//                             rows="4"
-//                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-//                         />
-//                     </div>
-
-//                     {/* Images */}
-//                     <div>
-//                         <label className="block text-sm font-medium text-gray-700 mb-1">
-//                             Room Images
-//                         </label>
-//                         <input
-//                             type="file"
-//                             name="images"
-//                             onChange={handleChange}
-//                             multiple
-//                             accept="image/*"
-//                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-//                         />
-//                         <p className="text-xs text-gray-500 mt-1">
-//                             You can select multiple images. Max size: 2MB per image
-//                         </p>
-//                         {editingRoom && editingRoom.images && editingRoom.images.length > 0 && (
-//                             <p className="text-xs text-blue-500 mt-1">
-//                                 Existing images: {editingRoom.images.length} image(s) available. 
-//                                 Select new images to add more.
-//                             </p>
-//                         )}
-//                     </div>
-
-//                     {/* Toggle Switches */}
-//                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
-//                         <ToggleSwitch
-//                             name="is_featured"
-//                             checked={roomForm.is_featured}
-//                             onChange={handleChange}
-//                             label="Featured Room"
-//                         />
-                        
-//                         <ToggleSwitch
-//                             name="is_archived"
-//                             checked={roomForm.is_archived}
-//                             onChange={handleChange}
-//                             label="Archived"
-//                         />
-//                     </div>
-
-//                     {/* Meta Data */}
-//                     <div>
-//                         <label className="block text-sm font-medium text-gray-700 mb-1">
-//                             Meta Data (JSON)
-//                         </label>
-//                         <textarea
-//                             name="meta_data"
-//                             value={roomForm.meta_data}
-//                             onChange={handleChange}
-//                             rows="3"
-//                             placeholder='{"key": "value"}'
-//                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono text-sm"
-//                         />
-//                     </div>
-
-//                     {/* Form Actions */}
-//                     <div className="flex justify-end gap-3 pt-4 border-t">
-//                         <button
-//                             type="button"
-//                             onClick={() => {
-//                                 setShowForm(false);
-//                                 setEditingRoom(null);
-//                             }}
-//                             className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition"
-//                         >
-//                             Cancel
-//                         </button>
-//                         <button
-//                             type="submit"
-//                             disabled={submitting || allRoomTypes.length === 0}
-//                             className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition disabled:opacity-50"
-//                         >
-//                             {submitting ? "Saving..." : (editingRoom ? "Update Room" : "Create Room")}
-//                         </button>
-//                     </div>
-//                 </form>
-//             </div>
-//         </div>
-//     );
-// };
-
-// export default AddRoomForm;
-
-
-
-// AddRoomForm.jsx
-// import axios from "axios";
-// import { X, Star, Archive, Upload, Image as ImageIcon } from "lucide-react";
+// import { X, Star, Archive, Upload, Image as ImageIcon, Code } from "lucide-react";
 // import React, { useEffect, useState } from "react";
 // import ReactQuill from "react-quill";
 // import "react-quill/dist/quill.snow.css";
+
+// // Import Ace Editor components
+// import AceEditor from "react-ace";
+// import "ace-builds/src-noconflict/mode-json";
+// import "ace-builds/src-noconflict/theme-github";
+// import "ace-builds/src-noconflict/ext-language_tools";
 
 // const AddRoomForm = ({
 //     editingRoom,
@@ -628,6 +23,7 @@
 //     const [validationErrors, setValidationErrors] = useState({});
 //     const [imagePreviews, setImagePreviews] = useState([]);
 //     const [imageFiles, setImageFiles] = useState([]);
+//     const [jsonError, setJsonError] = useState("");
 //     const [roomForm, setRoomForm] = useState({
 //         name: "",
 //         order: "",
@@ -689,9 +85,49 @@
 //         "image",
 //     ];
 
-//     // Use Effect for editing
+//     // Validate JSON
+//     const validateJSON = (jsonString) => {
+//         if (!jsonString || jsonString.trim() === "") {
+//             setJsonError("");
+//             return true;
+//         }
+        
+//         try {
+//             JSON.parse(jsonString);
+//             setJsonError("");
+//             return true;
+//         } catch (e) {
+//             setJsonError("Invalid JSON format");
+//             return false;
+//         }
+//     };
+
+//     // Handle Ace Editor change
+//     const handleMetaDataChange = (value) => {
+//         setRoomForm(prev => ({
+//             ...prev,
+//             meta_data: value
+//         }));
+//         validateJSON(value);
+        
+//         if (validationErrors.meta_data) {
+//             setValidationErrors(prev => {
+//                 const newErrors = { ...prev };
+//                 delete newErrors.meta_data;
+//                 return newErrors;
+//             });
+//         }
+//     };
+
+//     // Use Effect for editing - FIXED: Load existing images into previews
 //     useEffect(() => {
 //         if (editingRoom) {
+//             const metaDataValue = editingRoom.meta_data 
+//                 ? (typeof editingRoom.meta_data === 'object' 
+//                     ? JSON.stringify(editingRoom.meta_data, null, 2)
+//                     : editingRoom.meta_data)
+//                 : "";
+                
 //             setRoomForm({
 //                 name: editingRoom.name || "",
 //                 order: editingRoom.order || "",
@@ -702,7 +138,7 @@
 //                 refrence_id: editingRoom.refrence_id || "",
 //                 short_description: editingRoom.short_description || "",
 //                 long_description: editingRoom.long_description || "",
-//                 meta_data: editingRoom.meta_data || "",
+//                 meta_data: metaDataValue,
 //                 is_archived: editingRoom.is_archived || false,
 //                 is_featured: editingRoom.is_featured || false,
 //                 room_type_id: editingRoom.room_type_id || "",
@@ -710,9 +146,28 @@
 //                 display_image_index: editingRoom.display_image_index || 0
 //             });
             
-//             // Reset image previews
-//             setImagePreviews([]);
-//             setImageFiles([]);
+//             // Validate existing meta_data
+//             if (editingRoom.meta_data) {
+//                 const metaStr = typeof editingRoom.meta_data === 'object'
+//                     ? JSON.stringify(editingRoom.meta_data)
+//                     : editingRoom.meta_data;
+//                 validateJSON(metaStr);
+//             }
+            
+//             // Load existing images into previews
+//             if (editingRoom.images && editingRoom.images.length > 0) {
+//                 const existingPreviews = editingRoom.images.map(img => ({
+//                     url: `/storage/${img.image}`,
+//                     isExisting: true,
+//                     id: img.id,
+//                     imagePath: img.image
+//                 }));
+//                 setImagePreviews(existingPreviews);
+//             } else {
+//                 setImagePreviews([]);
+//             }
+            
+//             setImageFiles([]); // Clear any selected files
 //         } else {
 //             resetForm();
 //         }
@@ -740,6 +195,7 @@
 //         setImagePreviews([]);
 //         setImageFiles([]);
 //         setValidationErrors({});
+//         setJsonError("");
 //     };
 
 //     // For fetching the room type data - ONLY NON-ARCHIVED
@@ -821,6 +277,11 @@
 //         e.preventDefault();
 //         setValidationErrors({}); // Clear previous errors
 
+//         // Validate JSON before submission
+//         if (!validateJSON(roomForm.meta_data)) {
+//             return;
+//         }
+
 //         // Validate image sizes before submission
 //         if (imageFiles.length > 0) {
 //             const oversizedImages = imageFiles.filter(file => file.size > MAX_IMAGE_SIZE);
@@ -832,9 +293,10 @@
         
 //         const formData = new FormData();
         
-//         // Check if all required fields are filled (allow 0 as valid value)
+//         // Check if all required fields are filled
 //         const requiredFields = ['name', 'no_of_room', 'no_of_adult', 'no_of_children', 'price', 'room_type_id'];
 //         for (const field of requiredFields) {
+//             // Check if value is undefined, null, or empty string (but allow 0)
 //             if (roomForm[field] === undefined || roomForm[field] === null || roomForm[field] === '') {
 //                 setValidationErrors(prev => ({
 //                     ...prev,
@@ -853,15 +315,32 @@
 //                         formData.append(`images[${index}]`, file);
 //                     });
 //                 }
+//             } else if (key === 'meta_data') {
+//                 // Handle meta_data - send as JSON string
+//                 if (roomForm.meta_data && roomForm.meta_data.trim() !== "") {
+//                     try {
+//                         // Parse to validate, then stringify to ensure proper format
+//                         const parsed = JSON.parse(roomForm.meta_data);
+//                         formData.append("meta_data", JSON.stringify(parsed));
+//                     } catch (e) {
+//                         // If not valid JSON, create a simple JSON object
+//                         const simpleMeta = { description: roomForm.meta_data };
+//                         formData.append("meta_data", JSON.stringify(simpleMeta));
+//                     }
+//                 } else {
+//                     formData.append("meta_data", JSON.stringify(null));
+//                 }
 //             } else if (key !== 'images') {
 //                 if (roomForm[key] !== null && roomForm[key] !== undefined) {
-//                     // Handle empty strings for numeric fields
-//                     if (roomForm[key] === '' && ['no_of_room', 'no_of_children', 'no_of_adult'].includes(key)) {
-//                         formData.append(key, '0');
-//                     }
-//                     // Convert boolean values to strings for FormData
-//                     else if (typeof roomForm[key] === 'boolean') {
+//                     // Handle boolean fields - send as actual booleans (1/0 for Laravel)
+//                     if (key === 'is_archived' || key === 'is_featured') {
+//                         // Send as integer 1 or 0 which Laravel will interpret as boolean
 //                         formData.append(key, roomForm[key] ? '1' : '0');
+//                     }
+//                     // Handle number fields that might be empty strings
+//                     else if (['no_of_room', 'no_of_children', 'no_of_adult', 'price'].includes(key)) {
+//                         // If value is empty string, send '0', otherwise send the value
+//                         formData.append(key, roomForm[key] === '' ? '0' : String(roomForm[key]));
 //                     }
 //                     else {
 //                         formData.append(key, String(roomForm[key]));
@@ -950,13 +429,24 @@
 //         }
 //     };
 
-//     // Remove image
+//     // Remove image - MODIFIED to handle both new and existing images
 //     const removeImage = (index) => {
-//         setImageFiles(prev => prev.filter((_, i) => i !== index));
-//         setImagePreviews(prev => prev.filter((_, i) => i !== index));
+//         const previewToRemove = imagePreviews[index];
+        
+//         if (previewToRemove.isExisting) {
+//             // This is an existing image from the database
+//             if (window.confirm('Remove this image? This action cannot be undone.')) {
+//                 // TODO: Add API call to delete the image if needed
+//                 setImagePreviews(prev => prev.filter((_, i) => i !== index));
+//             }
+//         } else {
+//             // This is a newly uploaded image
+//             setImageFiles(prev => prev.filter((_, i) => i !== index));
+//             setImagePreviews(prev => prev.filter((_, i) => i !== index));
+//         }
 //     };
 
-//     // Handle change for regular inputs
+//     // Handle change for regular inputs - FIXED: Allow clearing number fields
 //     const handleChange = (e) => {
 //         const { name, value, type, checked } = e.target;
         
@@ -975,11 +465,13 @@
 //                 [name]: checked
 //             }));
 //         } else {
-//             // For number inputs, convert empty string to 0
-//             if ((name === 'no_of_room' || name === 'no_of_children' || name === 'no_of_adult') && value === '') {
+//             // For number inputs, allow empty string temporarily
+//             if (['no_of_room', 'no_of_children', 'no_of_adult', 'price'].includes(name)) {
+//                 // If value is empty string, set as empty string (temporarily)
+//                 // If value is not empty, set as the value (will be converted to number by input type="number")
 //                 setRoomForm((prev) => ({
 //                     ...prev,
-//                     [name]: 0
+//                     [name]: value
 //                 }));
 //             } else {
 //                 setRoomForm((prev) => ({
@@ -1013,10 +505,9 @@
 //         }));
 //     };
 
-//     // Helper function to get field error - FIXED: Safely check if error exists and is an array
+//     // Helper function to get field error
 //     const getFieldError = (fieldName) => {
 //         const error = validationErrors[fieldName];
-//         // Check if error exists, is an array, and has at least one element
 //         if (error && Array.isArray(error) && error.length > 0) {
 //             return <p className="text-xs text-red-500 mt-1">{error[0]}</p>;
 //         }
@@ -1026,7 +517,7 @@
 //     return (
 //         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
 //             <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
-//                 {/* Header - Matching AddCustomerForm */}
+//                 {/* Header */}
 //                 <div className="flex justify-between items-center mb-6">
 //                     <h2 className="text-2xl font-bold text-gray-800">
 //                         {editingRoom ? "Edit Room" : "Add New Room"}
@@ -1043,13 +534,12 @@
 //                     </button>
 //                 </div>
 
-//                 {/* Show validation summary if there are errors - FIXED: Safely check for errors */}
+//                 {/* Show validation summary if there are errors */}
 //                 {Object.keys(validationErrors).length > 0 && (
 //                     <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
 //                         <p className="text-sm font-medium text-red-800">Please fix the following errors:</p>
 //                         <ul className="mt-1 text-xs text-red-600 list-disc list-inside">
 //                             {Object.entries(validationErrors).map(([field, errors]) => {
-//                                 // Safely get the error message
 //                                 const errorMessage = errors && Array.isArray(errors) && errors.length > 0 
 //                                     ? errors[0] 
 //                                     : typeof errors === 'string' 
@@ -1061,7 +551,7 @@
 //                     </div>
 //                 )}
 
-//                 {/* Form - Matching AddCustomerForm layout */}
+//                 {/* Form */}
 //                 <form onSubmit={handleSubmit} className="space-y-4">
 //                     {/* Basic Information - First Row */}
 //                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1309,7 +799,15 @@
 //                                                     src={preview.url}
 //                                                     alt={`Preview ${index + 1}`}
 //                                                     className="h-24 w-full object-cover rounded-lg shadow bg-white"
+//                                                     onError={(e) => {
+//                                                         e.target.src = "https://via.placeholder.com/96?text=Error";
+//                                                     }}
 //                                                 />
+//                                                 {preview.isExisting && (
+//                                                     <span className="absolute top-1 left-1 bg-green-500 text-white text-xs px-1 rounded">
+//                                                         Existing
+//                                                     </span>
+//                                                 )}
 //                                                 <button
 //                                                     type="button"
 //                                                     onClick={() => removeImage(index)}
@@ -1323,7 +821,7 @@
 //                                     </div>
 //                                     <div className="space-y-2">
 //                                         <p className="text-sm text-gray-600">
-//                                             {imagePreviews.length} image(s) selected
+//                                             {imagePreviews.length} image(s) total
 //                                         </p>
 //                                         <p className="text-sm text-gray-500">
 //                                             Click to add more images
@@ -1357,29 +855,45 @@
 //                                 {validationErrors.images?.[0] || validationErrors["images.0"]?.[0] || validationErrors["images.*"]?.[0]}
 //                             </p>
 //                         )}
+//                     </div>
 
-//                         {editingRoom && editingRoom.images && editingRoom.images.length > 0 && (
-//                             <div className="mt-4">
-//                                 <p className="text-sm text-gray-500 mb-2">Existing images:</p>
-//                                 <div className="flex gap-2 flex-wrap">
-//                                     {editingRoom.images.map((img, idx) => (
-//                                         <div key={idx} className="relative">
-//                                             <img
-//                                                 src={`/storage/${img.path}`}
-//                                                 alt={img.alt_text || 'Room image'}
-//                                                 className="w-16 h-16 object-cover rounded"
-//                                                 onError={(e) => {
-//                                                     e.target.src = "https://via.placeholder.com/64?text=No+Image";
-//                                                 }}
-//                                             />
-//                                         </div>
-//                                     ))}
-//                                 </div>
-//                                 <p className="text-xs text-blue-500 mt-1">
-//                                     Select new images to add more
-//                                 </p>
-//                             </div>
+//                     {/* Meta Data with Ace Editor - Simplified like AddHomeForm */}
+//                     <div>
+//                         <label className="block text-sm font-medium text-gray-700 mb-1">
+//                             Meta Data (JSON)
+//                         </label>
+//                         <div className={`border rounded-lg overflow-hidden font-mono ${
+//                             jsonError ? 'border-red-500' : 'border-gray-300'
+//                         }`}>
+//                             <AceEditor
+//                                 mode="json"
+//                                 theme="github"
+//                                 onChange={handleMetaDataChange}
+//                                 value={roomForm.meta_data}
+//                                 name="meta_data_editor"
+//                                 editorProps={{ $blockScrolling: true }}
+//                                 setOptions={{
+//                                     showLineNumbers: true,
+//                                     tabSize: 2,
+//                                     fontSize: 14,
+//                                     showGutter: true,
+//                                     highlightActiveLine: true,
+//                                     useWorker: false,
+//                                 }}
+//                                 width="100%"
+//                                 height="200px"
+//                                 className="rounded-lg"
+//                             />
+//                         </div>
+//                         {jsonError && (
+//                             <p className="mt-1 text-sm text-red-600">
+//                                 {jsonError}
+//                             </p>
 //                         )}
+//                         {getFieldError('meta_data')}
+//                         <p className="mt-1 text-xs text-gray-500">
+//                             Enter valid JSON format. Example: {"{}"}
+//                         </p>
 //                     </div>
 
 //                     {/* Toggle Switches for Featured and Archived */}
@@ -1453,26 +967,7 @@
 //                         value={roomForm.is_archived ? "1" : "0"}
 //                     />
 
-//                     {/* Meta Data */}
-//                     <div>
-//                         <label className="block text-sm font-medium text-gray-700 mb-1">
-//                             Meta Data (JSON)
-//                         </label>
-//                         <textarea
-//                             name="meta_data"
-//                             value={roomForm.meta_data}
-//                             onChange={handleChange}
-//                             rows="3"
-//                             placeholder='{"key": "value"}'
-//                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono text-sm"
-//                             disabled={submitting}
-//                         />
-//                         <p className="mt-1 text-xs text-gray-500">
-//                             Enter valid JSON or leave empty
-//                         </p>
-//                     </div>
-
-//                     {/* Form Actions - Matching AddCustomerForm */}
+//                     {/* Form Actions */}
 //                     <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
 //                         <button
 //                             type="button"
@@ -1487,7 +982,7 @@
 //                         </button>
 //                         <button
 //                             type="submit"
-//                             disabled={submitting || allRoomTypes.length === 0}
+//                             disabled={submitting || jsonError !== "" || allRoomTypes.length === 0}
 //                             className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors flex items-center gap-2 disabled:opacity-50"
 //                         >
 //                             {submitting ? (
@@ -1511,7 +1006,7 @@
 
 
 import axios from "axios";
-import { X, Star, Archive, Upload, Image as ImageIcon, Code } from "lucide-react";
+import { X, Star, Archive, Upload, Image as ImageIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
@@ -1523,11 +1018,8 @@ import "ace-builds/src-noconflict/theme-github";
 import "ace-builds/src-noconflict/ext-language_tools";
 
 const AddRoomForm = ({
-    editingRoom,
     setShowForm,
-    handleUpdate,
     setReloadTrigger,
-    setEditingRoom,
     reloadTrigger
 }) => {
     const [submitting, setSubmitting] = useState(false);
@@ -1535,8 +1027,7 @@ const AddRoomForm = ({
     const [validationErrors, setValidationErrors] = useState({});
     const [imagePreviews, setImagePreviews] = useState([]);
     const [imageFiles, setImageFiles] = useState([]);
-    const [metaDataValid, setMetaDataValid] = useState(true);
-    const [metaDataError, setMetaDataError] = useState("");
+    const [jsonError, setJsonError] = useState("");
     const [roomForm, setRoomForm] = useState({
         name: "",
         order: "",
@@ -1601,19 +1092,16 @@ const AddRoomForm = ({
     // Validate JSON
     const validateJSON = (jsonString) => {
         if (!jsonString || jsonString.trim() === "") {
-            setMetaDataValid(true);
-            setMetaDataError("");
+            setJsonError("");
             return true;
         }
         
         try {
             JSON.parse(jsonString);
-            setMetaDataValid(true);
-            setMetaDataError("");
+            setJsonError("");
             return true;
         } catch (e) {
-            setMetaDataValid(false);
-            setMetaDataError(e.message);
+            setJsonError("Invalid JSON format");
             return false;
         }
     };
@@ -1633,96 +1121,6 @@ const AddRoomForm = ({
                 return newErrors;
             });
         }
-    };
-
-    // Clear meta data
-    const clearMetaData = () => {
-        setRoomForm(prev => ({
-            ...prev,
-            meta_data: ""
-        }));
-        setMetaDataValid(true);
-        setMetaDataError("");
-    };
-
-    // Use Effect for editing - FIXED: Load existing images into previews
-    useEffect(() => {
-        if (editingRoom) {
-            const metaDataValue = editingRoom.meta_data 
-                ? (typeof editingRoom.meta_data === 'object' 
-                    ? JSON.stringify(editingRoom.meta_data, null, 2)
-                    : editingRoom.meta_data)
-                : "";
-                
-            setRoomForm({
-                name: editingRoom.name || "",
-                order: editingRoom.order || "",
-                no_of_room: editingRoom.no_of_room || 0,
-                no_of_children: editingRoom.no_of_children || 0,
-                no_of_adult: editingRoom.no_of_adult || 0,
-                price: editingRoom.price || "",
-                refrence_id: editingRoom.refrence_id || "",
-                short_description: editingRoom.short_description || "",
-                long_description: editingRoom.long_description || "",
-                meta_data: metaDataValue,
-                is_archived: editingRoom.is_archived || false,
-                is_featured: editingRoom.is_featured || false,
-                room_type_id: editingRoom.room_type_id || "",
-                images: [],
-                display_image_index: editingRoom.display_image_index || 0
-            });
-            
-            // Validate existing meta_data
-            if (editingRoom.meta_data) {
-                const metaStr = typeof editingRoom.meta_data === 'object'
-                    ? JSON.stringify(editingRoom.meta_data)
-                    : editingRoom.meta_data;
-                validateJSON(metaStr);
-            }
-            
-            // Load existing images into previews
-            if (editingRoom.images && editingRoom.images.length > 0) {
-                const existingPreviews = editingRoom.images.map(img => ({
-                    url: `/storage/${img.image}`,
-                    isExisting: true,
-                    id: img.id,
-                    imagePath: img.image
-                }));
-                setImagePreviews(existingPreviews);
-            } else {
-                setImagePreviews([]);
-            }
-            
-            setImageFiles([]); // Clear any selected files
-        } else {
-            resetForm();
-        }
-    }, [editingRoom]);
-
-    // Reset form function
-    const resetForm = () => {
-        setRoomForm({
-            name: "",
-            order: "",
-            no_of_room: 0,
-            no_of_children: 0,
-            no_of_adult: 0,
-            price: "",
-            refrence_id: "",
-            short_description: "",
-            long_description: "",
-            meta_data: "",
-            is_archived: false,
-            is_featured: false,
-            room_type_id: "",
-            images: [],
-            display_image_index: 0
-        });
-        setImagePreviews([]);
-        setImageFiles([]);
-        setValidationErrors({});
-        setMetaDataValid(true);
-        setMetaDataError("");
     };
 
     // For fetching the room type data - ONLY NON-ARCHIVED
@@ -1757,6 +1155,31 @@ const AddRoomForm = ({
         fetchRoomTypes();
     }, [reloadTrigger]);
 
+    // Reset form function
+    const resetForm = () => {
+        setRoomForm({
+            name: "",
+            order: "",
+            no_of_room: 0,
+            no_of_children: 0,
+            no_of_adult: 0,
+            price: "",
+            refrence_id: "",
+            short_description: "",
+            long_description: "",
+            meta_data: "",
+            is_archived: false,
+            is_featured: false,
+            room_type_id: "",
+            images: [],
+            display_image_index: 0
+        });
+        setImagePreviews([]);
+        setImageFiles([]);
+        setValidationErrors({});
+        setJsonError("");
+    };
+
     // Handle Create Room
     const handleCreate = async (formData) => {
         try {
@@ -1777,142 +1200,106 @@ const AddRoomForm = ({
         }
     };
 
-    // Handle Update Room
-    const defaultHandleUpdate = async (formData, id) => {
-        try {
-            // For Laravel, use POST with _method=PUT
-            formData.append('_method', 'PUT');
-            await axios.post(route("ourroom.update", id), formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            });
-            setReloadTrigger((prev) => !prev);
-        } catch (error) {
-            if (error.response && error.response.status === 422) {
-                // Validation errors
-                setValidationErrors(error.response.data.errors || {});
-                throw error;
+    // Handle Submit
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setValidationErrors({}); // Clear previous errors
+
+        // Validate JSON before submission
+        if (!validateJSON(roomForm.meta_data)) {
+            return;
+        }
+
+        // Validate image sizes before submission
+        if (imageFiles.length > 0) {
+            const oversizedImages = imageFiles.filter(file => file.size > MAX_IMAGE_SIZE);
+            if (oversizedImages.length > 0) {
+                alert(`${oversizedImages.length} image(s) exceed 2MB limit. Please remove them.`);
+                return;
             }
-            console.log("Error updating room", error);
-            throw error;
+        }
+        
+        const formData = new FormData();
+        
+        // Check if all required fields are filled
+        const requiredFields = ['name', 'no_of_room', 'no_of_adult', 'no_of_children', 'price', 'room_type_id'];
+        for (const field of requiredFields) {
+            // Check if value is undefined, null, or empty string (but allow 0)
+            if (roomForm[field] === undefined || roomForm[field] === null || roomForm[field] === '') {
+                setValidationErrors(prev => ({
+                    ...prev,
+                    [field]: [`The ${field.replace(/_/g, ' ')} field is required.`]
+                }));
+                return;
+            }
+        }
+        
+        // Append all fields
+        Object.keys(roomForm).forEach(key => {
+            if (key === 'images') {
+                // Handle multiple image uploads
+                if (imageFiles.length > 0) {
+                    imageFiles.forEach((file, index) => {
+                        formData.append(`images[${index}]`, file);
+                    });
+                }
+            } else if (key === 'meta_data') {
+                // Handle meta_data - send as JSON string
+                if (roomForm.meta_data && roomForm.meta_data.trim() !== "") {
+                    try {
+                        // Parse to validate, then stringify to ensure proper format
+                        const parsed = JSON.parse(roomForm.meta_data);
+                        formData.append("meta_data", JSON.stringify(parsed));
+                    } catch (e) {
+                        // If not valid JSON, create a simple JSON object
+                        const simpleMeta = { description: roomForm.meta_data };
+                        formData.append("meta_data", JSON.stringify(simpleMeta));
+                    }
+                } else {
+                    formData.append("meta_data", JSON.stringify(null));
+                }
+            } else if (key !== 'images') {
+                if (roomForm[key] !== null && roomForm[key] !== undefined) {
+                    // Handle boolean fields - send as actual booleans (1/0 for Laravel)
+                    if (key === 'is_archived' || key === 'is_featured') {
+                        // Send as integer 1 or 0 which Laravel will interpret as boolean
+                        formData.append(key, roomForm[key] ? '1' : '0');
+                    }
+                    // Handle number fields that might be empty strings
+                    else if (['no_of_room', 'no_of_children', 'no_of_adult', 'price'].includes(key)) {
+                        // If value is empty string, send '0', otherwise send the value
+                        formData.append(key, roomForm[key] === '' ? '0' : String(roomForm[key]));
+                    }
+                    else {
+                        formData.append(key, String(roomForm[key]));
+                    }
+                }
+            }
+        });
+
+        // Add display_image_index if not set
+        if (!formData.has('display_image_index')) {
+            formData.append('display_image_index', '0');
+        }
+
+        try {
+            setSubmitting(true);
+            await handleCreate(formData);
+            
+            // Reset form and close
+            resetForm();
+            setShowForm(false);
+        } catch (error) {
+            console.log("Error saving data", error);
+            
+            // Show user-friendly error message
+            if (error.response && error.response.status === 422) {
+                console.log("Validation errors:", error.response.data.errors);
+            }
+        } finally {
+            setSubmitting(false);
         }
     };
-
-    // Handle Submit - FIXED: Handle empty number fields
-   // Handle Submit - FIXED: Handle boolean values correctly
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    setValidationErrors({}); // Clear previous errors
-
-    // Validate JSON before submission
-    if (roomForm.meta_data && roomForm.meta_data.trim() !== "") {
-        if (!validateJSON(roomForm.meta_data)) {
-            alert("Please fix the JSON format in Meta Data field");
-            return;
-        }
-    }
-
-    // Validate image sizes before submission
-    if (imageFiles.length > 0) {
-        const oversizedImages = imageFiles.filter(file => file.size > MAX_IMAGE_SIZE);
-        if (oversizedImages.length > 0) {
-            alert(`${oversizedImages.length} image(s) exceed 2MB limit. Please remove them.`);
-            return;
-        }
-    }
-    
-    const formData = new FormData();
-    
-    // Check if all required fields are filled
-    const requiredFields = ['name', 'no_of_room', 'no_of_adult', 'no_of_children', 'price', 'room_type_id'];
-    for (const field of requiredFields) {
-        // Check if value is undefined, null, or empty string (but allow 0)
-        if (roomForm[field] === undefined || roomForm[field] === null || roomForm[field] === '') {
-            setValidationErrors(prev => ({
-                ...prev,
-                [field]: [`The ${field.replace(/_/g, ' ')} field is required.`]
-            }));
-            return;
-        }
-    }
-    
-    // Append all fields
-    Object.keys(roomForm).forEach(key => {
-        if (key === 'images') {
-            // Handle multiple image uploads
-            if (imageFiles.length > 0) {
-                imageFiles.forEach((file, index) => {
-                    formData.append(`images[${index}]`, file);
-                });
-            }
-        } else if (key === 'meta_data') {
-            // Handle meta_data - send as JSON string
-            if (roomForm.meta_data && roomForm.meta_data.trim() !== "") {
-                try {
-                    // Parse to validate, then stringify to ensure proper format
-                    const parsed = JSON.parse(roomForm.meta_data);
-                    formData.append("meta_data", JSON.stringify(parsed));
-                } catch (e) {
-                    // If not valid JSON, create a simple JSON object
-                    const simpleMeta = { description: roomForm.meta_data };
-                    formData.append("meta_data", JSON.stringify(simpleMeta));
-                }
-            } else {
-                formData.append("meta_data", JSON.stringify(null));
-            }
-        } else if (key !== 'images') {
-            if (roomForm[key] !== null && roomForm[key] !== undefined) {
-                // Handle boolean fields - send as actual booleans (1/0 for Laravel)
-                if (key === 'is_archived' || key === 'is_featured') {
-                    // Send as integer 1 or 0 which Laravel will interpret as boolean
-                    formData.append(key, roomForm[key] ? '1' : '0');
-                }
-                // Handle number fields that might be empty strings
-                else if (['no_of_room', 'no_of_children', 'no_of_adult', 'price'].includes(key)) {
-                    // If value is empty string, send '0', otherwise send the value
-                    formData.append(key, roomForm[key] === '' ? '0' : String(roomForm[key]));
-                }
-                else {
-                    formData.append(key, String(roomForm[key]));
-                }
-            }
-        }
-    });
-
-    // Add display_image_index if not set
-    if (!formData.has('display_image_index')) {
-        formData.append('display_image_index', '0');
-    }
-
-    try {
-        setSubmitting(true);
-
-        if (editingRoom) {
-            if (handleUpdate) {
-                await handleUpdate(formData, editingRoom.id);
-            } else {
-                await defaultHandleUpdate(formData, editingRoom.id);
-            }
-        } else {
-            await handleCreate(formData);
-        }
-        
-        // Reset form and close
-        resetForm();
-        setShowForm(false);
-        setEditingRoom(null);
-    } catch (error) {
-        console.log("Error saving data", error);
-        
-        // Show user-friendly error message
-        if (error.response && error.response.status === 422) {
-            console.log("Validation errors:", error.response.data.errors);
-        }
-    } finally {
-        setSubmitting(false);
-    }
-};
 
     // Handle multiple images change
     const handleImagesChange = (e) => {
@@ -1960,24 +1347,13 @@ const handleSubmit = async (e) => {
         }
     };
 
-    // Remove image - MODIFIED to handle both new and existing images
+    // Remove image
     const removeImage = (index) => {
-        const previewToRemove = imagePreviews[index];
-        
-        if (previewToRemove.isExisting) {
-            // This is an existing image from the database
-            if (window.confirm('Remove this image? This action cannot be undone.')) {
-                // TODO: Add API call to delete the image if needed
-                setImagePreviews(prev => prev.filter((_, i) => i !== index));
-            }
-        } else {
-            // This is a newly uploaded image
-            setImageFiles(prev => prev.filter((_, i) => i !== index));
-            setImagePreviews(prev => prev.filter((_, i) => i !== index));
-        }
+        setImageFiles(prev => prev.filter((_, i) => i !== index));
+        setImagePreviews(prev => prev.filter((_, i) => i !== index));
     };
 
-    // Handle change for regular inputs - FIXED: Allow clearing number fields
+    // Handle change for regular inputs - Allow clearing number fields
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         
@@ -1999,7 +1375,6 @@ const handleSubmit = async (e) => {
             // For number inputs, allow empty string temporarily
             if (['no_of_room', 'no_of_children', 'no_of_adult', 'price'].includes(name)) {
                 // If value is empty string, set as empty string (temporarily)
-                // If value is not empty, set as the value (will be converted to number by input type="number")
                 setRoomForm((prev) => ({
                     ...prev,
                     [name]: value
@@ -2036,10 +1411,9 @@ const handleSubmit = async (e) => {
         }));
     };
 
-    // Helper function to get field error - FIXED: Safely check if error exists and is an array
+    // Helper function to get field error
     const getFieldError = (fieldName) => {
         const error = validationErrors[fieldName];
-        // Check if error exists, is an array, and has at least one element
         if (error && Array.isArray(error) && error.length > 0) {
             return <p className="text-xs text-red-500 mt-1">{error[0]}</p>;
         }
@@ -2052,13 +1426,12 @@ const handleSubmit = async (e) => {
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold text-gray-800">
-                        {editingRoom ? "Edit Room" : "Add New Room"}
+                        Add New Room
                     </h2>
                     <button
                         type="button"
                         onClick={() => {
                             setShowForm(false);
-                            setEditingRoom(null);
                         }}
                         className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                     >
@@ -2315,7 +1688,7 @@ const handleSubmit = async (e) => {
                         `}</style>
                     </div>
 
-                    {/* Images Section - MODIFIED to show both existing and new images */}
+                    {/* Images Section */}
                     <div className="space-y-2">
                         <label className="flex items-center text-sm font-medium text-gray-700">
                             <ImageIcon className="mr-2 text-gray-600" size={18} />
@@ -2335,11 +1708,6 @@ const handleSubmit = async (e) => {
                                                         e.target.src = "https://via.placeholder.com/96?text=Error";
                                                     }}
                                                 />
-                                                {preview.isExisting && (
-                                                    <span className="absolute top-1 left-1 bg-green-500 text-white text-xs px-1 rounded">
-                                                        Existing
-                                                    </span>
-                                                )}
                                                 <button
                                                     type="button"
                                                     onClick={() => removeImage(index)}
@@ -2353,7 +1721,7 @@ const handleSubmit = async (e) => {
                                     </div>
                                     <div className="space-y-2">
                                         <p className="text-sm text-gray-600">
-                                            {imagePreviews.length} image(s) total
+                                            {imagePreviews.length} image(s) selected
                                         </p>
                                         <p className="text-sm text-gray-500">
                                             Click to add more images
@@ -2389,47 +1757,13 @@ const handleSubmit = async (e) => {
                         )}
                     </div>
 
-                    {/* Enhanced Meta Data with Ace Editor */}
-                    <div className="space-y-3">
-                        {/* Header with improved design */}
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                                <div className="p-1.5 bg-indigo-50 rounded-lg">
-                                    <Code className="text-indigo-600" size={18} />
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">
-                                        Meta Data (JSON)
-                                    </label>
-                                    <p className="text-xs text-gray-500">
-                                        Additional data for SEO, settings, etc.
-                                    </p>
-                                </div>
-                            </div>
-                            
-                            {/* Editor Controls - Only Clear button */}
-                            <div className="flex items-center space-x-2">
-                                {/* Clear Button */}
-                                {roomForm.meta_data && (
-                                    <button
-                                        type="button"
-                                        onClick={clearMetaData}
-                                        className="text-xs bg-red-50 text-red-600 px-2 py-1.5 rounded-md hover:bg-red-100 transition-colors"
-                                        disabled={submitting}
-                                    >
-                                        Clear
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                        
-                        {/* Ace Editor */}
-                        <div className={`border rounded-lg overflow-hidden transition-all ${
-                            !metaDataValid 
-                                ? 'border-red-500 shadow-sm shadow-red-100' 
-                                : roomForm.meta_data 
-                                    ? 'border-green-500 shadow-sm shadow-green-100' 
-                                    : 'border-gray-300 hover:border-indigo-300'
+                    {/* Meta Data with Ace Editor */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Meta Data (JSON)
+                        </label>
+                        <div className={`border rounded-lg overflow-hidden font-mono ${
+                            jsonError ? 'border-red-500' : 'border-gray-300'
                         }`}>
                             <AceEditor
                                 mode="json"
@@ -2439,68 +1773,27 @@ const handleSubmit = async (e) => {
                                 name="meta_data_editor"
                                 editorProps={{ $blockScrolling: true }}
                                 setOptions={{
-                                    enableBasicAutocompletion: true,
-                                    enableLiveAutocompletion: true,
-                                    enableSnippets: true,
                                     showLineNumbers: true,
+                                    tabSize: 2,
+                                    fontSize: 14,
                                     showGutter: true,
                                     highlightActiveLine: true,
-                                    tabSize: 2,
                                     useWorker: false,
                                 }}
-                                fontSize={14}
                                 width="100%"
-                                height="220px"
-                                readOnly={submitting}
+                                height="200px"
                                 className="rounded-lg"
                             />
                         </div>
-                        
-                        {/* Status Bar */}
-                        <div className="flex items-center justify-between bg-gray-50 rounded-md px-3 py-2">
-                            <div className="flex items-center space-x-3">
-                                {/* Validation Status */}
-                                {roomForm.meta_data && roomForm.meta_data.trim() !== "" ? (
-                                    <>
-                                        {metaDataValid ? (
-                                            <div className="flex items-center space-x-1 bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                                </svg>
-                                                <span className="text-xs font-medium">Valid JSON</span>
-                                            </div>
-                                        ) : (
-                                            <div className="flex items-center space-x-1 bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
-                                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                                </svg>
-                                                <span className="text-xs font-medium">Invalid JSON</span>
-                                            </div>
-                                        )}
-                                    </>
-                                ) : (
-                                    <div className="flex items-center space-x-1 bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
-                                        <span className="text-xs font-medium">Empty</span>
-                                    </div>
-                                )}
-                                
-                                {/* Character/Line Count */}
-                                {roomForm.meta_data && (
-                                    <span className="text-xs text-gray-500">
-                                        {roomForm.meta_data.split('\n').length} lines • {roomForm.meta_data.length} chars
-                                    </span>
-                                )}
-                            </div>
-                            
-                            {/* Error Message */}
-                            {!metaDataValid && metaDataError && (
-                                <span className="text-xs text-red-600 truncate max-w-xs" title={metaDataError}>
-                                    Error: {metaDataError}
-                                </span>
-                            )}
-                        </div>
-                        
+                        {jsonError && (
+                            <p className="mt-1 text-sm text-red-600">
+                                {jsonError}
+                            </p>
+                        )}
                         {getFieldError('meta_data')}
+                        <p className="mt-1 text-xs text-gray-500">
+                            Enter valid JSON format. Example: {"{}"}
+                        </p>
                     </div>
 
                     {/* Toggle Switches for Featured and Archived */}
@@ -2580,7 +1873,6 @@ const handleSubmit = async (e) => {
                             type="button"
                             onClick={() => {
                                 setShowForm(false);
-                                setEditingRoom(null);
                             }}
                             className="px-4 py-2 border border-gray-300 rounded-full text-gray-700 hover:bg-gray-50 transition-colors"
                             disabled={submitting}
@@ -2589,16 +1881,16 @@ const handleSubmit = async (e) => {
                         </button>
                         <button
                             type="submit"
-                            disabled={submitting || !metaDataValid || allRoomTypes.length === 0}
+                            disabled={submitting || jsonError !== "" || allRoomTypes.length === 0}
                             className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors flex items-center gap-2 disabled:opacity-50"
                         >
                             {submitting ? (
                                 <>
                                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                    {editingRoom ? "Updating..." : "Saving..."}
+                                    Saving...
                                 </>
                             ) : (
-                                editingRoom ? "Update Room" : "Add Room"
+                                "Add Room"
                             )}
                         </button>
                     </div>

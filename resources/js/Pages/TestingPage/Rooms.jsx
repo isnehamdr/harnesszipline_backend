@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Link, Head } from "@inertiajs/react";
-import { Helmet } from "react-helmet-async";
 import axios from "axios";
 import {
     Star,
@@ -177,7 +176,7 @@ const Rooms = () => {
 
     return (
         <>
-            <Helmet>
+            <Head>
                 {/* Basic Meta Tags */}
                 <title>{pageSeo.title}</title>
                 <meta name="description" content={pageSeo.description} />
@@ -198,19 +197,15 @@ const Rooms = () => {
                 <meta name="twitter:title" content={pageSeo.title} />
                 <meta name="twitter:description" content={pageSeo.description} />
                 <meta name="twitter:image" content={pageSeo.ogImage} />
-
-                {/* Structured Data */}
-                <script type="application/ld+json">
-                    {JSON.stringify(structuredData)}
-                </script>
-                <script type="application/ld+json">
-                    {JSON.stringify(breadcrumbData)}
-                </script>
-            </Helmet>
-
-            <Head title={pageSeo.title}>
-                <meta name="description" content={pageSeo.description} />
             </Head>
+
+            {/* Structured Data - must be placed outside Head but still in the component */}
+            <script type="application/ld+json">
+                {JSON.stringify(structuredData)}
+            </script>
+            <script type="application/ld+json">
+                {JSON.stringify(breadcrumbData)}
+            </script>
 
             <div className="min-h-screen bg-gray-50">
                 {/* Hero Section */}
