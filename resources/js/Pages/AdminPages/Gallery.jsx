@@ -805,6 +805,7 @@ const Gallery = () => {
     const [selectedGalleryIndex, setSelectedGalleryIndex] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [isPageLoading, setIsPageLoading] = useState(true);
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     useEffect(() => {
         // Simulate page load
@@ -873,32 +874,32 @@ const Gallery = () => {
     // Gallery image navigation functions
     const openGalleryModal = (gallery, index) => {
         setSelectedGalleryIndex(index);
-        setSelectedImage(`/storage/${gallery.images[index].path}`);
+        setSelectedImage(`${imgurl}/${gallery.images[index].path}`);
     };
 
     const nextImage = (e) => {
         e.stopPropagation();
         const gallery = allGallery.find(g => 
-            g.images.some(img => `/storage/${img.path}` === selectedImage)
+            g.images.some(img => `${imgurl}/${img.path}` === selectedImage)
         );
         
         if (gallery && selectedGalleryIndex < gallery.images.length - 1) {
             const newIndex = selectedGalleryIndex + 1;
             setSelectedGalleryIndex(newIndex);
-            setSelectedImage(`/storage/${gallery.images[newIndex].path}`);
+            setSelectedImage(`${imgurl}/${gallery.images[newIndex].path}`);
         }
     };
 
     const prevImage = (e) => {
         e.stopPropagation();
         const gallery = allGallery.find(g => 
-            g.images.some(img => `/storage/${img.path}` === selectedImage)
+            g.images.some(img => `${imgurl}/${img.path}` === selectedImage)
         );
         
         if (gallery && selectedGalleryIndex > 0) {
             const newIndex = selectedGalleryIndex - 1;
             setSelectedGalleryIndex(newIndex);
-            setSelectedImage(`/storage/${gallery.images[newIndex].path}`);
+            setSelectedImage(`${imgurl}/${gallery.images[newIndex].path}`);
         }
     };
 
@@ -1026,7 +1027,7 @@ const Gallery = () => {
                                                 onClick={() => openGalleryModal(gallery, 0)}
                                             >
                                                 <img
-                                                    src={`/storage/${gallery.images[0].path}`}
+                                                    src={`${imgurl}/${gallery.images[0].path}`}
                                                     alt={gallery.name}
                                                     className="w-full object-cover aspect-video transition-transform duration-300 group-hover:scale-110"
                                                     onError={(e) => {
@@ -1100,7 +1101,7 @@ const Gallery = () => {
                         {/* Navigation arrows - only show if there are multiple images */}
                         {(() => {
                             const gallery = allGallery.find(g => 
-                                g.images.some(img => `/storage/${img.path}` === selectedImage)
+                                g.images.some(img => `${imgurl}/${img.path}` === selectedImage)
                             );
                             
                             if (gallery && gallery.images.length > 1) {
@@ -1131,7 +1132,7 @@ const Gallery = () => {
                         {/* Image counter */}
                         {(() => {
                             const gallery = allGallery.find(g => 
-                                g.images.some(img => `/storage/${img.path}` === selectedImage)
+                                g.images.some(img => `${imgurl}/${img.path}` === selectedImage)
                             );
                             
                             if (gallery && gallery.images.length > 1) {
