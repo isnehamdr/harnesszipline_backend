@@ -29,6 +29,7 @@ const EditBlogForm = ({
         meta_data: "",
         is_archived: false,
     });
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     // Add useEffect to lock body scroll when form mounts
     useEffect(() => {
@@ -481,7 +482,7 @@ const EditBlogForm = ({
                             <div className="mt-4">
                                 <p className="text-sm text-gray-500 mb-2">Current image:</p>
                                 <img 
-                                    src={`/storage/${editingBlog.image}`} 
+                                    src={`${imgurl}/${editingBlog.image}`} 
                                     alt="Current" 
                                     className="w-20 h-20 object-cover rounded-lg border border-gray-200"
                                     onError={(e) => {
