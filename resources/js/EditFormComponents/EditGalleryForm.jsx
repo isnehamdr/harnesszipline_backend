@@ -12,6 +12,7 @@ const EditGalleryForm = ({ editingGallery, setShowForm, setReloadTrigger, setEdi
         is_featured: false,
     });
     const [imagePreviews, setImagePreviews] = useState([]);
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     // File size limits in bytes - 2MB max
     const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
@@ -42,7 +43,7 @@ const EditGalleryForm = ({ editingGallery, setShowForm, setReloadTrigger, setEdi
             if (editingGallery.images && editingGallery.images.length > 0) {
                 const previews = editingGallery.images.map(img => ({
                     id: img.id,
-                    url: `/storage/${img.path}`,
+                    url: `${imgurl}/${img.path}`,
                     isExisting: true
                 }));
                 setImagePreviews(previews);
