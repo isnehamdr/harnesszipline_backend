@@ -244,6 +244,7 @@ const Services = () => {
     const [editingService, setEditingService] = useState(null);
     const [showAddForm, setShowAddForm] = useState(false);
     const [showEditForm, setShowEditForm] = useState(false);
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     // For fetching the service data
     useEffect(() => {
@@ -384,7 +385,7 @@ const Services = () => {
                                 {service.image && (
                                     <div className="w-full h-52 overflow-hidden">
                                         <img
-                                            src={`/storage/${service.image}`}
+                                            src={`${imgurl}/${service.image}`}
                                             alt={service.name}
                                             className="w-full h-full object-cover"
                                         />
