@@ -23,6 +23,7 @@ const EditUserForm = ({
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [passwordError, setPasswordError] = useState("");
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     // Lock body scroll when form mounts
     useEffect(() => {
@@ -64,7 +65,7 @@ const EditUserForm = ({
             });
             // Set image preview if exists
             if (editingUser.image) {
-                setImagePreview(`/storage/${editingUser.image}`);
+                setImagePreview(`${imgurl}/${editingUser.image}`);
             }
         }
         // Reset password visibility and errors when editing user changes

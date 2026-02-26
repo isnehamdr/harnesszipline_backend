@@ -31,6 +31,7 @@ const EditServiceForm = ({
         meta_data: "",
         is_archived: false,
     });
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     // File size limits
     const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
@@ -439,7 +440,7 @@ const EditServiceForm = ({
                             <div className="mb-2">
                                 <p className="text-sm text-gray-500 mb-1">Current image:</p>
                                 <img 
-                                    src={`/storage/${editingService.image}`} 
+                                    src={`${imgurl}/${editingService.image}`} 
                                     alt="Current"
                                     className="w-24 h-24 object-cover rounded-lg border-2 border-gray-200"
                                 />

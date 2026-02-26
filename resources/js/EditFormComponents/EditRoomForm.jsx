@@ -41,6 +41,7 @@ const EditRoomForm = ({
         images: [],
         display_image_index: 0
     });
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     // Lock body scroll when form mounts
     useEffect(() => {
@@ -157,7 +158,7 @@ const EditRoomForm = ({
             // Load existing images into previews
             if (editingRoom.images && editingRoom.images.length > 0) {
                 const existingPreviews = editingRoom.images.map(img => ({
-                    url: `/storage/${img.image}`,
+                    url: `${imgurl}/${img.image}`,
                     isExisting: true,
                     id: img.id,
                     imagePath: img.image
