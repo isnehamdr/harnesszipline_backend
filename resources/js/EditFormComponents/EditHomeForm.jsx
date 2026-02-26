@@ -29,6 +29,7 @@ const EditHomeForm = ({
         is_archived: false,
         metadata_json: "",
     });
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     // Add useEffect to lock body scroll when form mounts
     useEffect(() => {
@@ -70,10 +71,10 @@ const EditHomeForm = ({
             
             // Set existing image preview
             if (editingHome.image) {
-                setImagePreview(`/storage/${editingHome.image}`);
+                setImagePreview(`${imgurl}/${editingHome.image}`);
             }
             if (editingHome.video) {
-                setVideoPreview(`/storage/${editingHome.video}`);
+                setVideoPreview(`${imgurl}/${editingHome.video}`);
             }
         }
         setErrors({});
@@ -436,7 +437,7 @@ const EditHomeForm = ({
                             <div className="mt-4">
                                 <p className="text-sm text-gray-500 mb-2">Current image:</p>
                                 <img 
-                                    src={`/storage/${editingHome.image}`} 
+                                    src={`${imgurl}/${editingHome.image}`} 
                                     alt="Current" 
                                     className="w-20 h-20 object-cover rounded-lg border border-gray-200"
                                     onError={(e) => {
@@ -512,7 +513,7 @@ const EditHomeForm = ({
                             <div className="mt-4">
                                 <p className="text-sm text-gray-500 mb-2">Current video:</p>
                                 <video 
-                                    src={`/storage/${editingHome.video}`} 
+                                    src={`${imgurl}/${editingHome.video}`} 
                                     controls 
                                     className="w-40 h-24 object-cover rounded-lg border border-gray-200"
                                 />
