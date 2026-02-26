@@ -185,6 +185,7 @@ import MyTable from "@/MyTable/MyTable";
 import axios from "axios";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import React, { useEffect, useState, useMemo } from "react";
+const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
 const UserManagement = () => {
     const [allUser, setAllUser] = useState([]);
@@ -260,7 +261,7 @@ const UserManagement = () => {
                 Cell: ({ row }) =>
                     row.original.image ? (
                         <img
-                            src={`/storage/${row.original.image}`}
+                            src={`${imgurl}/${row.original.image}`}
                             alt={row.original.name}
                             className="h-10 w-10 rounded-full object-cover"
                         />

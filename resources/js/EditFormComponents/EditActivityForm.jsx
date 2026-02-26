@@ -31,6 +31,7 @@ const EditActivityForm = ({
         is_featured: false,
         is_archived: false,
     });
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     // Add useEffect to lock body scroll when form mounts
     useEffect(() => {
@@ -584,7 +585,7 @@ const EditActivityForm = ({
                                                     className="relative"
                                                 >
                                                     <img
-                                                        src={`/storage/${img.path}`}
+                                                        src={`${imgurl}/${img.path}`}
                                                         alt={img.alt_text}
                                                         className="w-16 h-16 object-cover rounded-lg border border-gray-200"
                                                         onError={(e) => {
