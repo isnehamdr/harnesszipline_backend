@@ -63,6 +63,8 @@ const RoomDetails = ({ room: initialRoom }) => {
 
     const slug = initialRoom?.slug || props.slug;
 
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
+
     useEffect(() => {
         if (!initialRoom && slug) fetchRoomDetails();
     }, [slug]);
@@ -121,8 +123,8 @@ const RoomDetails = ({ room: initialRoom }) => {
         if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) return imagePath;
         
         // Clean the path
-        let cleanPath = imagePath.replace(/^\/+/, "").replace(/^storage\//, "");
-        return `/storage/${cleanPath}`;
+        // let cleanPath = imagePath.replace(/^\/+/, "").replace(/^se\//, "");
+        return `${imgurl}/${imagePath}`;
     };
 
     const calculateTotalPrice = () => {

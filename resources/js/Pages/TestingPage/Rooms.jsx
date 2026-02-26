@@ -31,6 +31,7 @@ const Rooms = () => {
         ogImage: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?ixlib=rb-4.0.3&w=1200",
         canonical: "https://yourwebsite.com/rooms",
     });
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     // Fetch rooms
     useEffect(() => {
@@ -92,10 +93,10 @@ const Rooms = () => {
             return imagePath;
         }
 
-        let cleanPath = imagePath.replace(/^\/+/, "");
-        cleanPath = cleanPath.replace(/^storage\//, "");
+        // let cleanPath = imagePath.replace(/^\/+/, "");
+        // cleanPath = cleanPath.replace(/^storage\//, "");
 
-        return `/storage/${cleanPath}`;
+        return `${imgurl}/${imagePath}`;
     };
 
     // Get display image for room

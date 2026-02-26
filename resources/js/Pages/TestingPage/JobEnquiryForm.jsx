@@ -41,6 +41,7 @@ const JobEnquiryForm = () => {
     const [submitStatus, setSubmitStatus] = useState(null);
     const [fileName, setFileName] = useState("");
     const [uploadProgress, setUploadProgress] = useState(0);
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     // Fetch job details by slug if not provided via props
     useEffect(() => {
@@ -381,7 +382,7 @@ const JobEnquiryForm = () => {
                             <div className="w-full h-64 overflow-hidden bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
                                 {job.images && job.images.length > 0 ? (
                                     <img
-                                        src={`/storage/${job.images[0].path}`}
+                                        src={`${imgurl}/${job.images[0].path}`}
                                         alt={job.title}
                                         className="w-full h-full object-cover"
                                     />
