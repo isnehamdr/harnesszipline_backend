@@ -390,6 +390,7 @@ const Room = () => {
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [selectedRoom, setSelectedRoom] = useState(null);
     const [activeImageIndex, setActiveImageIndex] = useState(0);
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
     
     // Refs for custom navigation
     const prevRef = useRef(null);
@@ -467,10 +468,10 @@ const Room = () => {
             return imagePath;
         }
         
-        let cleanPath = imagePath.replace(/^\/+/, '');
-        cleanPath = cleanPath.replace(/^storage\//, '');
+        // let cleanPath = imagePath.replace(/^\/+/, '');
+        // cleanPath = cleanPath.replace(/^storage\//, '');
         
-        return `/storage/${cleanPath}`;
+        return `${imgurl}/${imagePath}`;
     };
 
     // Define columns for the table

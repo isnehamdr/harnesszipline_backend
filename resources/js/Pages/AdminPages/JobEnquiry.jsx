@@ -8,6 +8,7 @@ const JobEnquiry = () => {
     const [allJobEnquiry, setAllJobEnquiry] = useState([]);
     const [reloadTrigger, setReloadTrigger] = useState(false);
     const [loading, setLoading] = useState(true);
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     // Define columns for the table
     const columns = useMemo(
@@ -59,7 +60,7 @@ const JobEnquiry = () => {
                 Cell: ({ value }) =>
                     value ? (
                         <a
-                            href={`/storage/${value}`}
+                            href={`${imgurl}/${value}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:underline"

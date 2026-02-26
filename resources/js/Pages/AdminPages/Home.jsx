@@ -401,6 +401,8 @@ const Home = () => {
     const [showAddForm, setShowAddForm] = useState(false);
     const [showEditForm, setShowEditForm] = useState(false);
     const [selectedVideo, setSelectedVideo] = useState(null); // For video popup
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
+
 
     // For fetching the home data
     useEffect(() => {
@@ -475,7 +477,7 @@ const Home = () => {
         if (videoPath.startsWith('http')) {
             return videoPath;
         }
-        return `/storage/${videoPath}`;
+        return `${imgurl}/${videoPath}`;
     };
 
     // Check if video is YouTube URL
@@ -585,7 +587,7 @@ const Home = () => {
                                             <div className="w-full h-52 overflow-hidden relative">
                                                 {home.image ? (
                                                     <img
-                                                        src={`/storage/${home.image}`}
+                                                        src={`${imgurl}/${home.image}`}
                                                         alt="Home"
                                                         className="w-full h-full object-cover"
                                                         onError={(e) => {
