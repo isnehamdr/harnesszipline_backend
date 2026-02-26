@@ -221,6 +221,7 @@ const Blog = () => {
     const [editingBlog, setEditingBlog] = useState(null);
     const [showAddForm, setShowAddForm] = useState(false);
     const [showEditForm, setShowEditForm] = useState(false);
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     // For fetching the blog data
     useEffect(() => {
@@ -317,7 +318,7 @@ const Blog = () => {
                                 {blog.image && (
                                     <div className="w-full h-52 overflow-hidden">
                                         <img
-                                            src={`/storage/${blog.image}`}
+                                            src={`${imgurl}/${blog.image}`}
                                             alt={blog.title}
                                             className="w-full h-full object-cover"
                                         />

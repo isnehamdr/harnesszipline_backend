@@ -318,6 +318,7 @@ const Activity = () => {
     const [editingActivity, setEditingActivity] = useState(null);
     const [showAddForm, setShowAddForm] = useState(false);
     const [showEditForm, setShowEditForm] = useState(false);
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     // For fetching the activity data
     useEffect(() => {
@@ -477,7 +478,7 @@ const Activity = () => {
                                                 {activity.images &&
                                                 activity.images.length > 0 ? (
                                                     <img
-                                                        src={`/storage/${activity.images[0].path}`}
+                                                        src={`${imgurl}/${activity.images[0].path}`}
                                                         alt={activity.name}
                                                         className="w-full h-full object-cover"
                                                         onError={(e) => {
