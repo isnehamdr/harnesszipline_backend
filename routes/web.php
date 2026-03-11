@@ -308,9 +308,9 @@ Route::middleware('auth')->group(function () {
     // Route::delete('/ourroom/{id}', [RoomController::class, 'destroy'])->name('ourroom.destroy');
 
 
-    Route::get('/loginpage', function(){
-        return Inertia::render('TestingPage/LoginPage');
-    });
+    // Route::get('/loginpage', function(){
+    //     return Inertia::render('TestingPage/LoginPage');
+    // });
 
     
 require __DIR__.'/auth.php';

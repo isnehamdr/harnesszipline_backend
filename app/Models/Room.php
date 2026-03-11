@@ -35,14 +35,24 @@ class Room extends Model
         // Before creating: generate base slug from name
         static::creating(function ($room) {
             if (empty($room->slug)) {
-                $room->slug = Str::slug($room->name);
+                $randomSuffix = rand(10000, 99999);
+                $room->slug = Str::slug($room->name).'-'.$randomSuffix;
             }
         });
 
         // After created: append ID to make slug unique
         static::created(function ($room) {
-            $room->slug = Str::slug($room->name).'-'.$room->id;
+            $randomSuffix = rand(10000, 99999);
+            $room->slug = Str::slug($room->name).'-'.$randomSuffix;
             $room->saveQuietly(); // prevents infinite loop
+        });
+
+        // On update: regenerate slug with new random suffix
+        static::updating(function ($room) {
+            if ($room->isDirty('name')) {
+                $randomSuffix = rand(10000, 99999);
+                $room->slug = Str::slug($room->name).'-'.$randomSuffix;
+            }
         });
     }
 }

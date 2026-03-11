@@ -73,11 +73,23 @@ const RoomDetails = ({ room: initialRoom }) => {
         if (room) fetchSimilarRooms();
     }, [room]);
 
+    const parseMetaData = (roomData) => {
+        if (roomData?.meta_data && typeof roomData.meta_data === "string") {
+            try {
+                roomData.meta_data = JSON.parse(roomData.meta_data);
+            } catch (err) {
+                console.error("Error parsing meta_data:", err);
+            }
+        }
+        return roomData;
+    };
+
     const fetchRoomDetails = async () => {
         setLoading(true);
         try {
             const response = await axios.get(`/room/${slug}`);
-            const roomData = response.data.data || response.data;
+            let roomData = response.data.data || response.data;
+            roomData = parseMetaData(roomData);
             
             // Ensure meta_data.seo is properly structured
             if (roomData.meta_data && !roomData.meta_data.seo) {
@@ -96,12 +108,12 @@ const RoomDetails = ({ room: initialRoom }) => {
     };
 
     const generateDefaultSeo = (roomData) => ({
-        title: roomData.name + ' - ' + (window.appName || 'Your Hotel'),
+        title: roomData.name + " - " + (typeof window !== "undefined" ? (window.appName || "Your Hotel") : "Your Hotel"),
         description: roomData.short_description || `Experience luxury and comfort in our ${roomData.name}`,
         keywords: `${roomData.name}, hotel room, accommodation, ${roomData.roomType?.name || ''}`,
         og_image: roomData.images?.[0]?.image ? getImageUrl(roomData.images[0].image) : null,
-        canonical: window.location.href,
-        meta_robots: 'index, follow'
+        canonical: typeof window !== "undefined" ? window.location.href : "",
+        meta_robots: "index, follow"
     });
 
     const fetchSimilarRooms = async () => {
@@ -170,10 +182,17 @@ const RoomDetails = ({ room: initialRoom }) => {
 
         // If room has meta_data.seo, use it
         if (room?.meta_data?.seo) {
+            const seo = room.meta_data.seo;
             return {
                 ...defaultSEO,
-                ...room.meta_data.seo,
-                ogImage: room.meta_data.seo.og_image || defaultSEO.ogImage,
+                title: seo.title || defaultSEO.title,
+                description: seo.description || defaultSEO.description,
+                keywords: seo.keywords || defaultSEO.keywords,
+                ogImage: seo.og_image || defaultSEO.ogImage,
+                ogType: seo.og_type || defaultSEO.ogType,
+                twitterCard: seo.twitter_card || defaultSEO.twitterCard,
+                canonical: seo.canonical || defaultSEO.canonical,
+                metaRobots: seo.meta_robots || defaultSEO.metaRobots,
             };
         }
 
@@ -280,16 +299,14 @@ const RoomDetails = ({ room: initialRoom }) => {
                 <meta name="twitter:description" content={seoMetadata.description} />
                 <meta name="twitter:image" content={seoMetadata.ogImage} />
 
-                {/* Additional SEO meta tags from room.meta_data.seo */}
-                {room.meta_data?.seo?.meta_robots && (
-                    <meta name="robots" content={room.meta_data.seo.meta_robots} />
+                {/* Structured data */}
+                {structuredData && (
+                    <script
+                        type="application/ld+json"
+                        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+                    />
                 )}
             </Head>
-
-            {/* Structured Data - must be placed outside Head but still in the component */}
-            <script type="application/ld+json">
-                {JSON.stringify(structuredData)}
-            </script>
 
             <div className="min-h-screen bg-[#f8f7f4]">
                 {/* Lightbox */}

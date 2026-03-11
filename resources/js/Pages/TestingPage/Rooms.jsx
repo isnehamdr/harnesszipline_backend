@@ -29,7 +29,7 @@ const Rooms = () => {
         description: "Experience luxury and comfort in our thoughtfully designed rooms and suites, each offering a unique blend of elegance and modern amenities.",
         keywords: "hotel rooms, luxury suites, accommodation, hotel booking, rooms for rent",
         ogImage: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?ixlib=rb-4.0.3&w=1200",
-        canonical: "https://yourwebsite.com/rooms",
+        canonical: "",
     });
     const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
@@ -174,6 +174,7 @@ const Rooms = () => {
 
     const structuredData = generateStructuredData();
     const breadcrumbData = generateBreadcrumbData();
+    const canonical = pageSeo.canonical || (typeof window !== "undefined" ? window.location.href : "https://yourwebsite.com/rooms");
 
     return (
         <>
@@ -183,13 +184,13 @@ const Rooms = () => {
                 <meta name="description" content={pageSeo.description} />
                 <meta name="keywords" content={pageSeo.keywords} />
                 <meta name="robots" content="index, follow" />
-                <link rel="canonical" href={pageSeo.canonical} />
+                <link rel="canonical" href={canonical} />
 
                 {/* Open Graph Meta Tags */}
                 <meta property="og:title" content={pageSeo.title} />
                 <meta property="og:description" content={pageSeo.description} />
                 <meta property="og:image" content={pageSeo.ogImage} />
-                <meta property="og:url" content={pageSeo.canonical} />
+                <meta property="og:url" content={canonical} />
                 <meta property="og:type" content="website" />
                 <meta property="og:site_name" content="Your Hotel Name" />
                 
@@ -198,15 +199,21 @@ const Rooms = () => {
                 <meta name="twitter:title" content={pageSeo.title} />
                 <meta name="twitter:description" content={pageSeo.description} />
                 <meta name="twitter:image" content={pageSeo.ogImage} />
-            </Head>
 
-            {/* Structured Data - must be placed outside Head but still in the component */}
-            <script type="application/ld+json">
-                {JSON.stringify(structuredData)}
-            </script>
-            <script type="application/ld+json">
-                {JSON.stringify(breadcrumbData)}
-            </script>
+                {/* Structured data */}
+                {structuredData && (
+                    <script
+                        type="application/ld+json"
+                        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+                    />
+                )}
+                {breadcrumbData && (
+                    <script
+                        type="application/ld+json"
+                        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbData) }}
+                    />
+                )}
+            </Head>
 
             <div className="min-h-screen bg-gray-50">
                 {/* Hero Section */}
