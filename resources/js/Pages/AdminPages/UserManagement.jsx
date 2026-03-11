@@ -10,6 +10,7 @@
 //     const [reloadTrigger, setReloadTrigger] = useState(false);
 //     const [editingUser, setEditingUser] = useState(null);
 //     const [showForm, setShowForm] = useState(false);
+//      const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
 //     // For fetching the user data
 //     useEffect(() => {
@@ -79,7 +80,7 @@
 //                 Cell: ({ row }) =>
 //                     row.original.image ? (
 //                         <img
-//                             src={`/storage/${row.original.image}`}
+//                             src={`${imgurl}/${row.original.image}`}
 //                             alt={row.original.name}
 //                             className="h-10 w-10 rounded-full object-cover"
 //                         />
@@ -185,7 +186,7 @@ import MyTable from "@/MyTable/MyTable";
 import axios from "axios";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import React, { useEffect, useState, useMemo } from "react";
-const imgurl = import.meta.env.VITE_IMAGE_PATH;
+
 
 const UserManagement = () => {
     const [allUser, setAllUser] = useState([]);
@@ -193,6 +194,7 @@ const UserManagement = () => {
     const [editingUser, setEditingUser] = useState(null);
     const [showAddForm, setShowAddForm] = useState(false);
     const [showEditForm, setShowEditForm] = useState(false);
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     // For fetching the user data
     useEffect(() => {
