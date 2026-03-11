@@ -32,6 +32,7 @@ const Rooms = () => {
         canonical: "",
     });
     const imgurl = import.meta.env.VITE_IMAGE_PATH;
+    const getSiteOrigin = () => (typeof window !== "undefined" ? window.location.origin : "https://yourwebsite.com");
 
     // Fetch rooms
     useEffect(() => {
@@ -113,14 +114,14 @@ const Rooms = () => {
     };
 
     // Generate structured data for the rooms listing page
-    const generateStructuredData = () => {
+    const generateStructuredData = (siteOrigin) => {
         return {
             "@context": "https://schema.org",
             "@type": "ItemList",
             "itemListElement": rooms.map((room, index) => ({
                 "@type": "ListItem",
                 "position": index + 1,
-                "url": `https://yourwebsite.com/room/${room.slug}`,
+                "url": `${siteOrigin}/room/${room.slug}`,
                 "name": room.name,
                 "image": getDisplayImage(room),
                 "description": room.short_description || room.name,
@@ -138,7 +139,7 @@ const Rooms = () => {
     };
 
     // Generate breadcrumb structured data
-    const generateBreadcrumbData = () => {
+    const generateBreadcrumbData = (siteOrigin) => {
         return {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
@@ -147,34 +148,73 @@ const Rooms = () => {
                     "@type": "ListItem",
                     "position": 1,
                     "name": "Home",
-                    "item": "https://yourwebsite.com"
+                    "item": siteOrigin
                 },
                 {
                     "@type": "ListItem",
                     "position": 2,
                     "name": "Rooms",
-                    "item": "https://yourwebsite.com/rooms"
+                    "item": `${siteOrigin}/rooms`
                 }
             ]
         };
     };
 
+    const siteOrigin = getSiteOrigin();
+    const canonical = pageSeo.canonical || (typeof window !== "undefined" ? window.location.href : `${siteOrigin}/rooms`);
+    const structuredData = generateStructuredData(siteOrigin);
+    const breadcrumbData = generateBreadcrumbData(siteOrigin);
+
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">
-                        Loading amazing rooms...
-                    </p>
+            <>
+                <Head>
+                    {/* Basic Meta Tags */}
+                    <title>{pageSeo.title}</title>
+                    <meta name="description" content={pageSeo.description} />
+                    <meta name="keywords" content={pageSeo.keywords} />
+                    <meta name="robots" content="index, follow" />
+                    <link rel="canonical" href={canonical} />
+
+                    {/* Open Graph Meta Tags */}
+                    <meta property="og:title" content={pageSeo.title} />
+                    <meta property="og:description" content={pageSeo.description} />
+                    <meta property="og:image" content={pageSeo.ogImage} />
+                    <meta property="og:url" content={canonical} />
+                    <meta property="og:type" content="website" />
+                    <meta property="og:site_name" content="Your Hotel Name" />
+                    
+                    {/* Twitter Card Meta Tags */}
+                    <meta name="twitter:card" content="summary_large_image" />
+                    <meta name="twitter:title" content={pageSeo.title} />
+                    <meta name="twitter:description" content={pageSeo.description} />
+                    <meta name="twitter:image" content={pageSeo.ogImage} />
+
+                    {/* Structured data */}
+                    {structuredData && (
+                        <script
+                            type="application/ld+json"
+                            dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+                        />
+                    )}
+                    {breadcrumbData && (
+                        <script
+                            type="application/ld+json"
+                            dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbData) }}
+                        />
+                    )}
+                </Head>
+                <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto"></div>
+                        <p className="mt-4 text-gray-600">
+                            Loading amazing rooms...
+                        </p>
+                    </div>
                 </div>
-            </div>
+            </>
         );
     }
-
-    const structuredData = generateStructuredData();
-    const breadcrumbData = generateBreadcrumbData();
-    const canonical = pageSeo.canonical || (typeof window !== "undefined" ? window.location.href : "https://yourwebsite.com/rooms");
 
     return (
         <>

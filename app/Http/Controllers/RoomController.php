@@ -44,53 +44,91 @@ class RoomController extends Controller
     // }
 
 
+    public function show($slug)
+{
+    $room = Room::where('slug', $slug)
+        ->with(['images', 'roomType'])
+        ->firstOrFail();
+
+    // ── Pass to Inertia as-is — SEO comes entirely from meta_data.seo ─────
+    return inertia('TestingPage/RoomDetails', [
+        'room' => $room,
+    ]);
+}
+
+
     /**
      * ===============================
      *  SHOW - Display Single Room by Slug
      * ===============================
+     *
+     *
+     *
+
+     * Merges default SEO values into meta_data.seo before passing to Inertia.
+     * Saved SEO values (set via admin) always win over the defaults.
+     * The database record is NOT modified — this is view-only enrichment.
      */
-    public function show($slug)
-    {
-        $room = Room::where('slug', $slug)
-            ->with(['images', 'roomType'])
-            ->firstOrFail();
+    // public function show($slug)
+    // {
+    //     $room = Room::where('slug', $slug)
+    //         ->with(['images', 'roomType'])
+    //         ->firstOrFail();
 
-        // Set default SEO metadata without directly modifying the casted property
-        $defaultSeo = [
-            'title' => $room->name . ' - ' . config('app.name', 'Harness Zipline'),
-            'description' => $room->short_description ?? 'Experience luxury and comfort in our ' . $room->name,
-            'keywords' => $room->name . ', hotel room, accommodation, ' . ($room->roomType->name ?? ''),
-            'og_image' => $this->getDisplayImageUrl($room),
-            'og_type' => 'product',
-            'twitter_card' => 'summary_large_image',
-            'canonical' => url('/room/' . $room->slug),
-            'meta_robots' => 'index, follow',
-        ];
+    //     $displayImageUrl = $this->getDisplayImageUrl($room);
+    //     $canonicalUrl = url('/room/'.$room->slug);
+    //     $roomTypeName = optional($room->roomType)->name ?? 'Hotel Room';
+    //     $appName = config('app.name', 'Hotel');
 
-        // Get current meta_data as array
-        $currentMetaData = $room->meta_data ?: [];
-        
-        // Merge SEO data
-        if (isset($currentMetaData['seo']) && is_array($currentMetaData['seo'])) {
-            $currentMetaData['seo'] = array_merge($defaultSeo, $currentMetaData['seo']);
-        } else {
-            $currentMetaData['seo'] = $defaultSeo;
-        }
-        
-        // Create a copy of the room with modified meta_data for the view only
-        // This doesn't save to database, just for rendering
-        $roomForView = $room->replicate();
-        $roomForView->id = $room->id;
-        $roomForView->exists = true;
-        $roomForView->meta_data = $currentMetaData;
-        $roomForView->setRelations($room->getRelations());
+    //     // ── Default SEO matching the exact stored structure ────────────────────
+    //     // Structure: meta_data.seo.{ title, description, keywords[], og.{} }
+    //     $defaultSeo = [
+    //         'title' => $room->name.' | '.$appName,
+    //         'description' => $room->short_description
+    //                             ?? 'Experience comfort in our '.$room->name.' at '.$appName.'.',
+    //         'keywords' => array_filter([
+    //             $room->name,
+    //             'hotel room',
+    //             'accommodation',
+    //             $roomTypeName,
+    //             $appName,
+    //         ]),
+    //         'og' => [
+    //             'url' => $canonicalUrl,
+    //             'image' => $displayImageUrl,
+    //             'title' => $room->name.' | '.$appName,
+    //             'description' => $room->short_description
+    //                                 ?? 'Experience comfort in our '.$room->name.'.',
+    //             'type' => 'website',
+    //             'site_name' => $appName,
+    //         ],
+    //     ];
 
-        return inertia('TestingPage/RoomDetails', [
-            'room' => $roomForView,
-        ]);
-    }
+    //     // ── Merge saved SEO over defaults (saved values always win) ───────────
+    //     $metaData = $room->meta_data ?? [];
+    //     $savedSeo = $metaData['seo'] ?? [];
 
+    //     $mergedSeo = array_merge($defaultSeo, $savedSeo);
 
+    //     // Deep-merge the nested 'og' block separately so a partial saved og
+    //     // doesn't wipe all the default og keys
+    //     $mergedSeo['og'] = array_merge(
+    //         $defaultSeo['og'],
+    //         $savedSeo['og'] ?? []
+    //     );
+
+    //     // keywords: prefer saved array, else keep default array
+    //     if (empty($mergedSeo['keywords'])) {
+    //         $mergedSeo['keywords'] = $defaultSeo['keywords'];
+    //     }
+
+    //     $metaData['seo'] = $mergedSeo;
+
+    //     // ── Pass to Inertia (DB record untouched) ─────────────────────────────
+    //     return inertia('TestingPage/RoomDetails', [
+    //         'room' => array_merge($room->toArray(), ['meta_data' => $metaData]),
+    //     ]);
+    // }
 
     /**
      * ===============================
@@ -120,19 +158,16 @@ class RoomController extends Controller
         DB::beginTransaction();
 
         try {
-            // Parse meta_data if it's a JSON string
             $data = $request->except('meta_data');
-            if ($request->has('meta_data') && is_string($request->meta_data)) {
+            if ($request->filled('meta_data')) {
                 $data['meta_data'] = json_decode($request->meta_data, true);
             }
 
             $room = Room::create($data);
 
-            // Handle Images
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $index => $image) {
                     $path = $image->store('rooms', 'public');
-
                     RoomImage::create([
                         'room_id' => $room->id,
                         'image' => $path,
@@ -152,10 +187,7 @@ class RoomController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 500);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
 
@@ -189,19 +221,16 @@ class RoomController extends Controller
         DB::beginTransaction();
 
         try {
-            // Parse meta_data if it's a JSON string
             $data = $request->except('meta_data');
-            if ($request->has('meta_data') && is_string($request->meta_data)) {
+            if ($request->filled('meta_data')) {
                 $data['meta_data'] = json_decode($request->meta_data, true);
             }
 
             $room->update($data);
 
-            // Add new images (optional)
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $index => $image) {
                     $path = $image->store('rooms', 'public');
-
                     RoomImage::create([
                         'room_id' => $room->id,
                         'image' => $path,
@@ -221,16 +250,13 @@ class RoomController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 500);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
 
     /**
      * ===============================
-     *  DELETE - Delete Room
+     *  DESTROY - Delete Room
      * ===============================
      */
     public function destroy($id)
@@ -240,7 +266,6 @@ class RoomController extends Controller
         DB::beginTransaction();
 
         try {
-            // Delete images from storage
             foreach ($room->images as $image) {
                 Storage::disk('public')->delete($image->image);
                 $image->delete();
@@ -250,35 +275,29 @@ class RoomController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Room deleted successfully',
-            ]);
+            return response()->json(['success' => true, 'message' => 'Room deleted successfully']);
 
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 500);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
 
-        /**
-     * Helper function to get display image URL
+    /**
+     * ===============================
+     *  HELPER - Get Display Image URL
+     * ===============================
      */
-    private function getDisplayImageUrl($room)
+    private function getDisplayImageUrl(Room $room): string
     {
-        if (!$room->images || $room->images->isEmpty()) {
+        if (! $room->images || $room->images->isEmpty()) {
             return asset('images/logo.webp');
         }
 
-        $displayImage = $room->images->firstWhere('is_display_image', true);
-        if (!$displayImage) {
-            $displayImage = $room->images->first();
-        }
+        $displayImage = $room->images->firstWhere('is_display_image', true)
+                        ?? $room->images->first();
 
-        return asset('storage/' . $displayImage->image);
+        return asset('storage/'.$displayImage->image);
     }
 }
