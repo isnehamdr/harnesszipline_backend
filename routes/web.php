@@ -259,20 +259,11 @@ Route::middleware('auth')->group(function () {
 
    
 });
-
-
-    // Route::get('/rooms/{slug}', [RoomController::class, 'publicShow'])->name('rooms.show');
-
-
-    Route::get('/ourpdfs', [PdfController::class, 'index'])->name('ourpdfs.index');
-    Route::post('/ourpdfs', [PdfController::class, 'store'])->name('ourpdfs.store');
-    Route::put('/ourpdfs/{id}', [PdfController::class, 'update'])->name('ourpdfs.update');
-    Route::delete('/ourpdfs/{id}', [PdfController::class, 'destroy'])->name('ourpdfs.destroy');
  
 
-    Route::get('/pdf', function(){
-        return Inertia::render('PdfReader/ReactPdfViewer');
-    });
+    // Route::get('/pdf', function(){
+    //     return Inertia::render('PdfReader/ReactPdfViewer');
+    // });
 
 
     Route::get('/rooms-page', function(){
