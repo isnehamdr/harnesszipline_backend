@@ -192,14 +192,14 @@ const AdminSideBar = ({
                         <div className="space-y-1">
                             {/* Dashboard Link */}
                             <Link
-                                href="/dashboard"
+                                href="/"
                                 className={`
-                                    ${linkBaseClasses} ${linkCollapsedClasses} ${linkActiveClasses("/dashboard")}
+                                    ${linkBaseClasses} ${linkCollapsedClasses} ${linkActiveClasses("/")}
                                 `}
                             >
                                 <LayoutDashboard
                                     className={iconClasses(
-                                        isActive("/dashboard"),
+                                        isActive("/"),
                                     )}
                                 />
                                 {!isCollapsed && (

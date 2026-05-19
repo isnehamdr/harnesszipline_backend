@@ -46,7 +46,7 @@ Route::middleware('auth')->group(function () {
     // Dashboard Page Route
     // -------------------------
 
-    Route::get('/dashboard', function(){
+    Route::get('/', function(){
         return Inertia::render('AdminPages/Dashboard');
     });
 
