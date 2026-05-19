@@ -3,45 +3,81 @@ import { Link } from "@inertiajs/react";
 import React from "react";
 
 import {
+    Briefcase,
+    FileText,
     FolderTree,
     FolderKanban,
-    Map,
-    Mountain,
-    Bike,
+    Image,
+    LayoutGrid,
+    BedDouble,
+    ConciergeBell,
+    Star,
     Users,
+    ClipboardList,
+    MessageSquareMore,
 } from "lucide-react";
 
 const Dashboard = () => {
     const cards = [
         {
-            title: "Category",
-            breadcrumb: "Category",
+            title: "Home",
+            breadcrumb: "Home",
             icon: FolderTree,
-            link: "/category",
+            link: "/home",
         },
         {
-            title: "Sub Category",
-            breadcrumb: "Sub Category",
+            title: "Activity",
+            breadcrumb: "Activity",
             icon: FolderKanban,
-            link: "/sub-category",
+            link: "/activity",
         },
         {
-            title: "Tour",
-            breadcrumb: "Tour",
-            icon: Map,
-            link: "/tours",
+            title: "Blog",
+            breadcrumb: "Blog",
+            icon: FileText,
+            link: "/blog",
         },
         {
-            title: "Trekking",
-            breadcrumb: "Trekking",
-            icon: Mountain,
-            link: "/trekking",
+            title: "Job Enquiries",
+            breadcrumb: "Job Enquiries",
+            icon: MessageSquareMore,
+            link: "/job-enquiry",
         },
         {
-            title: "Activities",
-            breadcrumb: "Activities",
-            icon: Bike,
-            link: "/activities",
+            title: "Jobs",
+            breadcrumb: "Jobs",
+            icon: Briefcase,
+            link: "/jobs",
+        },
+        {
+            title: "Gallery",
+            breadcrumb: "Gallery",
+            icon: Image,
+            link: "/gallery",
+        },
+        {
+            title: "Room Types",
+            breadcrumb: "Room Types",
+            icon: LayoutGrid,
+            link: "/room-types",
+        },
+        {
+            title: "Rooms",
+            breadcrumb: "Rooms",
+            icon: BedDouble,
+            link: "/rooms",
+        },
+        {
+            title: "Services",
+            breadcrumb: "Services",
+            icon: ConciergeBell,
+            link: "/services",
+        },
+        {
+            title: "Testimonials",
+            breadcrumb: "Testimonials",
+            icon: Star,
+            link: "/testimonials",
         },
         {
             title: "User Management",
@@ -49,11 +85,17 @@ const Dashboard = () => {
             icon: Users,
             link: "/user-management",
         },
+        {
+            title: "Activity Logs",
+            breadcrumb: "Activity Logs",
+            icon: ClipboardList,
+            link: "/activity-logs",
+        },
     ];
 
     return (
         <AdminWrapper>
-            <div>
+            <div className="p-4">
                 <h2 className="text-2xl font-semibold text-gray-800 mb-10">
                     Dashboard
                 </h2>
@@ -69,7 +111,6 @@ const Dashboard = () => {
                                 className="block"
                             >
                                 <div className="bg-white rounded-2xl p-6 min-h-[180px] cursor-pointer transition-all duration-300 shadow-xl hover:-translate-y-1 hover:shadow-2xl">
-                                    {/* Card Top Breadcrumb */}
                                     <div className="flex items-center gap-2 mb-6">
                                         <span className="text-xl font-semibold text-gray-800">
                                             Home
@@ -79,7 +120,6 @@ const Dashboard = () => {
                                         </span>
                                     </div>
 
-                                    {/* Card Content */}
                                     <div className="flex items-center gap-6">
                                         <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-gray-100">
                                             <Icon

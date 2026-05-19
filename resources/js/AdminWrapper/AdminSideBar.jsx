@@ -18,6 +18,7 @@ import {
     Activity,
     Briefcase,
     BluetoothSearching,
+    ClipboardList,
 } from "lucide-react";
 
 const AdminSideBar = ({
@@ -626,7 +627,7 @@ const AdminSideBar = ({
                                     ${linkBaseClasses} ${linkCollapsedClasses} ${linkActiveClasses("/activity-logs")}
                                 `}
                             >
-                                <FiStar
+                                <ClipboardList
                                     className={iconClasses(isActive("/activity-logs"))}
                                 />
                                 {!isCollapsed && (
