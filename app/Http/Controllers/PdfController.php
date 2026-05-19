@@ -80,6 +80,8 @@ class PdfController extends Controller
                 'description' => $request->description,
             ]);
 
+            $this->logActivity("Created PDF: {$pdf->title}");
+
             return response()->json([
                 'message' => 'PDF uploaded successfully',
                 'data' => $pdf
@@ -145,6 +147,8 @@ class PdfController extends Controller
             $pdf->description = $request->description;
             $pdf->save();
 
+            $this->logActivity("Updated PDF: {$pdf->title}");
+
             return response()->json([
                 'message' => 'PDF updated successfully',
                 'data' => $pdf
@@ -178,6 +182,8 @@ class PdfController extends Controller
             }
             
             $pdf->delete();
+
+            $this->logActivity("Deleted PDF: {$pdf->title}");
 
             return response()->json([
                 'message' => 'PDF deleted successfully'

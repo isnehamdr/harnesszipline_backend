@@ -75,6 +75,8 @@ class GalleryController extends Controller
                 }
             }
 
+            $this->logActivity("Created gallery: {$gallery->name}");
+
             return response()->json([
                 'message' => 'Gallery created successfully',
                 'data' => $gallery->load('images'),
@@ -145,6 +147,8 @@ class GalleryController extends Controller
                 }
             }
 
+            $this->logActivity("Updated gallery: {$gallery->name}");
+
             return response()->json([
                 'message' => 'Gallery updated successfully',
                 'data' => $gallery->load('images'),
@@ -180,6 +184,8 @@ class GalleryController extends Controller
             }
 
             $gallery->delete();
+
+            $this->logActivity("Deleted gallery: {$gallery->name}");
 
             return response()->json([
                 'message' => 'Gallery deleted successfully',

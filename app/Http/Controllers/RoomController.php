@@ -178,6 +178,8 @@ class RoomController extends Controller
 
             DB::commit();
 
+            $this->logActivity("Created room: {$room->name}");
+
             return response()->json([
                 'success' => true,
                 'message' => 'Room created successfully',
@@ -241,6 +243,8 @@ class RoomController extends Controller
 
             DB::commit();
 
+            $this->logActivity("Updated room: {$room->name}");
+
             return response()->json([
                 'success' => true,
                 'message' => 'Room updated successfully',
@@ -274,6 +278,8 @@ class RoomController extends Controller
             $room->delete();
 
             DB::commit();
+
+            $this->logActivity("Deleted room: {$room->name}");
 
             return response()->json(['success' => true, 'message' => 'Room deleted successfully']);
 

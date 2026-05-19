@@ -1,7 +1,7 @@
-import AdminWrapper from "@/AdminComponents/AdminWrapper";
 import React, { useState, useMemo, useEffect } from "react";
 import axios from "axios";
 import MyTable from "@/MyTable/MyTable";
+import AdminWrapper from "@/AdminWrapper/AdminWrapper";
 
 const ActivityLogs = () => {
     const [activityLogs, setActivityLogs] = useState([]);
@@ -39,6 +39,7 @@ const ActivityLogs = () => {
         fetchLogs();
     }, []);
 
+    console.log("Activity Logs:", activityLogs);
     const columns = useMemo(
         () => [
             {

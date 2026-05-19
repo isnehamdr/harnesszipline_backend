@@ -620,6 +620,23 @@ const AdminSideBar = ({
                                 {isCollapsed && <Tooltip>Testimonials</Tooltip>}
                             </Link>
 
+                             <Link
+                                href="/activity-logs"
+                                className={`
+                                    ${linkBaseClasses} ${linkCollapsedClasses} ${linkActiveClasses("/activity-logs")}
+                                `}
+                            >
+                                <FiStar
+                                    className={iconClasses(isActive("/activity-logs"))}
+                                />
+                                {!isCollapsed && (
+                                    <span className="ml-3 font-medium whitespace-nowrap">
+                                        Activity Logs
+                                    </span>
+                                )}
+                                {isCollapsed && <Tooltip>Activity Logs</Tooltip>}
+                            </Link>
+
                             {/* PDF Viewer Link */}
                             {/* <Link
                                 href="/pdf"

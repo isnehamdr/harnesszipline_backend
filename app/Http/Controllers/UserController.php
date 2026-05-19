@@ -44,6 +44,8 @@ class UserController extends Controller
 
         $user = User::create($validated);
 
+        $this->logActivity("Created user: {$user->name}");
+
         return response()->json([
             'status' => true,
             'message' => 'User created successfully',
@@ -81,6 +83,8 @@ class UserController extends Controller
 
         $user->update($validated);
 
+        $this->logActivity("Updated user: {$user->name}");
+
         return response()->json([
             'status' => true,
             'message' => 'User updated successfully',
@@ -101,6 +105,8 @@ class UserController extends Controller
         }
 
         $user->delete();
+
+        $this->logActivity("Deleted user: {$user->name}");
 
         return response()->json([
             'status' => true,

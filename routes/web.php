@@ -16,6 +16,7 @@ use App\Http\Controllers\RoomTypeController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\JobTableController;
 use App\Http\Controllers\JobEnquiryController;
+use App\Http\Controllers\ActivityLogsController;
 
 
 Route::get('/', function () {
@@ -125,6 +126,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/rooms', function(){
         return Inertia::render('AdminPages/Room');
     });
+
+
+    Route::get('/activity-logs', function(){
+        return Inertia::render('AdminPages/ActivityLogs');
+    });
+
+    Route::get('/ourlogs', [ActivityLogsController::class, 'index'])->name('ourlogs.index');  
 
     // -------------------------
     // Job Page Route

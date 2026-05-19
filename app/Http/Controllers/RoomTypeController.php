@@ -43,6 +43,8 @@ class RoomTypeController extends Controller
             'is_archived' => $validated['is_archived'] ?? false,
         ]);
 
+        $this->logActivity("Created room type: {$roomType->name}");
+
         return response()->json([
             'success' => true,
             'message' => 'Room type created successfully.',
@@ -67,6 +69,8 @@ class RoomTypeController extends Controller
             'is_archived' => $validated['is_archived'] ?? $roomType->is_archived,
         ]);
 
+        $this->logActivity("Updated room type: {$roomType->name}");
+
         return response()->json([
             'success' => true,
             'message' => 'Room type updated successfully.',
@@ -82,6 +86,8 @@ class RoomTypeController extends Controller
         $roomType = RoomType::findOrFail($id);
 
         $roomType->delete();
+
+        $this->logActivity("Deleted room type: {$roomType->name}");
 
         return response()->json([
             'success' => true,

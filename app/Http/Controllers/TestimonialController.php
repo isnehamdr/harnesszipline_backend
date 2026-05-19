@@ -59,6 +59,8 @@ class TestimonialController extends Controller
                 'is_archived' => $isArchived,
             ]);
 
+            $this->logActivity("Created testimonial: {$testimonial->fullname}");
+
             \Log::info('Testimonial created successfully:', $testimonial->toArray());
 
             return response()->json([
@@ -120,6 +122,8 @@ class TestimonialController extends Controller
                 'is_archived' => $isArchived,
             ]);
 
+            $this->logActivity("Updated testimonial: {$testimonial->fullname}");
+
             \Log::info('Testimonial updated successfully:', $testimonial->toArray());
 
             return response()->json([
@@ -156,6 +160,8 @@ class TestimonialController extends Controller
         try {
             $testimonial = Testimonial::findOrFail($id);
             $testimonial->delete();
+
+            $this->logActivity("Deleted testimonial: {$testimonial->fullname}");
 
             return response()->json([
                 'status' => true,

@@ -58,6 +58,8 @@ class JobController extends Controller
             'is_archived' => $request->is_archived ?? false,
         ]);
 
+        $this->logActivity("Created job: {$job->title}");
+
         return response()->json([
             'status' => true,
             'message' => 'Job created successfully.',
@@ -103,6 +105,8 @@ class JobController extends Controller
             'is_archived'
         ]));
 
+        $this->logActivity("Updated job: {$job->title}");
+
         return response()->json([
             'status' => true,
             'message' => 'Job updated successfully.',
@@ -125,6 +129,8 @@ class JobController extends Controller
         }
 
         $job->delete();
+
+        $this->logActivity("Deleted job: {$job->title}");
 
         return response()->json([
             'status' => true,

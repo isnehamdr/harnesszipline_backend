@@ -52,6 +52,8 @@ class HomeController extends Controller
 
         $home = Home::create($data);
 
+        $this->logActivity("Created home entry #{$home->id}");
+
         return response()->json([
             'status' => true,
             'message' => 'Home created successfully',
@@ -100,6 +102,8 @@ class HomeController extends Controller
 
         $home->update($data);
 
+        $this->logActivity("Updated home entry #{$home->id}");
+
         return response()->json([
             'status' => true,
             'message' => 'Home updated successfully',
@@ -123,6 +127,8 @@ class HomeController extends Controller
         }
         
         $home->delete();
+
+        $this->logActivity("Deleted home entry #{$home->id}");
 
         return response()->json([
             'status' => true,
