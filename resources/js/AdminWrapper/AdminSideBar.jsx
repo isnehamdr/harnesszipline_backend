@@ -152,7 +152,7 @@ const AdminSideBar = ({
                     >
                         {!isCollapsed && (
                             <Link
-                                href="/dashboard"
+                                href="/"
                                 className="text-xl font-bold text-gray-800 whitespace-nowrap"
                             >
                                 <img
