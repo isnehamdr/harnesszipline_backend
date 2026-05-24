@@ -27,6 +27,57 @@ class RoomController extends Controller
         ]);
     }
 
+
+    /**
+ * ===============================
+ *  INDEX SHOW - Room Card Data
+ * ===============================
+ */
+public function indexShow()
+{
+    try {
+
+        $rooms = Room::with('images')
+            ->orderBy('order', 'asc')
+            ->get()
+            ->map(function ($room) {
+
+                // Get display image first
+                $displayImage = $room->images
+                    ->firstWhere('is_display_image', true);
+
+                // Fallback to first image
+                if (!$displayImage) {
+                    $displayImage = $room->images->first();
+                }
+
+                return [
+                    'id' => $room->id,
+                    'name' => $room->name,
+                    'slug' => $room->slug,
+                    'is_archived' => $room->is_archived,
+                    'is_featured' => $room->is_featured,
+                    'meta_data' => $room->meta_data,
+                    'first_image' => $displayImage
+                        ? asset('storage/' . $displayImage->image)
+                        : null,
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $rooms,
+        ]);
+
+    } catch (\Exception $e) {
+
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
+
     /**
      * ===============================
      *  SHOW - Display Single Room by Slug

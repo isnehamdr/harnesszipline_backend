@@ -29,6 +29,71 @@ class RoomTypeController extends Controller
     }
 
     /**
+ * ======================================
+ * INDEX SHOW - Room Type Card Data
+ * ======================================
+ */
+public function indexShow()
+{
+    try {
+
+        $roomTypes = RoomType::with([
+                'rooms.images'
+            ])
+            ->latest()
+            ->get()
+            ->map(function ($roomType) {
+
+                // Get first room
+                $room = $roomType->rooms->first();
+
+                if (!$room) {
+                    return [
+                        'id' => $roomType->id,
+                        'name' => $roomType->name,
+                        'slug' => null,
+                        'meta_data' => null,
+                        'first_image' => null,
+                    ];
+                }
+
+                // Get display image
+                $displayImage = $room->images
+                    ->firstWhere('is_display_image', true);
+
+                // Fallback first image
+                if (!$displayImage) {
+                    $displayImage = $room->images->first();
+                }
+
+                return [
+                    'id' => $roomType->id,
+                    'name' => $roomType->name,
+                    'slug' => $room->slug,
+                    'is_archived' => $roomType->is_archived,
+                    'meta_data' => $room->meta_data,
+                    'first_image' => $displayImage
+                        ? asset('storage/' . $displayImage->image)
+                        : null,
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Room type show data fetched successfully.',
+            'data' => $roomTypes
+        ]);
+
+    } catch (\Exception $e) {
+
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
+
+    /**
      * Store a newly created room type.
      */
     public function store(Request $request)

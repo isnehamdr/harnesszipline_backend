@@ -22,6 +22,30 @@ class HomeController extends Controller
     }
 
     /**
+ * Display first record with image, name, and metadata
+ */
+// public function indexShow()
+// {
+//     $home = Home::latest()->first();
+
+//     if (!$home) {
+//         return response()->json([
+//             'status' => false,
+//             'message' => 'No home entry found'
+//         ], 404);
+//     }
+
+//     return response()->json([
+//         'status' => true,
+//         'data' => [
+//             'image'         => $home->image ? Storage::disk('public')->url($home->image) : null,
+//             'name'          => $home->name,
+//             'metadata_json' => $home->metadata_json,
+//         ]
+//     ]);
+// }
+
+    /**
      * Store new record
      */
     public function store(Request $request)

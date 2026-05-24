@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title inertia>{{ config('app.name', 'Harness Zipline') }}</title>
+        <meta property="og:title" content="{{ config('app.name', 'Harness Zipline') }}" />
         <link rel="icon" href='/images/logo.webp' type='image/webp'>
 
         <!-- Fonts -->

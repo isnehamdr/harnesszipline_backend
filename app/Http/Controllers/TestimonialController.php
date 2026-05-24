@@ -28,6 +28,52 @@ class TestimonialController extends Controller
         }
     }
 
+
+    /**
+ * ======================================
+ * INDEX SHOW - Testimonial Card Data
+ * ======================================
+ */
+public function indexShow()
+{
+    try {
+
+        $testimonials = Testimonial::latest()
+            ->get()
+            ->map(function ($testimonial) {
+
+                return [
+                    'id' => $testimonial->id,
+
+                    // fullname as name
+                    'name' => $testimonial->fullname,
+                    'is_archived' => $testimonial->is_archived,
+                    'is_featured' => $testimonial->is_featured,
+
+                    'meta_data' => $testimonial->meta_data ?? null,
+
+                    'first_image' => !empty($testimonial->image)
+                        ? asset('storage/' . $testimonial->image)
+                        : null,
+                ];
+            });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Testimonials fetched successfully',
+            'data' => $testimonials
+        ]);
+
+    } catch (\Exception $e) {
+
+        \Log::error('Testimonial indexShow error: ' . $e->getMessage());
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Error: ' . $e->getMessage()
+        ], 500);
+    }
+}
     /**
      * Store new testimonial
      */

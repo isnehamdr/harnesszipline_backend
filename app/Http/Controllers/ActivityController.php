@@ -17,9 +17,9 @@ class ActivityController extends Controller
     private function log(Request $request, string $title): void
     {
         ActivityLog::create([
-            'name'       => $request->user()?->name ?? 'System',
+            'name' => $request->user()?->name ?? 'System',
             'ip_address' => $request->ip(),
-            'title'      => $title,
+            'title' => $title,
         ]);
     }
 
@@ -33,9 +33,57 @@ class ActivityController extends Controller
             ->get();
 
         return response()->json([
-            'status'  => true,
+            'status' => true,
             'message' => 'Activities fetched successfully',
-            'data'    => $activities
+            'data' => $activities,
+        ]);
+    }
+
+    /**
+     * Display a brief listing of activities (first image, name, meta_data only)
+     */
+    public function indexShow()
+    {
+        $activities = Activity::with(['images' => function ($query) {
+            $query->where('is_cover', true)
+                ->orWhere('order', 0)
+                ->orderByDesc('is_cover')
+                ->limit(1);
+        }])
+            ->where('is_archived', false)
+            ->latest()
+            ->get()
+            ->map(function ($activity) {
+                return [
+                    'id' => $activity->id,
+                    'name' => $activity->name,
+                    'slug' => $activity->slug,
+                'is_archived' => $activity->is_archived,
+                'is_featured' => $activity->is_featured,
+                    'meta_data' => $activity->meta_data,
+                    'image' => $activity->images->first()?->path
+                                        ? asset('storage/'.$activity->images->first()->path)
+                                        : null,
+                ];
+            });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Activities fetched successfully',
+            'data' => $activities,
+        ]);
+    }
+
+    public function indexShowActivitySlug($slug)
+    {
+        $activity = Activity::with('images')
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Activity fetched successfully',
+            'data' => $activity,
         ]);
     }
 
@@ -45,15 +93,15 @@ class ActivityController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'              => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'short_description' => 'nullable|string',
-            'long_description'  => 'nullable|string',
-            'base_price'        => 'required|numeric|min:0',
-            'meta_data'         => 'nullable|json',
-            'is_archived'       => 'boolean',
-            'is_featured'       => 'boolean',
-            'images.*'          => 'image|mimes:jpg,jpeg,png,webp|max:2048',
-            'cover_index'       => 'nullable|integer|min:0'
+            'long_description' => 'nullable|string',
+            'base_price' => 'required|numeric|min:0',
+            'meta_data' => 'nullable|json',
+            'is_archived' => 'boolean',
+            'is_featured' => 'boolean',
+            'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
+            'cover_index' => 'nullable|integer|min:0',
         ]);
 
         if (isset($validated['meta_data']) && is_string($validated['meta_data'])) {
@@ -70,11 +118,11 @@ class ActivityController extends Controller
                     $path = $image->store('activities', 'public');
 
                     ActivityImage::create([
-                        'activity_id'      => $activity->id,
-                        'path'             => $path,
-                        'alt_text'         => $activity->name,
-                        'order'            => $index,
-                        'is_cover'         => $request->cover_index == $index,
+                        'activity_id' => $activity->id,
+                        'path' => $path,
+                        'alt_text' => $activity->name,
+                        'order' => $index,
+                        'is_cover' => $request->cover_index == $index,
                         'is_display_image' => true,
                     ]);
                 }
@@ -87,18 +135,18 @@ class ActivityController extends Controller
             $this->logActivity("Created activity: {$activity->name}");
 
             return response()->json([
-                'status'  => true,
+                'status' => true,
                 'message' => 'Activity created successfully',
-                'data'    => $activity->load('images')
+                'data' => $activity->load('images'),
             ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Failed to create activity',
-                'error'   => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -111,15 +159,15 @@ class ActivityController extends Controller
         $activity = Activity::findOrFail($id);
 
         $validated = $request->validate([
-            'name'              => 'sometimes|required|string|max:255',
+            'name' => 'sometimes|required|string|max:255',
             'short_description' => 'nullable|string',
-            'long_description'  => 'nullable|string',
-            'base_price'        => 'sometimes|required|numeric|min:0',
-            'meta_data'         => 'nullable|json',
-            'is_archived'       => 'boolean',
-            'is_featured'       => 'boolean',
-            'images.*'          => 'image|mimes:jpg,jpeg,png,webp|max:2048',
-            'cover_index'       => 'nullable|integer|min:0'
+            'long_description' => 'nullable|string',
+            'base_price' => 'sometimes|required|numeric|min:0',
+            'meta_data' => 'nullable|json',
+            'is_archived' => 'boolean',
+            'is_featured' => 'boolean',
+            'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
+            'cover_index' => 'nullable|integer|min:0',
         ]);
 
         if (isset($validated['meta_data']) && is_string($validated['meta_data'])) {
@@ -138,11 +186,11 @@ class ActivityController extends Controller
                     $path = $image->store('activities', 'public');
 
                     ActivityImage::create([
-                        'activity_id'      => $activity->id,
-                        'path'             => $path,
-                        'alt_text'         => $activity->name,
-                        'order'            => $currentCount + $index,
-                        'is_cover'         => $request->cover_index == ($currentCount + $index),
+                        'activity_id' => $activity->id,
+                        'path' => $path,
+                        'alt_text' => $activity->name,
+                        'order' => $currentCount + $index,
+                        'is_cover' => $request->cover_index == ($currentCount + $index),
                         'is_display_image' => true,
                     ]);
                 }
@@ -155,18 +203,18 @@ class ActivityController extends Controller
             $this->logActivity("Updated activity: {$activity->name}");
 
             return response()->json([
-                'status'  => true,
+                'status' => true,
                 'message' => 'Activity updated successfully',
-                'data'    => $activity->load('images')
+                'data' => $activity->load('images'),
             ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Failed to update activity',
-                'error'   => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -196,17 +244,17 @@ class ActivityController extends Controller
             $this->logActivity("Deleted activity: {$activity->name}");
 
             return response()->json([
-                'status'  => true,
-                'message' => 'Activity deleted successfully'
+                'status' => true,
+                'message' => 'Activity deleted successfully',
             ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Failed to delete activity',
-                'error'   => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

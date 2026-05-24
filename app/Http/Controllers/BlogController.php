@@ -33,6 +33,46 @@ class BlogController extends Controller
         }
     }
 
+
+    /**
+ * Display simplified blog listing
+ */
+public function indexShow()
+{
+    try {
+        $blogs = Blog::select('id', 'title', 'image', 'meta_data')
+            ->latest()
+            ->get()
+            ->map(function ($blog) {
+                return [
+                    'id' => $blog->id,
+                    'name' => $blog->title,
+                    'slug' => $blog->slug,
+                    'image' => $blog->image
+                        ? asset('storage/' . $blog->image)
+                        : null,
+                    'meta_data' => $blog->meta_data,
+                    'is_archived' => $blog->is_archived
+                ];
+            });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Blog summary fetched successfully',
+            'data' => $blogs
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Blog indexShow error: ' . $e->getMessage());
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Error fetching blog summary',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
     /**
      * Store a newly created blog
      */

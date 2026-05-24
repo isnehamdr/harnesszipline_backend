@@ -20,6 +20,48 @@ class ServiceController extends Controller
         ]);
     }
 
+
+    /**
+ * ======================================
+ * INDEX SHOW - Service Card Data
+ * ======================================
+ */
+public function indexShow()
+{
+    try {
+
+        $services = Service::latest()
+            ->get()
+            ->map(function ($service) {
+
+                return [
+                    'id' => $service->id,
+                    'name' => $service->name,
+                    'slug' => $service->slug,
+                    'is_archived' => $service->is_archived,
+                    'is_featured' => $service->is_featured,
+                    'meta_data' => $service->meta_data,
+
+                    'first_image' => $service->image
+                        ? asset('storage/' . $service->image)
+                        : null,
+                ];
+            });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Service show data fetched successfully',
+            'data' => $services
+        ]);
+
+    } catch (\Exception $e) {
+
+        return response()->json([
+            'status' => false,
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
     /**
      * Store a newly created service
      */

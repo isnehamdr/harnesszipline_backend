@@ -24,6 +24,43 @@ class GalleryController extends Controller
         }
     }
 
+    public function indexShow()
+{
+    try {
+        $galleries = Gallery::with(['images' => function ($query) {
+                $query->orderBy('order', 'asc');
+            }])
+            ->latest()
+            ->get()
+            ->map(function ($gallery) {
+
+                $firstImage = $gallery->images->first();
+
+                return [
+                    'id' => $gallery->id,
+                    'name' => $gallery->name,
+                    'meta_data' => $gallery->meta_data,
+                    'is_archived' => $gallery->is_archived,
+                    'is_featured' => $gallery->is_featured,
+                    'first_image' => $firstImage
+                        ? asset('storage/' . $firstImage->path)
+                        : null,
+                ];
+            });
+
+        return response()->json($galleries);
+
+    } catch (\Exception $e) {
+
+        Log::error('Gallery indexShow error: ' . $e->getMessage());
+
+        return response()->json([
+            'message' => 'Failed to fetch gallery data',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
     public function store(Request $request)
     {
         try {
