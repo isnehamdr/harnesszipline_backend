@@ -14,6 +14,11 @@ class JobTableController extends Controller
      * INDEX - List All Jobs
      * ===============================
      */
+
+
+
+
+    
     public function index()
     {
         try {

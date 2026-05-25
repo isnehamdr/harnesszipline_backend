@@ -32,7 +32,7 @@ Route::get('/blogs', [BlogController::class, 'indexShow']);
 
 Route::get('/blogs/{slug}', [BlogController::class, 'indexShowBlogSlug']);
 
-Route::get('/galleries', [GalleryController::class, 'indexShow']);
+Route::get('/galleries', [GalleryController::class, 'index']);
 
 Route::get('/ourrooms', [RoomController::class, 'indexShow']);
 Route::get('/ourrooms/{slug}', [RoomController::class, 'indexShowRoomSlug']);
@@ -45,7 +45,7 @@ Route::get('/ourservice/{slug}', [ServiceController::class, 'indexShowServiceSlu
 
 Route::get('/hero', [HomeController::class, 'index']);
 
-Route::post('/ourjobenquiry', [JobEnquiryController::class, 'store']);
+Route::post('/jobenquiries', [JobEnquiryController::class, 'store']);
 
 
-Route::get('/ourjob', [JobTableController::class, 'index']);
+Route::get('/jobs', [JobTableController::class, 'index']);

@@ -62,6 +62,47 @@ public function indexShow()
         ], 500);
     }
 }
+
+
+public function indexShowServiceSlug($slug)
+{
+    try {
+        $Service = Service::where('slug', $slug)->first();
+
+        if (!$Service) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Service not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Service fetched successfully',
+            'data' => [
+                'id' => $Service->id,
+                'title' => $Service->title,
+                'slug' => $Service->slug,
+                'short_description' => $Service->short_description,
+                'long_description' => $Service->long_description,
+                'image' => $Service->image,
+                'meta_data' => $Service->meta_data,
+                'is_archived' => $Service->is_archived,
+                'created_at' => $Service->created_at,
+            ]
+        ]);
+    } catch (\Exception $e) {
+
+        Log::error('Service slug fetch error: ' . $e->getMessage());
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Error fetching Service',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
     /**
      * Store a newly created service
      */

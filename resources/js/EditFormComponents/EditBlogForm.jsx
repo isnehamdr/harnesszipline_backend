@@ -105,23 +105,36 @@
 //     // Use Effect for editing
 //     useEffect(() => {
 //         if (editingBlog) {
+//             // Format meta_data properly for display in AceEditor
+//             let metaDataString = "";
+//             if (editingBlog.meta_data) {
+//                 if (typeof editingBlog.meta_data === 'object') {
+//                     // If it's already an object, stringify it with pretty print
+//                     metaDataString = JSON.stringify(editingBlog.meta_data, null, 2);
+//                 } else {
+//                     // If it's a string, try to parse and then stringify to ensure format
+//                     try {
+//                         const parsed = JSON.parse(editingBlog.meta_data);
+//                         metaDataString = JSON.stringify(parsed, null, 2);
+//                     } catch {
+//                         // If parsing fails, use as is
+//                         metaDataString = editingBlog.meta_data;
+//                     }
+//                 }
+//             }
+
 //             setBlogForm({
 //                 title: editingBlog.title || "",
 //                 short_description: editingBlog.short_description || "",
 //                 long_description: editingBlog.long_description || "",
 //                 image: null,
-//                 meta_data: typeof editingBlog.meta_data === 'object' 
-//                     ? JSON.stringify(editingBlog.meta_data, null, 2) 
-//                     : editingBlog.meta_data || "",
+//                 meta_data: metaDataString,
 //                 is_archived: editingBlog.is_archived || false,
 //             });
             
 //             // Validate existing meta_data
-//             if (editingBlog.meta_data) {
-//                 const metaStr = typeof editingBlog.meta_data === 'object'
-//                     ? JSON.stringify(editingBlog.meta_data)
-//                     : editingBlog.meta_data;
-//                 validateJSON(metaStr);
+//             if (metaDataString) {
+//                 validateJSON(metaDataString);
 //             }
             
 //             // Reset image preview
@@ -197,17 +210,22 @@
 //         formData.append("short_description", blogForm.short_description);
 //         formData.append("long_description", blogForm.long_description);
         
-//         // Handle meta_data - send as JSON string
+//         // Handle meta_data - send as properly formatted JSON string
 //         if (blogForm.meta_data && blogForm.meta_data.trim() !== "") {
 //             try {
-//                 // Parse to validate, then stringify to ensure proper format
-//                 const parsed = JSON.parse(blogForm.meta_data);
-//                 formData.append("meta_data", JSON.stringify(parsed));
+//                 // Parse the JSON string to validate and ensure proper format
+//                 const parsedMeta = JSON.parse(blogForm.meta_data);
+//                 // Stringify without extra spaces to save space, but ensure it's valid JSON
+//                 formData.append("meta_data", JSON.stringify(parsedMeta));
 //             } catch (e) {
-//                 // If not valid JSON, create a simple JSON object
+//                 console.error("Error parsing meta_data JSON:", e);
+//                 // If parsing fails, create a simple JSON object with the raw text
 //                 const simpleMeta = { description: blogForm.meta_data };
 //                 formData.append("meta_data", JSON.stringify(simpleMeta));
 //             }
+//         } else {
+//             // If meta_data is empty, send an empty object or null based on your backend requirements
+//             formData.append("meta_data", JSON.stringify({}));
 //         }
 
 //         // Ensure is_archived is sent as boolean
@@ -610,7 +628,6 @@
 // export default EditBlogForm;
 
 
-
 import { X, Archive, Upload, Image as ImageIcon } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
@@ -644,14 +661,12 @@ const EditBlogForm = ({
     });
     const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
-    // Add useEffect to lock body scroll when form mounts
+    // Lock body scroll when form mounts
     useEffect(() => {
-        // Lock body scroll
         document.body.style.overflow = 'hidden';
         document.body.style.position = 'fixed';
         document.body.style.width = '100%';
         
-        // Cleanup function to restore scroll when component unmounts
         return () => {
             document.body.style.overflow = 'unset';
             document.body.style.position = 'static';
@@ -659,8 +674,8 @@ const EditBlogForm = ({
         };
     }, []);
 
-    // File size limits in bytes - 2MB max
-    const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
+    // File size limits - 2MB max
+    const MAX_IMAGE_SIZE = 2 * 1024 * 1024;
 
     // Quill modules configuration
     const quillModules = {
@@ -689,7 +704,7 @@ const EditBlogForm = ({
         "image",
     ];
 
-    // Validate JSON
+    // Validate JSON — only invalid if non-empty and malformed
     const validateJSON = (jsonString) => {
         if (!jsonString || jsonString.trim() === "") {
             setJsonError("");
@@ -715,22 +730,18 @@ const EditBlogForm = ({
         validateJSON(value);
     };
 
-    // Use Effect for editing
+    // Populate form when editingBlog changes
     useEffect(() => {
         if (editingBlog) {
-            // Format meta_data properly for display in AceEditor
             let metaDataString = "";
             if (editingBlog.meta_data) {
                 if (typeof editingBlog.meta_data === 'object') {
-                    // If it's already an object, stringify it with pretty print
                     metaDataString = JSON.stringify(editingBlog.meta_data, null, 2);
                 } else {
-                    // If it's a string, try to parse and then stringify to ensure format
                     try {
                         const parsed = JSON.parse(editingBlog.meta_data);
                         metaDataString = JSON.stringify(parsed, null, 2);
                     } catch {
-                        // If parsing fails, use as is
                         metaDataString = editingBlog.meta_data;
                     }
                 }
@@ -745,19 +756,19 @@ const EditBlogForm = ({
                 is_archived: editingBlog.is_archived || false,
             });
             
-            // Validate existing meta_data
             if (metaDataString) {
                 validateJSON(metaDataString);
+            } else {
+                setJsonError("");
             }
             
-            // Reset image preview
             setImagePreview(null);
             setImageFile(null);
         }
         setErrors({});
     }, [editingBlog]);
 
-    // Handle Close
+    // Reset and close form
     const handleClose = () => {
         setShowForm(false);
         setEditingBlog(null);
@@ -775,7 +786,7 @@ const EditBlogForm = ({
         setJsonError("");
     };
 
-    // Handle Update Blog
+    // API call to update blog
     const handleUpdate = async (formData, id) => {
         try {
             formData.append("_method", "PUT");
@@ -796,12 +807,12 @@ const EditBlogForm = ({
         }
     };
 
-    // Handle Submit
+    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors({});
 
-        // Validate JSON before submission
+        // Block submission if meta_data is non-empty but invalid JSON
         if (!validateJSON(blogForm.meta_data)) {
             return;
         }
@@ -814,7 +825,6 @@ const EditBlogForm = ({
 
         const formData = new FormData();
         
-        // Append all form data
         if (imageFile) {
             formData.append("image", imageFile);
         }
@@ -823,36 +833,24 @@ const EditBlogForm = ({
         formData.append("short_description", blogForm.short_description);
         formData.append("long_description", blogForm.long_description);
         
-        // Handle meta_data - send as properly formatted JSON string
+        // Only append meta_data if it has content — field is nullable
         if (blogForm.meta_data && blogForm.meta_data.trim() !== "") {
             try {
-                // Parse the JSON string to validate and ensure proper format
                 const parsedMeta = JSON.parse(blogForm.meta_data);
-                // Stringify without extra spaces to save space, but ensure it's valid JSON
                 formData.append("meta_data", JSON.stringify(parsedMeta));
             } catch (e) {
                 console.error("Error parsing meta_data JSON:", e);
-                // If parsing fails, create a simple JSON object with the raw text
-                const simpleMeta = { description: blogForm.meta_data };
-                formData.append("meta_data", JSON.stringify(simpleMeta));
+                // validateJSON already caught this above, so this shouldn't be reached
             }
-        } else {
-            // If meta_data is empty, send an empty object or null based on your backend requirements
-            formData.append("meta_data", JSON.stringify({}));
         }
+        // If empty, don't append meta_data — backend will treat it as null
 
-        // Ensure is_archived is sent as boolean
         formData.append('is_archived', blogForm.is_archived ? '1' : '0');
-        
-        // Add _method field for PUT
         formData.append("_method", "PUT");
         
         try {
             setSubmitting(true);
-
-            // Update existing blog
             await handleUpdate(formData, editingBlog.id);
-            
             handleClose();
         } catch (error) {
             console.log("Error saving data", error);
@@ -867,17 +865,15 @@ const EditBlogForm = ({
         }
     };
 
-    // Handle image change
+    // Handle image file selection
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            // Check if it's an image
             if (!file.type.startsWith("image/")) {
                 alert("Please select an image file");
                 return;
             }
 
-            // Check file size - 2MB max
             if (file.size > MAX_IMAGE_SIZE) {
                 alert("Image exceeds 2MB limit. Please choose a smaller image.");
                 return;
@@ -889,19 +885,17 @@ const EditBlogForm = ({
                 image: file
             }));
 
-            // Create preview
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImagePreview(reader.result);
             };
             reader.readAsDataURL(file);
 
-            // Clear image errors
             setErrors(prev => ({ ...prev, image: null }));
         }
     };
 
-    // Remove image
+    // Remove selected image
     const removeImage = () => {
         setImageFile(null);
         setImagePreview(null);
@@ -911,20 +905,19 @@ const EditBlogForm = ({
         }));
     };
 
-    // Handle change for other fields
+    // Handle text input changes
     const handleChange = (e) => {
         const { name, value } = e.target;
         setBlogForm((prev) => ({
             ...prev,
             [name]: value,
         }));
-        // Clear error for this field when user starts typing
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: null }));
         }
     };
 
-    // Handle Quill change
+    // Handle Quill rich text change
     const handleQuillChange = (content) => {
         setBlogForm((prev) => ({
             ...prev,
@@ -932,7 +925,7 @@ const EditBlogForm = ({
         }));
     };
 
-    // Toggle archived
+    // Toggle archived status
     const toggleArchived = () => {
         setBlogForm((prev) => ({
             ...prev,
@@ -1166,7 +1159,7 @@ const EditBlogForm = ({
                             </p>
                         )}
                         <p className="mt-1 text-xs text-gray-500">
-                            Enter valid JSON format. Example: {"{}"}
+                            Optional. Leave empty or enter valid JSON. Example: {"{}"}
                         </p>
                     </div>
 
@@ -1200,7 +1193,6 @@ const EditBlogForm = ({
                         </div>
                     </div>
 
-                    {/* Hidden input to keep the value in form submission */}
                     <input
                         type="hidden"
                         name="is_archived"
@@ -1220,7 +1212,7 @@ const EditBlogForm = ({
                         <button
                             type="submit"
                             className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors flex items-center gap-2 disabled:opacity-50"
-                            disabled={submitting || jsonError !== ""}
+                            disabled={submitting}
                         >
                             {submitting ? (
                                 <>

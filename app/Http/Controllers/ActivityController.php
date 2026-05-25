@@ -43,36 +43,34 @@ class ActivityController extends Controller
      * Display a brief listing of activities (first image, name, meta_data only)
      */
     public function indexShow()
-    {
-        $activities = Activity::with(['images' => function ($query) {
-            $query->where('is_cover', true)
-                ->orWhere('order', 0)
-                ->orderByDesc('is_cover')
-                ->limit(1);
-        }])
-            ->where('is_archived', false)
-            ->latest()
-            ->get()
-            ->map(function ($activity) {
-                return [
-                    'id' => $activity->id,
-                    'name' => $activity->name,
-                    'slug' => $activity->slug,
+{
+    $activities = Activity::with(['images' => function ($query) {
+        $query->orderByDesc('is_cover')
+              ->orderBy('order');
+    }])
+        // ->where('is_archived', 1)
+        ->latest()
+        ->get()
+        ->map(function ($activity) {
+            $firstImage = $activity->images->first();
+
+            return [
+                'id'          => $activity->id,
+                'name'        => $activity->name,
+                'slug'        => $activity->slug,
                 'is_archived' => $activity->is_archived,
                 'is_featured' => $activity->is_featured,
-                    'meta_data' => $activity->meta_data,
-                    'image' => $activity->images->first()?->path
-                                        ? asset('storage/'.$activity->images->first()->path)
-                                        : null,
-                ];
-            });
+                'meta_data'   => $activity->meta_data,
+                'image' => $firstImage?->path ?? null,
+            ];
+        });
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Activities fetched successfully',
-            'data' => $activities,
-        ]);
-    }
+    return response()->json([
+        'status'  => true,
+        'message' => 'Activities fetched successfully',
+        'data'    => $activities,
+    ]);
+}
 
     public function indexShowActivitySlug($slug)
     {

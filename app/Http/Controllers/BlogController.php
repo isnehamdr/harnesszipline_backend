@@ -40,7 +40,7 @@ class BlogController extends Controller
 public function indexShow()
 {
     try {
-        $blogs = Blog::select('id', 'title', 'image', 'meta_data')
+        $blogs = Blog::select('id', 'title', 'slug', 'image', 'meta_data', 'is_archived')
             ->latest()
             ->get()
             ->map(function ($blog) {
@@ -48,9 +48,7 @@ public function indexShow()
                     'id' => $blog->id,
                     'name' => $blog->title,
                     'slug' => $blog->slug,
-                    'image' => $blog->image
-                        ? asset('storage/' . $blog->image)
-                        : null,
+                    'image' => $blog->image, // FIXED
                     'meta_data' => $blog->meta_data,
                     'is_archived' => $blog->is_archived
                 ];
@@ -72,6 +70,48 @@ public function indexShow()
         ], 500);
     }
 }
+
+
+
+public function indexShowBlogSlug($slug)
+{
+    try {
+        $blog = Blog::where('slug', $slug)->first();
+
+        if (!$blog) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Blog not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Blog fetched successfully',
+            'data' => [
+                'id' => $blog->id,
+                'title' => $blog->title,
+                'slug' => $blog->slug,
+                'short_description' => $blog->short_description,
+                'long_description' => $blog->long_description,
+                'image' => $blog->image,
+                'meta_data' => $blog->meta_data,
+                'is_archived' => $blog->is_archived,
+                'created_at' => $blog->created_at,
+            ]
+        ]);
+    } catch (\Exception $e) {
+
+        Log::error('Blog slug fetch error: ' . $e->getMessage());
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Error fetching blog',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
 
     /**
      * Store a newly created blog
