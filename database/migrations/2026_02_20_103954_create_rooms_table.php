@@ -21,7 +21,6 @@ return new class extends Migration
             $table->decimal('price', 10, 2)->default(0);
             $table->text('short_description')->nullable();
             $table->longText('long_description')->nullable();
-            $table->foreignId('room_type_id')->constrained()->cascadeOnDelete();
             $table->string('refrence_id')->nullable();
             $table->json('meta_data')->nullable();
             $table->boolean('is_archived')->default(false);

@@ -1,5 +1,5 @@
 // import axios from "axios";
-// import { X, Star, Archive, Upload, Image as ImageIcon, Code } from "lucide-react";
+// import { X, Star, Archive, Upload, Image as ImageIcon } from "lucide-react";
 // import React, { useEffect, useState } from "react";
 // import ReactQuill from "react-quill";
 // import "react-quill/dist/quill.snow.css";
@@ -11,11 +11,8 @@
 // import "ace-builds/src-noconflict/ext-language_tools";
 
 // const AddRoomForm = ({
-//     editingRoom,
 //     setShowForm,
-//     handleUpdate,
 //     setReloadTrigger,
-//     setEditingRoom,
 //     reloadTrigger
 // }) => {
 //     const [submitting, setSubmitting] = useState(false);
@@ -119,85 +116,6 @@
 //         }
 //     };
 
-//     // Use Effect for editing - FIXED: Load existing images into previews
-//     useEffect(() => {
-//         if (editingRoom) {
-//             const metaDataValue = editingRoom.meta_data 
-//                 ? (typeof editingRoom.meta_data === 'object' 
-//                     ? JSON.stringify(editingRoom.meta_data, null, 2)
-//                     : editingRoom.meta_data)
-//                 : "";
-                
-//             setRoomForm({
-//                 name: editingRoom.name || "",
-//                 order: editingRoom.order || "",
-//                 no_of_room: editingRoom.no_of_room || 0,
-//                 no_of_children: editingRoom.no_of_children || 0,
-//                 no_of_adult: editingRoom.no_of_adult || 0,
-//                 price: editingRoom.price || "",
-//                 refrence_id: editingRoom.refrence_id || "",
-//                 short_description: editingRoom.short_description || "",
-//                 long_description: editingRoom.long_description || "",
-//                 meta_data: metaDataValue,
-//                 is_archived: editingRoom.is_archived || false,
-//                 is_featured: editingRoom.is_featured || false,
-//                 room_type_id: editingRoom.room_type_id || "",
-//                 images: [],
-//                 display_image_index: editingRoom.display_image_index || 0
-//             });
-            
-//             // Validate existing meta_data
-//             if (editingRoom.meta_data) {
-//                 const metaStr = typeof editingRoom.meta_data === 'object'
-//                     ? JSON.stringify(editingRoom.meta_data)
-//                     : editingRoom.meta_data;
-//                 validateJSON(metaStr);
-//             }
-            
-//             // Load existing images into previews
-//             if (editingRoom.images && editingRoom.images.length > 0) {
-//                 const existingPreviews = editingRoom.images.map(img => ({
-//                     url: `/storage/${img.image}`,
-//                     isExisting: true,
-//                     id: img.id,
-//                     imagePath: img.image
-//                 }));
-//                 setImagePreviews(existingPreviews);
-//             } else {
-//                 setImagePreviews([]);
-//             }
-            
-//             setImageFiles([]); // Clear any selected files
-//         } else {
-//             resetForm();
-//         }
-//     }, [editingRoom]);
-
-//     // Reset form function
-//     const resetForm = () => {
-//         setRoomForm({
-//             name: "",
-//             order: "",
-//             no_of_room: 0,
-//             no_of_children: 0,
-//             no_of_adult: 0,
-//             price: "",
-//             refrence_id: "",
-//             short_description: "",
-//             long_description: "",
-//             meta_data: "",
-//             is_archived: false,
-//             is_featured: false,
-//             room_type_id: "",
-//             images: [],
-//             display_image_index: 0
-//         });
-//         setImagePreviews([]);
-//         setImageFiles([]);
-//         setValidationErrors({});
-//         setJsonError("");
-//     };
-
 //     // For fetching the room type data - ONLY NON-ARCHIVED
 //     useEffect(() => {
 //         const fetchRoomTypes = async () => {
@@ -230,6 +148,31 @@
 //         fetchRoomTypes();
 //     }, [reloadTrigger]);
 
+//     // Reset form function
+//     const resetForm = () => {
+//         setRoomForm({
+//             name: "",
+//             order: "",
+//             no_of_room: 0,
+//             no_of_children: 0,
+//             no_of_adult: 0,
+//             price: "",
+//             refrence_id: "",
+//             short_description: "",
+//             long_description: "",
+//             meta_data: "",
+//             is_archived: false,
+//             is_featured: false,
+//             room_type_id: "",
+//             images: [],
+//             display_image_index: 0
+//         });
+//         setImagePreviews([]);
+//         setImageFiles([]);
+//         setValidationErrors({});
+//         setJsonError("");
+//     };
+
 //     // Handle Create Room
 //     const handleCreate = async (formData) => {
 //         try {
@@ -246,28 +189,6 @@
 //                 throw error;
 //             }
 //             console.log("Error creating room", error);
-//             throw error;
-//         }
-//     };
-
-//     // Handle Update Room
-//     const defaultHandleUpdate = async (formData, id) => {
-//         try {
-//             // For Laravel, use POST with _method=PUT
-//             formData.append('_method', 'PUT');
-//             await axios.post(route("ourroom.update", id), formData, {
-//                 headers: {
-//                     "Content-Type": "multipart/form-data",
-//                 },
-//             });
-//             setReloadTrigger((prev) => !prev);
-//         } catch (error) {
-//             if (error.response && error.response.status === 422) {
-//                 // Validation errors
-//                 setValidationErrors(error.response.data.errors || {});
-//                 throw error;
-//             }
-//             console.log("Error updating room", error);
 //             throw error;
 //         }
 //     };
@@ -356,21 +277,11 @@
 
 //         try {
 //             setSubmitting(true);
-
-//             if (editingRoom) {
-//                 if (handleUpdate) {
-//                     await handleUpdate(formData, editingRoom.id);
-//                 } else {
-//                     await defaultHandleUpdate(formData, editingRoom.id);
-//                 }
-//             } else {
-//                 await handleCreate(formData);
-//             }
+//             await handleCreate(formData);
             
 //             // Reset form and close
 //             resetForm();
 //             setShowForm(false);
-//             setEditingRoom(null);
 //         } catch (error) {
 //             console.log("Error saving data", error);
             
@@ -429,24 +340,13 @@
 //         }
 //     };
 
-//     // Remove image - MODIFIED to handle both new and existing images
+//     // Remove image
 //     const removeImage = (index) => {
-//         const previewToRemove = imagePreviews[index];
-        
-//         if (previewToRemove.isExisting) {
-//             // This is an existing image from the database
-//             if (window.confirm('Remove this image? This action cannot be undone.')) {
-//                 // TODO: Add API call to delete the image if needed
-//                 setImagePreviews(prev => prev.filter((_, i) => i !== index));
-//             }
-//         } else {
-//             // This is a newly uploaded image
-//             setImageFiles(prev => prev.filter((_, i) => i !== index));
-//             setImagePreviews(prev => prev.filter((_, i) => i !== index));
-//         }
+//         setImageFiles(prev => prev.filter((_, i) => i !== index));
+//         setImagePreviews(prev => prev.filter((_, i) => i !== index));
 //     };
 
-//     // Handle change for regular inputs - FIXED: Allow clearing number fields
+//     // Handle change for regular inputs - Allow clearing number fields
 //     const handleChange = (e) => {
 //         const { name, value, type, checked } = e.target;
         
@@ -468,7 +368,6 @@
 //             // For number inputs, allow empty string temporarily
 //             if (['no_of_room', 'no_of_children', 'no_of_adult', 'price'].includes(name)) {
 //                 // If value is empty string, set as empty string (temporarily)
-//                 // If value is not empty, set as the value (will be converted to number by input type="number")
 //                 setRoomForm((prev) => ({
 //                     ...prev,
 //                     [name]: value
@@ -520,13 +419,12 @@
 //                 {/* Header */}
 //                 <div className="flex justify-between items-center mb-6">
 //                     <h2 className="text-2xl font-bold text-gray-800">
-//                         {editingRoom ? "Edit Room" : "Add New Room"}
+//                         Add New Room
 //                     </h2>
 //                     <button
 //                         type="button"
 //                         onClick={() => {
 //                             setShowForm(false);
-//                             setEditingRoom(null);
 //                         }}
 //                         className="p-2 hover:bg-gray-100 rounded-full transition-colors"
 //                     >
@@ -803,11 +701,6 @@
 //                                                         e.target.src = "https://via.placeholder.com/96?text=Error";
 //                                                     }}
 //                                                 />
-//                                                 {preview.isExisting && (
-//                                                     <span className="absolute top-1 left-1 bg-green-500 text-white text-xs px-1 rounded">
-//                                                         Existing
-//                                                     </span>
-//                                                 )}
 //                                                 <button
 //                                                     type="button"
 //                                                     onClick={() => removeImage(index)}
@@ -821,7 +714,7 @@
 //                                     </div>
 //                                     <div className="space-y-2">
 //                                         <p className="text-sm text-gray-600">
-//                                             {imagePreviews.length} image(s) total
+//                                             {imagePreviews.length} image(s) selected
 //                                         </p>
 //                                         <p className="text-sm text-gray-500">
 //                                             Click to add more images
@@ -857,7 +750,7 @@
 //                         )}
 //                     </div>
 
-//                     {/* Meta Data with Ace Editor - Simplified like AddHomeForm */}
+//                     {/* Meta Data with Ace Editor */}
 //                     <div>
 //                         <label className="block text-sm font-medium text-gray-700 mb-1">
 //                             Meta Data (JSON)
@@ -973,7 +866,6 @@
 //                             type="button"
 //                             onClick={() => {
 //                                 setShowForm(false);
-//                                 setEditingRoom(null);
 //                             }}
 //                             className="px-4 py-2 border border-gray-300 rounded-full text-gray-700 hover:bg-gray-50 transition-colors"
 //                             disabled={submitting}
@@ -988,10 +880,10 @@
 //                             {submitting ? (
 //                                 <>
 //                                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-//                                     {editingRoom ? "Updating..." : "Saving..."}
+//                                     Saving...
 //                                 </>
 //                             ) : (
-//                                 editingRoom ? "Update Room" : "Add Room"
+//                                 "Add Room"
 //                             )}
 //                         </button>
 //                     </div>
@@ -1002,7 +894,6 @@
 // };
 
 // export default AddRoomForm;
-
 
 
 import axios from "axios";
@@ -1023,7 +914,6 @@ const AddRoomForm = ({
     reloadTrigger
 }) => {
     const [submitting, setSubmitting] = useState(false);
-    const [allRoomTypes, setAllRoomTypes] = useState([]);
     const [validationErrors, setValidationErrors] = useState({});
     const [imagePreviews, setImagePreviews] = useState([]);
     const [imageFiles, setImageFiles] = useState([]);
@@ -1041,7 +931,6 @@ const AddRoomForm = ({
         meta_data: "",
         is_archived: false,
         is_featured: false,
-        room_type_id: "",
         images: [],
         display_image_index: 0
     });
@@ -1123,38 +1012,6 @@ const AddRoomForm = ({
         }
     };
 
-    // For fetching the room type data - ONLY NON-ARCHIVED
-    useEffect(() => {
-        const fetchRoomTypes = async () => {
-            try {
-                const response = await axios.get(route("ourroomtype.index"), {
-                    params: {
-                        is_archived: false
-                    }
-                });
-                
-                const responseData = response.data;
-                let roomTypes = [];
-                
-                if (responseData.data && Array.isArray(responseData.data)) {
-                    roomTypes = responseData.data;
-                } else if (Array.isArray(responseData)) {
-                    roomTypes = responseData;
-                }
-                
-                const filteredRoomTypes = roomTypes.filter(type => !type.is_archived);
-                setAllRoomTypes(filteredRoomTypes);
-                setValidationErrors({}); // Clear errors when room types load
-                
-            } catch (error) {
-                console.error("Error fetching room types:", error);
-                setAllRoomTypes([]);
-            }
-        };
-
-        fetchRoomTypes();
-    }, [reloadTrigger]);
-
     // Reset form function
     const resetForm = () => {
         setRoomForm({
@@ -1170,7 +1027,6 @@ const AddRoomForm = ({
             meta_data: "",
             is_archived: false,
             is_featured: false,
-            room_type_id: "",
             images: [],
             display_image_index: 0
         });
@@ -1222,7 +1078,7 @@ const AddRoomForm = ({
         const formData = new FormData();
         
         // Check if all required fields are filled
-        const requiredFields = ['name', 'no_of_room', 'no_of_adult', 'no_of_children', 'price', 'room_type_id'];
+        const requiredFields = ['name', 'no_of_room', 'no_of_adult', 'no_of_children', 'price'];
         for (const field of requiredFields) {
             // Check if value is undefined, null, or empty string (but allow 0)
             if (roomForm[field] === undefined || roomForm[field] === null || roomForm[field] === '') {
@@ -1481,42 +1337,6 @@ const AddRoomForm = ({
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Room Type<span className="text-red-500">*</span>
-                            </label>
-                            <select
-                                name="room_type_id"
-                                value={roomForm.room_type_id}
-                                onChange={handleChange}
-                                required
-                                disabled={submitting || allRoomTypes.length === 0}
-                                className={`w-full px-3 py-2 border ${
-                                    validationErrors.room_type_id ? 'border-red-500' : 'border-gray-300'
-                                } rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent`}
-                            >
-                                <option value="">Select Room Type</option>
-                                {allRoomTypes.length > 0 ? (
-                                    allRoomTypes.map((type) => (
-                                        <option key={type.id} value={type.id}>
-                                            {type.name}
-                                        </option>
-                                    ))
-                                ) : (
-                                    <option value="" disabled>No room types available</option>
-                                )}
-                            </select>
-                            {getFieldError('room_type_id')}
-                            {allRoomTypes.length === 0 && (
-                                <p className="text-xs text-amber-600 mt-1">
-                                    No active room types found. Please create a room type first.
-                                </p>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Second Row */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Order
                             </label>
                             <input
@@ -1529,7 +1349,10 @@ const AddRoomForm = ({
                                 disabled={submitting}
                             />
                         </div>
+                    </div>
 
+                    {/* Second Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Reference ID
@@ -1881,7 +1704,7 @@ const AddRoomForm = ({
                         </button>
                         <button
                             type="submit"
-                            disabled={submitting || jsonError !== "" || allRoomTypes.length === 0}
+                            disabled={submitting || jsonError !== ""}
                             className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors flex items-center gap-2 disabled:opacity-50"
                         >
                             {submitting ? (

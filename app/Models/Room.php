@@ -9,7 +9,7 @@ class Room extends Model
 {
     //
     protected $fillable = [
-        'name', 'order', 'no_of_room', 'no_of_children', 'no_of_adult', 'price', 'short_description', 'long_description', 'room_type_id', 'refrence_id', 'meta_data', 'is_archived', 'is_featured', 'slug',
+        'name', 'order', 'no_of_room', 'no_of_children', 'no_of_adult', 'price', 'short_description', 'long_description', 'refrence_id', 'meta_data', 'is_archived', 'is_featured', 'slug',
     ];
 
     protected $casts = [
