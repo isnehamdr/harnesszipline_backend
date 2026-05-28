@@ -8,6 +8,8 @@ use App\Http\Controllers\RoomController;
 use App\Http\Controllers\RoomTypeController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\JobEnquiryController;
+use App\Http\Controllers\JobTableController;
+use App\Http\Controllers\TestimonialController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -44,6 +46,9 @@ Route::get('/ourservice', [ServiceController::class, 'indexShow']);
 Route::get('/ourservice/{slug}', [ServiceController::class, 'indexShowServiceSlug']);
 
 Route::get('/hero', [HomeController::class, 'index']);
+
+Route::get('/testimonials', [TestimonialController::class, 'index']);
+
 
 Route::post('/jobenquiries', [JobEnquiryController::class, 'store']);
 

@@ -32,21 +32,29 @@ class RoomController extends Controller
  * ===============================
  *  INDEX SHOW - Room Card Data
  * ===============================
+ *//**
+ * ===============================
+ * INDEX SHOW
+ * ===============================
+ */
+/**
+ * ===============================
+ * INDEX SHOW
+ * ===============================
  */
 public function indexShow()
 {
     try {
 
-        $rooms = Room::with('images')
+        $rooms = Room::with(['images', 'roomType'])
+            ->where('is_archived', true)
             ->orderBy('order', 'asc')
             ->get()
             ->map(function ($room) {
 
-                // Get display image first
                 $displayImage = $room->images
                     ->firstWhere('is_display_image', true);
 
-                // Fallback to first image
                 if (!$displayImage) {
                     $displayImage = $room->images->first();
                 }
@@ -55,12 +63,31 @@ public function indexShow()
                     'id' => $room->id,
                     'name' => $room->name,
                     'slug' => $room->slug,
+                    'price' => $room->price,
+                    'no_of_room' => $room->no_of_room,
+                    'no_of_children' => $room->no_of_children,
+                    'no_of_adult' => $room->no_of_adult,
+
+                    'short_description' => $room->short_description,
+                    'long_description' => $room->long_description,
+
                     'is_archived' => $room->is_archived,
                     'is_featured' => $room->is_featured,
+
                     'meta_data' => $room->meta_data,
+                    'room_type' => $room->roomType,
+
                     'first_image' => $displayImage
-                        ? asset('storage/' . $displayImage->image)
+                        ? asset('storage/' . ltrim($displayImage->image, '/'))
                         : null,
+
+                    'images' => $room->images->map(function ($image) {
+                        return [
+                            'id' => $image->id,
+                            'image' => asset('storage/' . ltrim($image->image, '/')),
+                            'is_display_image' => $image->is_display_image,
+                        ];
+                    }),
                 ];
             });
 
@@ -78,6 +105,71 @@ public function indexShow()
     }
 }
 
+
+/**
+ * ===============================
+ * INDEX SHOW ROOM SLUG
+ * ===============================
+ */
+public function indexShowRoomSlug($slug)
+{
+    try {
+
+        $room = Room::with(['images', 'roomType'])
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        $displayImage = $room->images
+            ->firstWhere('is_display_image', true);
+
+        if (!$displayImage) {
+            $displayImage = $room->images->first();
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+
+                'id' => $room->id,
+                'name' => $room->name,
+                'slug' => $room->slug,
+
+                'price' => $room->price,
+                'no_of_room' => $room->no_of_room,
+                'no_of_children' => $room->no_of_children,
+                'no_of_adult' => $room->no_of_adult,
+
+                'short_description' => $room->short_description,
+                'long_description' => $room->long_description,
+
+                'is_archived' => $room->is_archived,
+                'is_featured' => $room->is_featured,
+
+                'meta_data' => $room->meta_data,
+                'room_type' => $room->roomType,
+
+                'first_image' => $displayImage
+                    ? asset('storage/' . ltrim($displayImage->image, '/'))
+                    : null,
+
+                'images' => $room->images->map(function ($image) {
+                    return [
+                        'id' => $image->id,
+                        'image' => asset('storage/' . ltrim($image->image, '/')),
+                        'is_display_image' => $image->is_display_image,
+                    ];
+                }),
+            ],
+        ]);
+
+    } catch (\Exception $e) {
+
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
     /**
      * ===============================
      *  SHOW - Display Single Room by Slug

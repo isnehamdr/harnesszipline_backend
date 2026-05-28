@@ -819,8 +819,6 @@
 
 // export default AddTestimonialForm;
 
-
-
 import { X, Star, Archive } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
@@ -833,7 +831,6 @@ const AddTestimonialForm = ({ setShowForm, setReloadTrigger }) => {
     const [testimonialForm, setTestimonialForm] = useState({
         fullname: "",
         address: "",
-        short_description: "",
         long_description: "",
         is_featured: false,
         is_archived: false,
@@ -909,10 +906,6 @@ const AddTestimonialForm = ({ setShowForm, setReloadTrigger }) => {
         
         if (testimonialForm.address) {
             formData.append('address', testimonialForm.address.trim());
-        }
-        
-        if (testimonialForm.short_description) {
-            formData.append('short_description', testimonialForm.short_description.trim());
         }
         
         if (testimonialForm.long_description) {
@@ -1055,27 +1048,6 @@ const AddTestimonialForm = ({ setShowForm, setReloadTrigger }) => {
                                 <p className="mt-1 text-xs text-red-500">{errors.address[0]}</p>
                             )}
                         </div>
-                    </div>
-
-                    {/* Short Description */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Short Description
-                        </label>
-                        <textarea
-                            name="short_description"
-                            value={testimonialForm.short_description}
-                            onChange={handleChange}
-                            rows="3"
-                            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none ${
-                                errors.short_description ? 'border-red-500' : 'border-gray-300'
-                            }`}
-                            placeholder="Enter a brief description"
-                            disabled={submitting}
-                        />
-                        {errors.short_description && (
-                            <p className="mt-1 text-xs text-red-500">{errors.short_description[0]}</p>
-                        )}
                     </div>
 
                     {/* Long Description with React Quill */}

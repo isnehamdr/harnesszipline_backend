@@ -431,137 +431,26 @@ const AdminSideBar = ({
                                 {isCollapsed && <Tooltip>Gallery</Tooltip>}
                             </Link>
 
-                            {/* Room Dropdown (formerly Task Management) */}
-                            {!isCollapsed ? (
-                                // Expanded view
-                                <div className="space-y-1">
-                                    <button
-                                        onClick={toggleTaskManagement}
-                                        className={dropdownButtonClasses(
-                                            isGroupActive([
-                                                "/room-types",
-                                                "/rooms",
-                                            ]),
-                                        )}
-                                    >
-                                        <div className="flex items-center">
-                                            <FiHome
-                                                className={iconClasses(
-                                                    isGroupActive([
-                                                        "/room-types",
-                                                        "/rooms",
-                                                    ]),
-                                                )}
-                                            />
-                                            <span className="ml-3 font-medium whitespace-nowrap">
-                                                Room
-                                            </span>
-                                        </div>
-                                        {isTaskManagementOpen ? (
-                                            <FiChevronDown className="w-4 h-4 transition-transform duration-200" />
-                                        ) : (
-                                            <FiChevronRight className="w-4 h-4 transition-transform duration-200" />
-                                        )}
-                                    </button>
-
-                                    {/* Dropdown Content - Using colored dots like before */}
-                                    {isTaskManagementOpen && (
-                                        <div className="ml-9 space-y-0.5">
-                                            {/* Room Types Link */}
-                                            <Link
-                                                href="/room-types"
-                                                className={`
-                                                    flex items-center p-2.5 rounded-lg transition-colors duration-200
-                                                    ${isActive("/room-types") ? "bg-blue-100 text-blue-700 font-medium" : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"}
-                                                `}
-                                            >
-                                                <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mr-3"></div>
-                                                <span className="text-sm whitespace-nowrap">
-                                                    Room Types
-                                                </span>
-                                            </Link>
-
-                                            {/* Rooms Link */}
-                                            <Link
-                                                href="/rooms"
-                                                className={`
-                                                    flex items-center p-2.5 rounded-lg transition-colors duration-200
-                                                    ${isActive("/rooms") ? "bg-blue-100 text-blue-700 font-medium" : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"}
-                                                `}
-                                            >
-                                                <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mr-3"></div>
-                                                <span className="text-sm whitespace-nowrap">
-                                                    Rooms
-                                                </span>
-                                            </Link>                                   
-                                        </div>
+                          <Link
+                                href="/rooms"
+                                className={`
+                                    ${linkBaseClasses} ${linkCollapsedClasses} ${linkActiveClasses("/rooms")}
+                                `}
+                            >
+                                <FiUsers
+                                    className={iconClasses(
+                                        isActive("/rooms"),
                                     )}
-                                </div>
-                            ) : (
-                                // Collapsed view with hover dropdown
-                                <div
-                                    className="relative"
-                                    onMouseEnter={handleTaskMouseEnter}
-                                    onMouseLeave={handleTaskMouseLeave}
-                                >
-                                    <button
-                                        onClick={() => {
-                                            if (isCollapsed) {
-                                                setIsTaskHovered(
-                                                    !isTaskHovered,
-                                                );
-                                            }
-                                        }}
-                                        className={`
-                                            flex items-center justify-center w-full p-3 rounded-lg transition-colors duration-200 group
-                                            ${isGroupActive(["/room-types", "/rooms"]) ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"}
-                                        `}
-                                    >
-                                        <FiHome
-                                            className={iconClasses(
-                                                isGroupActive([
-                                                    "/room-types",
-                                                    "/rooms",
-                                                ]),
-                                            )}
-                                        />
-                                    </button>
-
-                                    {/* Collapsed dropdown - appears on hover - Using colored dots like before */}
-                                    {isTaskHovered && (
-                                        <div
-                                            className="fixed left-8 top-80 ml-4 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[160px] py-1"
-                                            onMouseEnter={handleTaskMouseEnter}
-                                            onMouseLeave={handleTaskMouseLeave}
-                                        >
-                                            <Link
-                                                href="/room-types"
-                                                className={`
-                                                    flex items-center px-3 py-2.5 text-sm transition-colors duration-200
-                                                    ${isActive("/room-types") ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"}
-                                                `}
-                                            >
-                                                {/* <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mr-3"></div> */}
-                                                <span className="whitespace-nowrap">
-                                                    Room Types
-                                                </span>
-                                            </Link>
-                                            <Link
-                                                href="/rooms"
-                                                className={`
-                                                    flex items-center px-3 py-2.5 text-sm transition-colors duration-200
-                                                    ${isActive("/rooms") ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"}
-                                                `}
-                                            >
-                                                {/* <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mr-3"></div> */}
-                                                <span className="whitespace-nowrap">
-                                                    Rooms
-                                                </span>
-                                            </Link>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                                />
+                                {!isCollapsed && (
+                                    <span className="ml-3 font-medium whitespace-nowrap">
+                                        Rooms
+                                    </span>
+                                )}
+                                {isCollapsed && (
+                                    <Tooltip>Rooms</Tooltip>
+                                )}
+                            </Link>
 
                             {/* User Management Link */}
                             <Link

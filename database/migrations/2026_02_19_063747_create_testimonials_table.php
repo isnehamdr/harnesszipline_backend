@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('fullname');
             $table->string('address');
-            $table->string('short_description');
+            $table->string('short_description') ->nullable();
             $table->longText('long_description');
             $table->boolean('is_featured')->default(false);
             $table->boolean('is_archived')->default(false);
